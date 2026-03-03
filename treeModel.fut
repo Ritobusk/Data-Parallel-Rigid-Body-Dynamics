@@ -11,22 +11,21 @@ def matmul [n][m][p] 'a
 def matmul_f64 = matmul (+) (*) (0f64)
 
 def matadd [n][m] 'a
-           (add : a -> a -> a) (zero : a)
+           (add : a -> a -> a) 
            (A: [n][m]a) (B: [n][m]a) : [n][m]a =
     tabulate_2d n m (\r c -> add A[r][c] B[r][c])
-def matadd_f64 = matadd (+) (0f64)    
+def matadd_f64 = matadd (f64.+) 
 
-def scal_mul_mat [n][m] (s : f64) (m : [n][m]f64) : [n][m]f64 =
-    map (\r -> map (\x -> x * s) r) m 
+def scal_mul_mat [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
+    map (\r -> map (\x -> x * s) r) A 
 
 def diagonal [a] (diag : [a]f64) : [a][a]f64 =
-  tabulate_2d a a (\r c -> if r == c then diag [r] else 0f64)
+  tabulate_2d a a (\r c -> if r == c then diag[r] else 0f64)
 
 def skew (v : [3]f64) : [3][3]f64 =
-  [
-  [0,     -v[2], v[1]]
-  [v[2],  0,     -v[0]]
-  [-v[1], v[0],  0]
+  [[0,     -v[2], v[1]],
+   [v[2],  0,     -v[0]],
+   [-v[1], v[0],  0]]
 
 -- Spacial translation from A to B
 -- where r is the vector from A to B
@@ -40,8 +39,8 @@ def xlt (r : [3]f64) : [6][6]f64 =
 
 -- Rotation of theta radians about the X-axis
 def rotx (theta : f64) : [6][6]f64 =
-    let s = sin theta
-    let c = cos theta
+    let s = f64.sin theta
+    let c = f64.cos theta
     in 
       [[1,0, 0,0,0, 0],
        [0,c, s,0,0, 0],
@@ -78,23 +77,26 @@ type jointT = #revolute | #prismatic | #helical
 -- Inspiration is taken from: https://royfeatherstone.org/spatial/v2/sourceText/autoTree.txt
 -- Creates a kinematic tree 
 def autoTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) =
-    let ids = iota nb
-    let joint_types = replicate nb #revolute
-    let parents = map (\i -> i64.f64 <| (floor ( (((f64.i64 i) + 1.0) - 2.0 + (ceil bf) ) / bf )) - 1.0 ) ids
+    let ids = trace <| iota nb
+    let joint_types = replicate nb (#revolute) : [nb]jointT
+    let parents = map (\i -> i64.f64 <| (f64.floor ( (((f64.i64 i) + 1.0) - 2.0 + (f64.ceil bf) ) / bf )) - 1.0 ) ids
 
     let lengths = map (\i -> taper ** (f64.i64 i)) ids 
-    let masses = map (\i ->  taper ** (3 * (f64.i64 i))) ids 
+    let masses = trace <| map (\i ->  taper ** (3 * (f64.i64 i))) ids 
     let CoMs   = map (\l -> [0.5 * l, 0, 0]) lengths
     let Icms   = map (\i ->
                   let m = masses[i]
                   let l = lengths[i]
                   let d = diagonal [0.0025,1.015/12,1.015/12]  -- each body is a cylinder
-                  in scal_mut_mat (m * l) d) ids
+                  in scal_mul_mat (m * l) d) ids
 
-    let Is = map (\i -> mcI masses[i] CoMs[i] Icms[i]) ids 
+    let Is = trace <| map (\i -> mcI masses[i] CoMs[i] Icms[i]) ids 
 
-    let Xtree       = map (\i -> if i == 0 then xlt [0,0,0] -- identity
-                                 else matmul_f64 (rotx skew)  (xlt [lengths[parents[i]], 0, 0])
+    let Xtree       = trace <| map (\i -> if i == 0 then xlt [0,0,0] -- identity
+                                 else matmul_f64 (rotx skew)  (xlt [lengths[parents[i]], 0, 0]) -- Not sure if this just puts all the children in the excact same place or not...
                           ) ids
 
+    in (ids, joint_types, parents, lengths, Is, Xtree)
 
+def main =
+  autoTree 2 1 1 1
