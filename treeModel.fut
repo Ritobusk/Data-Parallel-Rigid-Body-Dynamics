@@ -16,7 +16,7 @@ def autoTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) =
                   let m = masses[i]
                   let l = lengths[i]
                   let d = diagonal [0.0025,1.015/12,1.015/12]  -- each body is a cylinder
-                  in scal_mul_mat (m * l) d) ids
+                  in scal_mul_mat (m * (l**2)) d) ids
 
     let Is = map (\i -> mcI masses[i] CoMs[i] Icms[i]) ids 
 
@@ -24,7 +24,7 @@ def autoTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) =
                                  else matmul_f64 (rotx skew)  (xlt [lengths[parents[i]], 0, 0]) -- Not sure if this just puts all the children in the excact same place or not...
                           ) ids
 
-    in (ids, parents, joint_types,  lengths, Is, Xtree)
+    in trace (ids, parents, joint_types,  lengths, Is, Xtree)
 
 def main =
-  autoTree 2 1 1 1
+  autoTree 6 2 1 2

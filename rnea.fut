@@ -48,12 +48,6 @@ def rnea [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 
--- for i = model.NB:-1:1
---   tau(i,1) = S{i}' * f{i};
---   if model.parent(i) ~= 0
---     f{model.parent(i)} = f{model.parent(i)} + Xup{i}'*f{i};
---   end
--- end
 
 
 def main = 
