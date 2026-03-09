@@ -9,6 +9,14 @@ def matmul [n][m][p] 'a
       A
 def matmul_f64 = matmul (+) (*) (0f64)
 
+def mat_mul_vec [n] [m] 'a 
+                (add: a -> a -> a) (mul: a -> a -> a) (zero: a)
+                (A: [n][m]a) (v: [m]a) : [n]a =
+  map (\A_row ->
+          reduce add zero (map2 mul A_row v)
+      ) A
+def mat_mul_vec_f64 = mat_mul_vec (+) (*) (0f64)
+
 def matadd [n][m] 'a
            (add : a -> a -> a) 
            (A: [n][m]a) (B: [n][m]a) : [n][m]a =
@@ -21,3 +29,6 @@ def scal_mul_mat [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
 def diagonal [a] (diag : [a]f64) : [a][a]f64 =
   tabulate_2d a a (\r c -> if r == c then diag[r] else 0f64)
 
+
+def vec_mul_vec [n] (v1: [n]f64) (v2: [n]f64) : f64 =
+  reduce (+) 0f64 (map2 (*) v1 v2)
