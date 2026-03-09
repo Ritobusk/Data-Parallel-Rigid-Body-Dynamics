@@ -16,7 +16,7 @@ def rnea [n] (p : [n]i64) (joint_types : [n]jointT)
   let (vs, as) = loop (vs', as') = (replicate n (replicate 6 0f64), replicate n (replicate 6 0f64)) for i < n do
     if i == 0 then 
         let vs' = vs' with [i] = vJ[i]
-        let as' = as' with [i] = map2 (+) (mat_mul_vec_f64 Xup[i] gravity) 
+        let as' = as' with [i] = map2 (+) (mat_mul_vec_f64 Xup[i] (map (\x -> -1 * x) gravity)) 
                                           (map (\s -> s * qdd[i]) S[i])
         in (vs', as')
     else 
@@ -41,7 +41,7 @@ def rnea [n] (p : [n]i64) (joint_types : [n]jointT)
     let tau' = tau' with [idx] = vec_mul_vec S[idx] fs'[idx] 
     in 
       if idx > 0 then
-        let fs'' = fs' with [idx] = map2 (+) fs'[parent] (mat_mul_vec_f64 (transpose Xup[idx]) fs'[idx])
+        let fs'' = fs' with [p[idx]] = map2 (+) fs'[parent] (mat_mul_vec_f64 (transpose Xup[idx]) fs'[idx])
         in (tau', fs'')
       else (tau', fs')
   in trace tau
@@ -51,5 +51,5 @@ def rnea [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 def main = 
-  let (_, p, js, _, Is, Xtrees) = autoTree 2 1 1 1
-  in rnea p js Is Xtrees [0f64, 0, 0, 0, 0, -9.82] [0f64, 1] [0f64, 0] [0f64, 3]
+  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  in rnea p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
