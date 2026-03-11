@@ -32,3 +32,47 @@ def diagonal [a] (diag : [a]f64) : [a][a]f64 =
 
 def vec_mul_vec [n] (v1: [n]f64) (v2: [n]f64) : f64 =
   reduce (+) 0f64 (map2 (*) v1 v2)
+
+-- Taken from https://futhark-lang.org/examples/swap.html
+def swap 't (i: i64) (j: i64) (A: *[]t) =
+  let tmp = copy A[j]
+  let A[j] = copy A[i]
+  let A[i] = tmp
+  in A
+
+
+-- Taken from https://futhark-lang.org/student-projects/kristian-kasper-peter-project.pdf
+-- Work: O(n))
+-- Span: O(log(n))
+def argmax (arr: []f64) =
+    reduce_comm (\(a, i) (b, j) ->
+    if a < b
+    then (b, j)
+    else if b < a then (a, i)
+    else if j < i then (b, j)
+    else (a, i)
+  ) (0, 0) (zip arr (indices arr))
+
+
+-- Work: O(min(m, n) · m · n))
+  -- Span: O(min(m, n) · log(m))
+def gauss_jordan [m][n] (A:[m][n]f64) =
+  loop A = copy A for i < i64.min m n do
+    -- Find largest pivot
+    let p = A[i:,i] |> map f64.abs |> argmax |> (.1) |> (+i)
+    let A = if p != i then swap i p A else A
+    let irow = map (/A[i,i]) A[i]
+    -- Eliminate entries above and below the pivot
+    in tabulate m (\j ->
+        let scale = A[j,i]
+        in map2 (\x y ->
+          if j != i then y - scale * x else x
+          ) irow A[j]
+     )
+  
+-- let gauss_solveAB [m][n] (A:[m][m]f32) (B:[m][n]f32) : [m][n]f32 =
+--    let AB = gauss_jordan (hStack A B)
+--    in AB[:m, m:] :> [m][n]f32
+--   
+-- let gauss_solveAb [m] (A:[m][m]f32) (b:[m]f32) =
+--    unflatten m 1 b |> gauss_solveAB A |> flatten_to m
