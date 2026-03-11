@@ -101,7 +101,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
   let vJ      = trace <| map2 (\s v -> map (\x -> x * v) s) S qd 
   let Xup     = trace <| map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
 
-  let test = trace <| map (\x -> (gauss_jordan x) ) Xup
+  let test = trace <| map (\x -> matmul_f64 (gauss_inv x) x ) Xup
   
   let vtree_vs = T.mk_preorder <| mkt p <| zip vJ <| iota n 
   let operator (p_vec_id : ([6]f64, i64)) (vec_id : ([6]f64, i64)) = (map2 (+) (mat_mul_vec_f64 Xup[p_vec_id.1] p_vec_id.0) vec_id.0, vec_id.1) 
@@ -137,7 +137,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
     let idx = n - (i+1)
     let parent = p[idx]
     in fJs' with [parent] = map2 (+) fJs'[parent] (mat_mul_vec_f64 (transpose Xup[idx]) fJs'[idx])
-  in trace test
+  in trace vs2
   --in trace <| map2 (\s f -> vec_mul_vec s f) S fJs  
 
 

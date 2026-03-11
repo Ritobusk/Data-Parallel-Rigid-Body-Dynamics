@@ -29,6 +29,8 @@ def scal_mul_mat [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
 def diagonal [a] (diag : [a]f64) : [a][a]f64 =
   tabulate_2d a a (\r c -> if r == c then diag[r] else 0f64)
 
+def identity  (size: i64) : [size][size]f64 =
+  tabulate_2d size size (\r c -> if r == c then 1f64 else 0f64)
 
 def vec_mul_vec [n] (v1: [n]f64) (v2: [n]f64) : f64 =
   reduce (+) 0f64 (map2 (*) v1 v2)
@@ -69,10 +71,11 @@ def gauss_jordan [m][n] (A:[m][n]f64) =
           if j != i then y - scale * x else x
           ) irow A[j]
      )
-  
--- let gauss_solveAB [m][n] (A:[m][m]f32) (B:[m][n]f32) : [m][n]f32 =
---    let AB = gauss_jordan (hStack A B)
---    in AB[:m, m:] :> [m][n]f32
---   
--- let gauss_solveAb [m] (A:[m][m]f32) (b:[m]f32) =
---    unflatten m 1 b |> gauss_solveAB A |> flatten_to m
+
+def gauss_solveAB [m] (A:[m][m]f64) (B:[m][m]f64) : [m][m]f64 =
+  let hStack = tabulate_2d (m) (2*m) (\r c -> if c < m then A[r][c] else B[r][c-m] )
+  let AB = gauss_jordan (hStack )
+  in AB[:m, m:] :> [m][m]f64
+
+def gauss_inv [n] (A: [n][n]f64): [n][n]f64 =
+  gauss_solveAB A (identity n)
