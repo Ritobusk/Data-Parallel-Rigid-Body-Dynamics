@@ -32,8 +32,14 @@ def diagonal [a] (diag : [a]f64) : [a][a]f64 =
 def identity  (size: i64) : [size][size]f64 =
   tabulate_2d size size (\r c -> if r == c then 1f64 else 0f64)
 
-def vec_mul_vec [n] (v1: [n]f64) (v2: [n]f64) : f64 =
+def vecmul [n] (v1: [n]f64) (v2: [n]f64) : f64 =
   reduce (+) 0f64 (map2 (*) v1 v2)
+
+def vecadd_f64 [n] (v1 : [n]f64) (v2 : [n]f64) : [n]f64 =
+  map2 (+) v1 v2
+
+def vec_mul_scalar_f64 [n] (v : [n]f64) (s : f64) : [n]f64 =
+  map (\x -> x * s) v
 
 -- Taken from https://futhark-lang.org/examples/swap.html
 def swap 't (i: i64) (j: i64) (A: *[]t) =
