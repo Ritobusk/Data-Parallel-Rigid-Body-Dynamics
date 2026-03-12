@@ -99,17 +99,41 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64) = 
   let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) joint_types q 
   let vJ      = trace <| map2 (\s v -> map (\x -> x * v) s) S qd 
-  let Xup     = trace <| map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
-
-  let test = trace <| map (\x -> matmul_f64 (gauss_inv x) x ) Xup
+  let Xup     = map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
+  -- let Xup     = Xup ++ ([tabulate_2d 6 6 (\r c -> if r == c then 1f64 else 0f64)])
   
-  let vtree_vs = T.mk_preorder <| mkt p <| zip vJ <| iota n 
-  let operator (p_vec_id : ([6]f64, i64)) (vec_id : ([6]f64, i64)) = (map2 (+) (mat_mul_vec_f64 Xup[p_vec_id.1] p_vec_id.0) vec_id.0, vec_id.1) 
-  let inv_operator (vec_id : ([6]f64, i64)) =
-      let inv_mat = gauss_jordan Xup[vec_id.1]
-      in (mat_mul_vec_f64 inv_mat vec_id.0, vec_id.1) 
+  let combine_mat_vec mat v = tabulate_2d 7 7 
+                    (\r c -> if c < 6 && r < 6 then mat[r][c]
+                             else if r < 6 && c == 6 then v[r]  
+                             else 0f64
+                    )
 
-  let vs2 = T.ileaffix operator inv_operator (replicate 6 0f64, 0) vtree_vs
+
+  let A = map2 (\x vj -> combine_mat_vec x vj) Xup vJ
+
+
+  -- let vtree_vs = T.mk_preorder <| mkt p <| zip vJ <| iota n 
+  -- let operator (p_vec_id : ([6]f64, i64)) (vec_id : ([6]f64, i64)) = (map2 (+) (mat_mul_vec_f64 Xup[vec_id.1] p_vec_id.0) vec_id.0, vec_id.1) 
+  -- let inv_operator (vec_id : ([6]f64, i64)) =
+  --     let inv_mat = gauss_jordan Xup[vec_id.1]
+  --     in (mat_mul_vec_f64 inv_mat vec_id.0, vec_id.1) 
+
+  let vtree_vs = T.mk_preorder <| mkt p A
+  let operator (p_a : [7][7]f64) (a : [7][7]f64) = 
+      let new_vec = mat_mul_vec_f64 a[:6, :6] p_a[:6, 6]
+      let new_vec = map2 (+) new_vec a[:6, 6]
+      in combine_mat_vec a[:6, :6] new_vec
+  let inv_operator (a : [7][7]f64) =
+      let inv_mat = gauss_jordan a[:6, :6]
+      let new_vec = map (\x -> x * (-1)) a[:6, 6]
+      in combine_mat_vec a[:6, :6] new_vec
+  -- let inv_operator (a : [7][7]f64) =
+  --     let inv_mat = gauss_jordan a[:6, :6]
+  --     let new_vec = map2 (-) mat_mul_vec_f64 inv_mat a[:6, 6]
+  --     in combine_mat_vec a[:6, :6] new_vec
+
+  -- let vs2 = T.irootfix operator inv_operator (replicate 6 0f64, 0) vtree_vs
+  let vs2 = T.irootfix operator inv_operator (identity 7) vtree_vs
 
   let vs = trace <| loop vs' = (copy vJ) for i < (n-1) do
         let parent = p[i+1]
@@ -144,3 +168,10 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 def main = 
   let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
   in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
+
+
+-- Ide: 1. Lav en data struktur, så man ved hvilke links er i hvilke dybder af det kinematiske træ
+--      2. Kør sequentielt gennem dybderne
+--      3. Ved hver dybde udregn velocity eller acceleration 
+
+-- Tanke: Tror ikke vs og as kan beregnes med vtrees, da deres operatorer ikke synes at være assosiative.
