@@ -6,6 +6,7 @@ def skew (v : [3]f64) : [3][3]f64 =
   [[0,     -v[2], v[1]],
    [v[2],  0,     -v[0]],
    [-v[1], v[0],  0]]
+
 -- Spacial translation from A to B
 -- where r is the vector from A to B
 def xlt (r : [3]f64) : [6][6]f64 =
@@ -27,6 +28,30 @@ def rotx (theta : f64) : [6][6]f64 =
        [0,0, 0,1,0, 0],
        [0,0, 0,0,c, s],
        [0,0, 0,0,-s,c]]
+
+-- Given a transformation from A to B get to inverse, i.e. 
+-- the transformation from B to A. This can be done by composing
+-- a transformation of the inverse rotation of A to B and the
+-- 'inverse' vector of r (vector locating B in A). 
+def XBtoA_from_XAtoB (XAtoB : [6][6]f64) : [6][6]f64 =
+  let inv_E  = transpose XAtoB[:3, :3]
+
+  let rotated__rx = sized 3 (XAtoB[3:6, :3])
+  let org_rx = matmul_f64 inv_E rotated__rx -- this is: -rx
+  let inv_r  = matmul_f64 (scal_mul_mat_f64 (-1) org_rx) (inv_E)
+
+  in tabulate_2d 6 6 
+    (\r c -> if r < 3 then
+                if c < 3 then --q2
+                  inv_E[r][c]
+                else          --q1
+                  0f64
+             else
+                if c < 3 then --q3
+                  inv_r[r-3][c]
+                else          --q4
+                  inv_E[r-3][c-3]
+              )
 
 -- Rotation of theta radians about the Y-axis
 def roty (theta : f64) : [6][6]f64 =
@@ -65,16 +90,16 @@ def crm (v : [6]f64) : [6][6]f64 =
 --  crf  spatial/planar cross-product operator (motion).
 --  crm(v)*m is the cross product of the motion vectors v and m.
 def crf (v : [6]f64) : [6][6]f64 =
-  crm v |> transpose |> scal_mul_mat (-1f64) 
+  crm v |> transpose |> scal_mul_mat_f64 (-1f64) 
 
 -- Make rigid body inertia matrix
 def mcI (m : f64) (CoM : [3]f64) (I : [3][3]f64) : [6][6]f64 =
     let C = skew CoM
     let C' = transpose C
     -- 'quodrants' of the 6x6 matrix
-    let q2 = matadd_f64 I <| scal_mul_mat m <| matmul_f64 C C'
-    let q1 = scal_mul_mat m C
-    let q3 = scal_mul_mat m C'
+    let q2 = matadd_f64 I <| scal_mul_mat_f64 m <| matmul_f64 C C'
+    let q1 = scal_mul_mat_f64 m C
+    let q3 = scal_mul_mat_f64 m C'
     let q4 = diagonal [m,m,m]
     in tabulate_2d 6 6 
       (\r c -> if r < 3 then

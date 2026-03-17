@@ -23,7 +23,7 @@ def matadd [n][m] 'a
     tabulate_2d n m (\r c -> add A[r][c] B[r][c])
 def matadd_f64 = matadd (f64.+) 
 
-def scal_mul_mat [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
+def scal_mul_mat_f64 [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
     map (\r -> map (\x -> x * s) r) A 
 
 def diagonal [a] (diag : [a]f64) : [a][a]f64 =
@@ -38,7 +38,7 @@ def vecmul [n] (v1: [n]f64) (v2: [n]f64) : f64 =
 def vecadd_f64 [n] (v1 : [n]f64) (v2 : [n]f64) : [n]f64 =
   map2 (+) v1 v2
 
-def vec_mul_scalar_f64 [n] (v : [n]f64) (s : f64) : [n]f64 =
+def scal_mul_vec_f64 [n] (s : f64) (v : [n]f64)  : [n]f64 =
   map (\x -> x * s) v
 
 -- Taken from https://futhark-lang.org/examples/swap.html
