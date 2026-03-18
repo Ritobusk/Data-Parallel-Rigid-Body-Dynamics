@@ -7,6 +7,8 @@ module T = vtree
 
 def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
     map2 (\p d -> {parent=p,data=d}) ps ds
+def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =
+    {lp=lp,rp=rp,data=ds}
 
 -- Inspiration taken from https://royfeatherstone.org/spatial/v2/sourceText/ID.txt
 -- As far as I understand q, qd and qdd are scalars. This might only be the case for joints with only 1-DOF
@@ -108,18 +110,26 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 
   let Cs = zip Xup vJ
 
+
   let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
     let inv_cia = XBtoA_from_XAtoB ci.0
     -- let inv_cia = gauss_inv ci.0
     let inv_cib = scal_mul_vec_f64 (-1) ci.1
     in (inv_cia, inv_cib)
   
+  let invCs = map inv_op Cs
+
   let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
     (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
 
+  let operator2 (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+    (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` (si.1 `vecadd_f64` ci.1)))
+
+  let lp = sized n [0, 1, 5, 2]
+  let rp = sized n [7, 4, 6, 3]
   let p = trace p
-  let vtree_vs = T.mk_preorder <| mkt p Cs
-  let vs2 = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
+  let vtree_vs = T.lprp <| mkt2 lp rp Cs
+  let vs2 = T.irootfix2 operator operator2 inv_op (identity 6, replicate 6 0f64) vtree_vs
   let vs2 = map (.1) vs2
 
 
@@ -151,6 +161,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
     let parent = p[idx]
     in fJs' with [parent] = map2 (+) fJs'[parent] (mat_mul_vec_f64 (transpose Xup[idx]) fJs'[idx])
 
+  -- in (Cs, invCs)
   in trace vs2
   --in trace <| map2 (\s f -> vecmul s f) S fJs  
   -- in trace test2  
