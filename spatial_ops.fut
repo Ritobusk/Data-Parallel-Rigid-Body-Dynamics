@@ -36,8 +36,8 @@ def rotx (theta : f64) : [6][6]f64 =
 def XBtoA_from_XAtoB (XAtoB : [6][6]f64) : [6][6]f64 =
   let inv_E  = transpose XAtoB[:3, :3]
 
-  let rotated__rx = sized 3 (XAtoB[3:6, :3])
-  let org_rx = matmul_f64 inv_E rotated__rx -- this is: -rx
+  let rotated_rx = sized 3 (XAtoB[3:6, :3])
+  let org_rx = matmul_f64 inv_E rotated_rx -- this is: -rx as seen from A
   let inv_r  = matmul_f64 (scal_mul_mat_f64 (-1) org_rx) (inv_E)
 
   in tabulate_2d 6 6 
@@ -52,6 +52,14 @@ def XBtoA_from_XAtoB (XAtoB : [6][6]f64) : [6][6]f64 =
                 else          --q4
                   inv_E[r-3][c-3]
               )
+  -- test
+  -- let test = map (XBtoA_from_XAtoB) Xup
+  -- let v = [1,1,1,1,1,1f64]
+  -- let test1 = trace <|  loop  v' = v for i < n -2 do 
+  --               mat_mul_vec_f64 Xup[i] v'
+  -- let test2 = trace <|  loop  v' = test1 for i < n -2 do 
+  --               mat_mul_vec_f64 test[n - i - 3] v'
+
 
 -- Rotation of theta radians about the Y-axis
 def roty (theta : f64) : [6][6]f64 =

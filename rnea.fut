@@ -103,7 +103,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
              (gravity : [6]f64)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64) = 
   let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) joint_types q 
-  let vJ      = trace <| map2 (\s v -> map (\x -> x * v) s) S qd 
+  let vJ      = map2 (\s v -> map (\x -> x * v) s) S qd 
   let Xup     = map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
 
   let Cs = zip Xup vJ
@@ -117,6 +117,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
   let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
     (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
 
+  let p = trace p
   let vtree_vs = T.mk_preorder <| mkt p Cs
   let vs2 = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
   let vs2 = map (.1) vs2
@@ -152,11 +153,16 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 
   in trace vs2
   --in trace <| map2 (\s f -> vecmul s f) S fJs  
+  -- in trace test2  
 
 
 def main = 
-  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
-  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
+  -- let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
+  let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
+  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, , 1] [0f64, 2, 1, 3, ] [0f64, 3, 0,  3]
+  -- let (_, p, js, _, Is, Xtrees) = autoTree 100 1 1 1
+  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] (replicate 100 (1f64)) (replicate 100 (1f64)) (replicate 100 (1f64))
 
 
 -- Ide: 1. Lav en data struktur, så man ved hvilke links er i hvilke dybder af det kinematiske træ
