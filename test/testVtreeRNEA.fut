@@ -22,7 +22,7 @@ def velocityCompare [n] (p : [n]i64) (joint_types : [n]jointT)
   let Cs = zip Xup vJ
 
   let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-    let inv_cia = XBtoA_from_XAtoB ci.0
+    let inv_cia = XBtoA_from_XAtoB_M ci.0
     -- let inv_cia = gauss_inv ci.0
     let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
     in (inv_cia, inv_cib)
@@ -55,7 +55,7 @@ def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT)
   let Cs = zip Xup vJ
 
   let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-    let inv_cia = XBtoA_from_XAtoB ci.0
+    let inv_cia = XBtoA_from_XAtoB_M ci.0
     -- let inv_cia = gauss_inv ci.0
     let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
     in (inv_cia, inv_cib)
@@ -93,22 +93,22 @@ def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 
-def velocityTest =
+entry velocityTest =
   let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
   let rp = [7, 4, 6, 3]
-  let t1 = velocityCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, , 1] [0f64, 2, 1, 3, ] [0f64, 3, 0,  3] lp rp
+  let t1 = velocityCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
   let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
   let lp = [0, 1, 7, 2, 4, 8]
   let rp = [11,  6, 10, 3, 5, 9]
   let t2 = velocityCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
   in t1 && t2
 
-def accelerationTest =
+entry accelerationTest =
   let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
   let rp = [7, 4, 6, 3]
-  let t1 = accelerationCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, , 1] [0f64, 2, 1, 3, ] [0f64, 3, 0,  3] lp rp
+  let t1 = accelerationCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
   let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
   let lp = [0, 1, 7, 2, 4, 8]
   let rp = [11,  6, 10, 3, 5, 9]
@@ -116,7 +116,5 @@ def accelerationTest =
   in t1 && t2
 
 -- ==
--- entry: velocityTest 
+-- entry: velocityTest accelerationTest 
 
--- ==
--- entry: accelerationTest 
