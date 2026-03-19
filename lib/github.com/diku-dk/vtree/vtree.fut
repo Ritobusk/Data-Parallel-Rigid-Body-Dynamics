@@ -14,19 +14,6 @@ module type vtree = {
 
   val map 'a 'b [n] : (a -> b) -> t a [n] -> t b [n]
 
-  val rootfix2 'a [n] :
-    (op: a -> a -> a)
-    -> (op2: a -> a -> a)
-    -> (inv: a -> a)
-    -> (ne: a)
-    -> t a [n] -> [n]a
-
-  val irootfix2 'a [n] :
-    (op: a -> a -> a)
-    -> (op2: a -> a -> a)
-    -> (inv: a -> a)
-    -> (ne: a)
-    -> t a [n] -> [n]a
   val rootfix 'a [n] :
     (op: a -> a -> a)
     -> (inv: a -> a)
@@ -203,6 +190,8 @@ module vtree : vtree = {
   def lprp 'a [n] (x: t a [n]) : t a [n] = x
 
   def rootfix 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) : [n]a =
+    let lp = trace lp
+    let rp = trace rp
     let I = replicate (2 * n) ne
     let L = scatter I lp data
     let R = scatter L rp (map inv data)
@@ -211,19 +200,6 @@ module vtree : vtree = {
 
   def irootfix 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (t: t a [n]) : [n]a =
     map2 op (rootfix op inv ne t) t.data
-
-  def rootfix2 'a [n] (op: a -> a -> a) (op2: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) : [n]a =
-    let I = replicate (2 * n) (ne, -1)
-    let L = scatter I lp (zip data (replicate n 0))
-    let R = scatter L rp (zip (map inv data) (replicate n 1))
-    let new_op (acc : (a, i64)) (x : (a, i64)) : (a, i64) =
-          if x.1 == 0 then (op acc.0 x.0, x.1)
-          else (op2 acc.0 x.0, x.1)
-    let S = exscan new_op (ne, -1) R
-    in map (\i -> S[i].0) lp
-
-  def irootfix2 'a [n] (op: a -> a -> a) (op2: a -> a -> a) (inv: a -> a) (ne: a) (t: t a [n]) : [n]a =
-    map2 op (rootfix2 op op2 inv ne t) t.data
 
   def ileaffix 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) : [n]a =
     let I = replicate (2 * n) ne

@@ -29,11 +29,37 @@ def rotx (theta : f64) : [6][6]f64 =
        [0,0, 0,0,c, s],
        [0,0, 0,0,-s,c]]
 
+
+-- Rotation of theta radians about the Y-axis
+def roty (theta : f64) : [6][6]f64 =
+    let s = f64.sin theta
+    let c = f64.cos theta
+    in 
+      [[c,0,-s,0,0, 0],
+       [0,1, 0,0,0, 0],
+       [s,0, c,0,0, 0],
+       [0,0, 0,c,0,-s],
+       [0,0, 0,0,1, 0],
+       [0,0, 0,s,0,c]]
+
+-- Rotation of theta radians about the Y-axis
+def rotz (theta : f64) : [6][6]f64 =
+    let s = f64.sin theta
+    let c = f64.cos theta
+    in 
+      [[c, s, 0,0, 0, 0],
+       [-s,c, 0,0, 0, 0],
+       [0, 0, 1,0, 0, 0],
+       [0, 0, 0,c, s,0],
+       [0, 0, 0,-s,c, 0],
+       [0, 0, 0,0, 0,1]]
+
+-- Motion
 -- Given a transformation from A to B get to inverse, i.e. 
 -- the transformation from B to A. This can be done by composing
 -- a transformation of the inverse rotation of A to B and the
 -- 'inverse' vector of r (vector locating B in A). 
-def XBtoA_from_XAtoB (XAtoB : [6][6]f64) : [6][6]f64 =
+def XBtoA_from_XAtoB_M (XAtoB : [6][6]f64) : [6][6]f64 =
   let inv_E  = transpose XAtoB[:3, :3]
 
   let rotated_rx = sized 3 (XAtoB[3:6, :3])
@@ -60,30 +86,27 @@ def XBtoA_from_XAtoB (XAtoB : [6][6]f64) : [6][6]f64 =
   -- let test2 = trace <|  loop  v' = test1 for i < n -2 do 
   --               mat_mul_vec_f64 test[n - i - 3] v'
 
+-- Force version of XBtoA_from_XAtoB_M 
+def XBtoA_from_XAtoB_F (XAtoB : [6][6]f64) : [6][6]f64 =
+  let inv_E  = sized 3 <| transpose XAtoB[:3, :3]
 
--- Rotation of theta radians about the Y-axis
-def roty (theta : f64) : [6][6]f64 =
-    let s = f64.sin theta
-    let c = f64.cos theta
-    in 
-      [[c,0,-s,0,0, 0],
-       [0,1, 0,0,0, 0],
-       [s,0, c,0,0, 0],
-       [0,0, 0,c,0,-s],
-       [0,0, 0,0,1, 0],
-       [0,0, 0,s,0,c]]
+  let rotated_rx = sized 3 (XAtoB[:3, 3:6])
+  let org_rx =  matmul_f64 inv_E rotated_rx :> [3][3]f64 -- this is: -rx as seen from A
+  let inv_r  = matmul_f64 (scal_mul_mat_f64 (-1) org_rx) (inv_E)
 
--- Rotation of theta radians about the Y-axis
-def rotz (theta : f64) : [6][6]f64 =
-    let s = f64.sin theta
-    let c = f64.cos theta
-    in 
-      [[c, s, 0,0, 0, 0],
-       [-s,c, 0,0, 0, 0],
-       [0, 0, 1,0, 0, 0],
-       [0, 0, 0,c, s,0],
-       [0, 0, 0,-s,c, 0],
-       [0, 0, 0,0, 0,1]]
+  in tabulate_2d 6 6 
+    (\r c -> if r < 3 then
+                if c < 3 then --q2
+                  inv_E[r][c]
+                else          --q1
+                  inv_r[r][c-3]
+             else
+                if c < 3 then --q3
+                  0f64
+                else          --q4
+                  inv_E[r-3][c-3]
+              )
+
 
 --  crm  spatial/planar cross-product operator (force).
 --  crm(v)*f is the cross product of the motion vectors v and force f.

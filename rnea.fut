@@ -103,43 +103,32 @@ def rnea' [n] (p : [n]i64) (joint_types : [n]jointT)
 def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
              (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
              (gravity : [6]f64)
-             (q : [n]f64) (qd : [n]f64) (qdd : [n]f64) = 
+             (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
+             (lp : [n]i64) (rp : [n]i64) =
   let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) joint_types q 
   let vJ      = map2 (\s v -> map (\x -> x * v) s) S qd 
   let Xup     = map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
 
   let Cs = zip Xup vJ
 
+  let p = trace p
 
   let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-    let inv_cia = XBtoA_from_XAtoB ci.0
+    let inv_cia = XBtoA_from_XAtoB_M ci.0
     -- let inv_cia = gauss_inv ci.0
     let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
     in (inv_cia, inv_cib)
   
-  let invCs = map inv_op Cs
-
   let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
     (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
 
-  let operator2 (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-    (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` (si.1 `vecadd_f64` ci.1)))
-
-  let lp = sized n [0, 1, 5, 2]
-  let rp = sized n [7, 4, 6, 3]
-  let p = trace p
   let vtree_vs = T.lprp <| mkt2 lp rp Cs
-  let vs2 = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
+  let vs = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
   -- let vtree_vs = T.mk_preorder <| mkt p Cs
   -- let vs2 = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
-  let vs2 = map (.1) vs2
+  let vs = map (.1) vs
 
-
-
-  let vs = trace <| loop vs' = (copy vJ) for i < (n-1) do
-        let parent = p[i+1]
-        in vs' with [i+1] = map2 (+) (mat_mul_vec_f64 Xup[i+1] vs'[parent]) vs'[i+1]
-
+  -- as_tmp = S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
   let as_tmp = map2 (\S_qdd v_cross_S_qd -> map2 (+) S_qdd v_cross_S_qd)
                         (map (\i -> map (\s -> s * qdd[i]) S[i]) (iota n))
                         (map (\i -> 
@@ -147,9 +136,11 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
                           else mat_mul_vec_f64 (crm vs[i]) vJ[i]) (iota n))
   let as_tmp = as_tmp with [0] = map2 (+) as_tmp[0] (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
 
-  let as = loop as' = as_tmp for i < n-1 do  -- Xup[i]*as'[p] + S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
-        let parent = p[i+1]
-        in as' with [i+1] = map2 (+) (mat_mul_vec_f64 Xup[i+1] as'[parent]) as'[i+1]
+  let Cs = zip Xup as_tmp
+
+  let vtree_vs = T.lprp <| mkt2 lp rp Cs
+  let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
+  let as = map (.1) as -- Xup[i]*as'[p] + S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
 
   let fBs = map (\i -> 
               map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
@@ -158,28 +149,41 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
   -- Here you should add the external forces. This is not yet implemented!
   --   f = apply_external_forces( model.parent, Xup, f, f_ext );
 
+  let Cs = zip (map (transpose) Xup) fBs
+
+  let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+    let inv_cia = XBtoA_from_XAtoB_F ci.0
+    let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+    in (inv_cia, inv_cib)
+
+  let vtree_vs = T.lprp <| mkt2 lp rp Cs
+  let fJs2 = T.ileaffix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
+  let fJs2 = map (.1) fJs2 -- Xup[i]*as'[p] + S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
+
   let fJs = loop fJs' = (fBs) for i < n -1 do
     let idx = n - (i+1)
     let parent = p[idx]
     in fJs' with [parent] = map2 (+) fJs'[parent] (mat_mul_vec_f64 (transpose Xup[idx]) fJs'[idx])
 
-  -- in (Cs, invCs)
-  in trace (vs, vs2)
-  --in trace <| map2 (\s f -> vecmul s f) S fJs  
+  in trace <| (fJs, fJs2)
+  -- in trace <| map2 (\s f -> vecmul s f) S fJs  
   -- in trace test2  
 
 
 def main = 
-  -- let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
-  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
-  let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
-  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, , 1] [0f64, 2, 1, 3, ] [0f64, 3, 0,  3]
+  -- let lp = sized n [0, 1, 5, 2]
+  -- let rp = sized n [7, 4, 6, 3]
+  let lp = [0, 1, 7, 2, 4, 8]
+  let rp = [11,  6, 10, 3, 5, 9]
+  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  -- let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
+  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, , 1] [0f64, 2, 1, 3, ] [0f64, 3, 0,  3]
   -- let (_, p, js, _, Is, Xtrees) = autoTree 100 1 1 1
   -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] (replicate 100 (1f64)) (replicate 100 (1f64)) (replicate 100 (1f64))
+  -- in rnea' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
 
 
 -- Ide: 1. Lav en data struktur, så man ved hvilke links er i hvilke dybder af det kinematiske træ
 --      2. Kør sequentielt gennem dybderne
 --      3. Ved hver dybde udregn velocity eller acceleration 
-
--- Tanke: Tror ikke vs og as kan beregnes med vtrees, da deres operatorer ikke synes at være assosiative.
