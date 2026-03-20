@@ -93,6 +93,8 @@ def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 
+-- ==
+-- entry: velocityTest 
 entry velocityTest =
   let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
@@ -104,6 +106,8 @@ entry velocityTest =
   let t2 = velocityCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
   in t1 && t2
 
+-- ==
+-- entry: velocityTest 
 entry accelerationTest =
   let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
@@ -115,6 +119,4 @@ entry accelerationTest =
   let t2 = accelerationCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
   in t1 && t2
 
--- ==
--- entry: velocityTest accelerationTest 
 

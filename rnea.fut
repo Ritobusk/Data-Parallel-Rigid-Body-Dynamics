@@ -174,14 +174,14 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 def main = 
-  -- let lp = sized n [0, 1, 5, 2]
-  -- let rp = sized n [7, 4, 6, 3]
-  let lp = [0, 1, 7, 2, 4, 8]
-  let rp = [11,  6, 10, 3, 5, 9]
-  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
-  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
-  -- let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
-  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, , 1] [0f64, 2, 1, 3, ] [0f64, 3, 0,  3]
+  let lp = [0, 1, 5, 2]
+  let rp = [7, 4, 6, 3]
+  -- let lp = [0, 1, 7, 2, 4, 8]
+  -- let rp = [11,  6, 10, 3, 5, 9]
+  -- let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
+  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 1] [0f64, 2, 1, 3] [0f64, 3, 0,  3] lp rp
   -- let (_, p, js, _, Is, Xtrees) = autoTree 100 1 1 1
   -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] (replicate 100 (1f64)) (replicate 100 (1f64)) (replicate 100 (1f64))
   -- in rnea' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
