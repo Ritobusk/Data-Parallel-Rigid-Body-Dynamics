@@ -1,3 +1,6 @@
 spatial_v2
 *.c
 rnea
+lib/github.com/diku-dk/vtree/vtree.fut
+lib/github.com/diku-dk
+test/testVtreeRNEA
