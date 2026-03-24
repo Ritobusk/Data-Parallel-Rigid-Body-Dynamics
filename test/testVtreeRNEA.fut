@@ -10,10 +10,8 @@ let error_tolerance = 1e-8
 def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =
     {lp=lp,rp=rp,data=ds}
 
-def velocityCompare [n] (p : [n]i64) (joint_types : [n]jointT)
-             (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
-             (gravity : [6]f64)
-             (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
+def velocityCompare [n] (p : [n]i64) (joint_types : [n]jointT) (Xtree : [n][6][6]f64) 
+             (q : [n]f64) (qd : [n]f64) 
              (lp : [n]i64) (rp : [n]i64) =
   let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) joint_types q 
   let vJ      = map2 (\s v -> map (\x -> x * v) s) S qd 
@@ -43,8 +41,7 @@ def velocityCompare [n] (p : [n]i64) (joint_types : [n]jointT)
       |> reduce (&&) true
 
 
-def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT)
-             (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
+def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT) (Xtree : [n][6][6]f64) 
              (gravity : [6]f64)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
              (lp : [n]i64) (rp : [n]i64) =
@@ -93,30 +90,36 @@ def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 
--- ==
--- entry: velocityTest 
 entry velocityTest =
   let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
   let rp = [7, 4, 6, 3]
-  let t1 = velocityCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
+  let t1 = velocityCompare p js Xtrees  [0f64, 1, 0,  1] [0f64, 2, 1, 3 ]  lp rp
   let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
   let lp = [0, 1, 7, 2, 4, 8]
   let rp = [11,  6, 10, 3, 5, 9]
-  let t2 = velocityCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  let t2 = velocityCompare p js Xtrees  [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1]  lp rp
   in t1 && t2
 
--- ==
--- entry: velocityTest 
 entry accelerationTest =
   let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
   let rp = [7, 4, 6, 3]
-  let t1 = accelerationCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
+  let t1 = accelerationCompare p js Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
   let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
   let lp = [0, 1, 7, 2, 4, 8]
   let rp = [11,  6, 10, 3, 5, 9]
-  let t2 = accelerationCompare p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  let t2 = accelerationCompare p js Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
   in t1 && t2
 
 
+-- ==
+-- entry: rneaTest 
+entry rneaTest =
+  let (_, p, js, _, Is, Xtree) = autoTree 4 2 1 1
+  let lp = [0, 1, 5, 2]
+  let rp = [7, 4, 6, 3]
+  let t1 = rnea'' p js Is Xtree [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
+  let t2 = rnea' p js Is Xtree [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] 
+  in  map2 (\x y -> f64.abs (x - y) < error_tolerance) t1 t2
+      |> reduce (&&) true

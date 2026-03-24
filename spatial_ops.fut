@@ -54,6 +54,21 @@ def rotz (theta : f64) : [6][6]f64 =
        [0, 0, 0,-s,c, 0],
        [0, 0, 0,0, 0,1]]
 
+-- Transform a motion Plucker transform to a force Plucker transfrom
+def XBtoA_MtoF (XAtoB : [6][6]f64) : [6][6]f64 =
+  tabulate_2d 6 6 
+    (\r c -> if r < 3 then
+                if c < 3 then --q2
+                  XAtoB[r][c]
+                else          --q1
+                  XAtoB[r+3][c-3]
+             else
+                if c < 3 then --q3
+                  0f64
+                else          --q4
+                  XAtoB[r][c]
+              )
+ 
 -- Motion
 -- Given a transformation from A to B get to inverse, i.e. 
 -- the transformation from B to A. This can be done by composing
