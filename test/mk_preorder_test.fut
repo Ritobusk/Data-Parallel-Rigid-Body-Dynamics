@@ -11,15 +11,15 @@ def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
 -- All other nodes have bf children (the second parameter of autoTree) if the tree_size
 -- allows it.
 
-entry mk_preordertest (tree_size : i64)  =
+entry mk_parent_test (tree_size : i64)  =
   let children = 2
   let (_, p, _, _, _, _) = autoTree tree_size children 1 1
-  let vtree =trace <|  T.mk_preorder <| mkt p (replicate tree_size 1)
+  let vtree =trace <|  T.mk_parent p (replicate tree_size 1)
   in p
 
 def main =
-  let t1 = trace <| mk_preordertest 4
-  let t2 = trace <| mk_preordertest 6
+  let t1 = trace <| mk_parent_test 4
+  let t2 = trace <| mk_parent_test 6
   in t1
   -- Manually calculated lp and rp for tree of size 4
   --let lp = [0, 1, 5, 2]
