@@ -165,6 +165,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 
   let vtree_transformation = T.lprp <| mkt2 lp rp Xup
   let from_root_M = T.irootfix (matmul_f64) (XBtoA_from_XAtoB_M) (identity 6) vtree_transformation
+
   let to_root_F   = map (transpose) from_root_M
   let from_root_F = map XBtoA_MtoF from_root_M
 
@@ -233,7 +234,7 @@ def rnea_vtree_with_f_ext [n] (p : [n]i64) (joint_types : [n]jointT)
   -- Here you add the external forces
   --  Since you transform the body forces to root coordinates the external force can just be added 
   let fBs_root = map3 (\i_to_root fbi f_xi -> 
-            (i_to_root `mat_mul_vec_f64` fbi)  `vecadd_f64` f_xi
+            (i_to_root `mat_mul_vec_f64` fbi)  `vecadd_f64` (scal_mul_vec_f64 (-1) f_xi)
               ) to_root_F fBs f_ext
 
   let inv_op (ci : [6]f64) : [6]f64 =

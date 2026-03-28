@@ -12,14 +12,17 @@ def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
 -- allows it.
 
 entry mk_parent_test (tree_size : i64)  =
-  let children = 2
+  let children = 5.8
   let (_, p, _, _, _, _) = autoTree tree_size children 1 1
-  let vtree =trace <|  T.mk_parent p (replicate tree_size 1)
-  in p
+  let p = trace p
+  let p' = p with [0] = 0
+  let vtree =trace <|  T.mk_parent p' (iota tree_size)
+  let bim = T.unmk vtree
+  in bim.data
 
 def main =
   let t1 = trace <| mk_parent_test 4
-  let t2 = trace <| mk_parent_test 6
+  let t2 = trace <| mk_parent_test 8
   in t1
   -- Manually calculated lp and rp for tree of size 4
   --let lp = [0, 1, 5, 2]
