@@ -91,22 +91,22 @@ def accelerationCompare [n] (p : [n]i64) (joint_types : [n]jointT) (Xtree : [n][
 
 
 entry velocityTest =
-  let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
+  let (_, p, js, _, _, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
   let rp = [7, 4, 6, 3]
   let t1 = velocityCompare p js Xtrees  [0f64, 1, 0,  1] [0f64, 2, 1, 3 ]  lp rp
-  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  let (_, p, js, _, _, Xtrees) = autoTree 6 2 1 1
   let lp = [0, 1, 7, 2, 4, 8]
   let rp = [11,  6, 10, 3, 5, 9]
   let t2 = velocityCompare p js Xtrees  [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1]  lp rp
   in t1 && t2
 
 entry accelerationTest =
-  let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
+  let (_, p, js, _, _, Xtrees) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]
   let rp = [7, 4, 6, 3]
   let t1 = accelerationCompare p js Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0,  1] [0f64, 2, 1, 3 ] [0f64, 3, 0,  3] lp rp
-  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  let (_, p, js, _, _, Xtrees) = autoTree 6 2 1 1
   let lp = [0, 1, 7, 2, 4, 8]
   let rp = [11,  6, 10, 3, 5, 9]
   let t2 = accelerationCompare p js Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
@@ -114,7 +114,7 @@ entry accelerationTest =
 
 
 -- ==
--- entry: rneaTest 
+-- entry: rneaTest accelerationTest velocityTest
 entry rneaTest =
   let (_, p, js, _, Is, Xtree) = autoTree 4 2 1 1
   let lp = [0, 1, 5, 2]

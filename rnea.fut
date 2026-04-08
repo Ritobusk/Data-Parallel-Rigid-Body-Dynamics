@@ -136,32 +136,6 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
               map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
               ) (iota n) 
 
-  -- Ide 1: Får de 2 nederste niveauer til at være korrekt, men man får ikke "+ f_Bi" termet 
-  --        med til resten af niveauerne.
-  -- let Cs = map2 (\m v -> (transpose m) `mat_mul_vec_f64` v) Xup fBs 
-  --
-  -- let inv_op (ci : [6]f64) : [6]f64 =
-  --    scal_mul_vec_f64 (-1) (ci)
-  --
-  -- let operator (si : [6]f64) (ci : [6]f64) : [6]f64 =
-  --   si `vecadd_f64` ci
-  -- let vtree_fs = T.lprp <| mkt2 lp rp Cs
-  -- let fJs2 = T.ileaffix_sc operator inv_op (replicate 6 0f64) vtree_fs
-
-  -- let Cs = zip (map (transpose) Xup) fBs
-  --
-  -- let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-  --   let inv_cia = identity 6
-  --   let inv_cib = scal_mul_vec_f64 (-1) (ci.1)
-  --   in (inv_cia, inv_cib)
-  --
-  -- let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-  --   (ci.0,  (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
-  --
-  --
-  -- let vtree_fs = T.lprp <| mkt2 lp rp Cs
-  -- let fJs2 = T.ileaffix_sc operator inv_op (identity 6, replicate 6 0f64) vtree_fs
-  -- let fJs2 = map (.1) fJs2
 
   let vtree_transformation = T.lprp <| mkt2 lp rp Xup
   let from_root_M = T.irootfix (matmul_f64) (XBtoA_from_XAtoB_M) (identity 6) vtree_transformation
@@ -249,14 +223,14 @@ def rnea_vtree_with_f_ext [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 def main = 
-  let lp = [0, 1, 5, 2]
-  let rp = [7, 4, 6, 3]
-  let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
-  in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 1] [0f64, 2, 1, 3] [0f64, 3, 0,  3] lp rp
-  -- let lp = [0, 1, 7, 2, 4, 8]
-  -- let rp = [11,  6, 10, 3, 5, 9]
-  -- let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
-  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  -- let lp = [0, 1, 5, 2]
+  -- let rp = [7, 4, 6, 3]
+  -- let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
+  -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 1] [0f64, 2, 1, 3] [0f64, 3, 0,  3] lp rp
+  let lp = [0, 1, 7, 2, 4, 8]
+  let rp = [11,  6, 10, 3, 5, 9]
+  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  in trace <| rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
   -- let (_, p, js, _, Is, Xtrees) = autoTree 100 1 1 1
   -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] (replicate 100 (1f64)) (replicate 100 (1f64)) (replicate 100 (1f64))
   -- in rnea' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]

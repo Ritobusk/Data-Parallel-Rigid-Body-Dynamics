@@ -8,7 +8,7 @@ def autoTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) =
     let ids = iota nb
     let joint_types = replicate nb (#Rz) : [nb]jointT
     let parents = map (\i -> i64.f64 <| (f64.floor ( (((f64.i64 i) + 1.0) - 2.0 + (f64.ceil bf) ) / bf )) - 1.0 ) ids
-    let parents' = parents with [0] = 0
+    let parents' = parents with [0] = 0  -- The root's parent is itself.
 
     let lengths = map (\i -> taper ** (f64.i64 i)) ids 
     let masses = map (\i ->  taper ** (3 * (f64.i64 i))) ids 
@@ -26,6 +26,3 @@ def autoTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) =
                           ) ids
 
     in (ids, parents', joint_types,  lengths, Is, Xtree)
-
--- def main =
---   autoTree 6 2 1 2

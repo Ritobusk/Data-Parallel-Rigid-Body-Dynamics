@@ -20,10 +20,10 @@ entry mk_parent_test (tree_size : i64)  =
   let bim = T.unmk vtree
   in bim.data
 
-def main =
-  let t1 = trace <| mk_parent_test 4
-  let t2 = trace <| mk_parent_test 8
-  in t1
+-- def main =
+--   let t1 = trace <| mk_parent_test 4
+--   let t2 = trace <| mk_parent_test 8
+--   in t1
   -- Manually calculated lp and rp for tree of size 4
   --let lp = [0, 1, 5, 2]
   --let rp = [7, 4, 6, 3]
