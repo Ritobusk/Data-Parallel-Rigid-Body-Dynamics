@@ -10,6 +10,16 @@ def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
 def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =
     {lp=lp,rp=rp,data=ds}
 
+  def exscan f ne xs =
+    map2 (\i x -> if i == 0 then ne else x)
+         (indices xs)
+         (rotate (-1) (scan f ne xs))
+  def rootfix2 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
+    let I = replicate (2 * n) ne
+    let L = scatter I lp data
+    let R = scatter L rp (map inv data)
+    let S = scan op ne R
+    in map (\i -> S[i]) lp
 -- Inspiration taken from https://royfeatherstone.org/spatial/v2/sourceText/ID.txt
 -- As far as I understand q, qd and qdd are scalars. This might only be the case for joints with only 1-DOF
 --  q, qd, qdd and tau are column vectors of length model.NB containing the joint position, velocity, acceleration and force variables, respectively.
@@ -138,10 +148,10 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
   let vtree_transformation = T.lprp <| mkt2 lp rp Xup
-  let from_root_M = T.irootfix (matmul_f64) (XBtoA_from_XAtoB_M) (identity 6) vtree_transformation
+  let from_joint_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
 
-  let to_root_F   = map (transpose) from_root_M
-  let from_root_F = map XBtoA_MtoF from_root_M
+  let to_root_F   = map XBtoA_MtoF from_joint_to_root_M 
+  let from_root_F = map transpose from_joint_to_root_M 
 
   let fBs_root = map2 (\i_to_root fbi -> i_to_root `mat_mul_vec_f64` fbi) to_root_F fBs
 
@@ -201,7 +211,9 @@ def rnea_vtree_with_f_ext [n] (p : [n]i64) (joint_types : [n]jointT)
               ) (iota n) 
 
   let vtree_transformation = T.lprp <| mkt2 lp rp Xup
-  let from_root_M = T.irootfix matmul_f64 XBtoA_from_XAtoB_M (identity 6) vtree_transformation
+
+
+  let from_root_M = T.irootfix (matmul_f64) (XBtoA_from_XAtoB_M) (identity 6) vtree_transformation
   let to_root_F   = map (transpose) from_root_M
   let from_root_F = map XBtoA_MtoF from_root_M
 
@@ -227,10 +239,15 @@ def main =
   -- let rp = [7, 4, 6, 3]
   -- let (_, p, js, _, Is, Xtrees) = autoTree 4 2 1 1
   -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 1] [0f64, 2, 1, 3] [0f64, 3, 0,  3] lp rp
-  let lp = [0, 1, 7, 2, 4, 8]
-  let rp = [11,  6, 10, 3, 5, 9]
-  let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
-  in trace <| rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  -- let lp = [0, 1, 7, 2, 4, 8]
+  -- let rp = [11,  6, 10, 3, 5, 9]
+  -- let (_, p, js, _, Is, Xtrees) = autoTree 6 2 1 1
+  -- in trace <| rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3] lp rp
+  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
+  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
+  let qdd = [0.61f64, 0.36f64, 0.4f64, 0.73f64, 0.96f64]
+  let (_, p, js, _, Is, Xtrees) = autoTree 5 1 0 1
+  in trace <| rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd qdd [0,1,2,3,4] [9,8,7,6,5]
   -- let (_, p, js, _, Is, Xtrees) = autoTree 100 1 1 1
   -- in rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] (replicate 100 (1f64)) (replicate 100 (1f64)) (replicate 100 (1f64))
   -- in rnea' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] [0f64, 1, 0, 0, 0, 1] [0f64, 2, 1, 3, 0, 1] [0f64, 3, 0, 0, 0, 3]
