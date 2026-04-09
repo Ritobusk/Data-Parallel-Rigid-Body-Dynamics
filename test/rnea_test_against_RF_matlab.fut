@@ -19,7 +19,7 @@ import "../lib/github.com/diku-dk/vtree/vtree"
 -- input @ data/N1000_bf100_rnea.in
 -- output @ data/N1000_bf100_rnea.out
 entry test_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [n]f64)  : [n]f64 =
-  let (_, p, js, _, Is, Xtrees) = autoTree n children 0 1
+  let (_, p, js, Is, Xtrees) = autoTree n children 0 1
   let vtree =  T.mk_parent p (iota n)
   let tmp = T.unmk vtree
   let lp = tmp.lp 

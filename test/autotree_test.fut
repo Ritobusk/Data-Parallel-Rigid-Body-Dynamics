@@ -1,6 +1,5 @@
 import "../treeModel"
 
-
 -- Test the auto tree against Roy Featherstone's auto tree.
 -- ==
 -- entry: test_autoTree
@@ -14,9 +13,7 @@ import "../treeModel"
 -- output @ data/100_1point5_at.out
 entry test_autoTree  (n : i64) (children : f64) (skew : f64) (taper : f64)  
   : ([n]i64, [n][6][6]f64, [n][6][6]f64)  =
-  let (_, p, js, lengths, Is, Xtrees) = autoTree n children skew taper
+  let (_, p, _, Is, Xtrees) = autoTree n children skew taper
   in (map (\i -> if i == 0 then p[i] else p[i]+1) (indices p),
       Xtrees,
       Is)
-  -- in and <| map2 (\x y -> f64.abs (x - y) < 1e-8f64) vtree_res matlab_res
-
