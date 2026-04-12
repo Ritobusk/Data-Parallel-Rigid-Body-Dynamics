@@ -9,7 +9,7 @@ fprintf(fidin, '%gf64 \n', skew);
 fprintf(fidin, '%gf64 \n', taper);
 fclose(fidin);
 
-model = autoTree(N, bf, 0, 1)
+model = autoTree(N, bf, 0, 1);
 
 writeArrayToFile(model.parent, 'i64', outfile);
 writeCellOf2dArraysToFile(model.Xtree, 'f64', outfile);

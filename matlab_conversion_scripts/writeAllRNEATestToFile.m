@@ -31,7 +31,7 @@ for i = 1:model.NB
   f{i} = model.I{i}*a{i} + crf(v{i})*model.I{i}*v{i};
 end
 
-writeCellOf2dArraysToFile(Xup, 'f64', outfile)
+writeCellOf2dArraysToFile(Xup, 'f64', outfile);
 
 for i = model.NB:-1:1
   tau(i,1) = S{i}' * f{i};
@@ -42,5 +42,5 @@ end
 
 
 
-writeArrayToFile(tau, 'f64', outfile)
+writeArrayToFile(tau, 'f64', outfile);
 end
