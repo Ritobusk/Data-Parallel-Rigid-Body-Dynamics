@@ -1,0 +1,38 @@
+USING THE CUDA BACKEND:
+scan_variations.fut:test_hillis_steele_rootfix (no tuning file):
+complex_scan_input 256i64:          1208μs (95% CI: [    1193.6,     1220.2])
+complex_scan_input 4096i64:         4641μs (95% CI: [    4629.5,     4654.1])
+complex_scan_input 16384i64:        8442μs (95% CI: [    8412.9,     8468.8])
+complex_scan_input 131072i64:      40712μs (95% CI: [   40593.5,    40916.1])
+
+scan_variations.fut:test_work_efficient_rootfix (no tuning file):
+complex_scan_input 256i64:          1564μs (95% CI: [    1542.3,     1585.5])
+complex_scan_input 4096i64:         4878μs (95% CI: [    4862.8,     4901.9])
+complex_scan_input 16384i64:        4351μs (95% CI: [    4337.0,     4367.5])
+complex_scan_input 131072i64:       9685μs (95% CI: [    9651.4,     9716.8])
+
+scan_variations.fut:test_rootfix (no tuning file):
+complex_scan_input 256i64:          1032μs (95% CI: [    1026.0,     1039.8])
+complex_scan_input 4096i64:         3088μs (95% CI: [    3079.4,     3097.9])
+complex_scan_input 16384i64:        5404μs (95% CI: [    5362.6,     5443.3])
+complex_scan_input 131072i64:      39974μs (95% CI: [   39854.5,    40133.1])
+
+
+USING THE C BACKEND:
+scan_variations.fut:test_hillis_steele_rootfix (no tuning file):
+complex_scan_input 256i64:           701μs (95% CI: [     693.9,      710.1])
+complex_scan_input 4096i64:        16593μs (95% CI: [   16238.0,    17218.0])
+complex_scan_input 16384i64:       80360μs (95% CI: [   78309.6,    82362.2])
+complex_scan_input 131072i64:     823194μs (95% CI: [  815534.4,   830335.4])
+
+scan_variations.fut:test_work_efficient_rootfix (no tuning file):
+complex_scan_input 256i64:           339μs (95% CI: [     338.0,      341.6])
+complex_scan_input 4096i64:         5924μs (95% CI: [    5861.5,     5996.2])
+complex_scan_input 16384i64:       27305μs (95% CI: [   27025.0,    27565.9])
+complex_scan_input 131072i64:     315053μs (95% CI: [  308977.9,   320867.9])
+
+scan_variations.fut:test_rootfix (no tuning file):
+complex_scan_input 256i64:           117μs (95% CI: [     116.2,      117.4])
+complex_scan_input 4096i64:         1968μs (95% CI: [    1950.4,     1992.0])
+complex_scan_input 16384i64:       10661μs (95% CI: [   10467.8,    10857.5])
+complex_scan_input 131072i64:     135288μs (95% CI: [  131544.1,   141492.3])
