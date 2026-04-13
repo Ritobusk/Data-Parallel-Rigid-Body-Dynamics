@@ -99,7 +99,7 @@ def rnea' [n] (p : [n]i64) (joint_types : [n]jointT)
 
 
 -- Same as above implementation but now with vtrees
-def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
+def rnea'' [n] (joint_types : [n]jointT)
              (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
              (gravity : [6]f64)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
@@ -143,7 +143,6 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
               ) (iota n) 
 
 
-  let vtree_transformation = T.lprp <| mkt2 lp rp Xup
   let from_joint_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
 
   let to_root_F   = map XBtoA_MtoF from_joint_to_root_M 
@@ -165,7 +164,7 @@ def rnea'' [n] (p : [n]i64) (joint_types : [n]jointT)
 -- rnea with vtrees that also take an array of external forces
 --  these external forces are expressed in root coordinates
 -- To get an understanding of how this affects the total force see eq. 5.20 on page 95 in Roy Featherstones book
-def rnea_vtree_with_f_ext [n] (p : [n]i64) (joint_types : [n]jointT)
+def rnea_vtree_with_f_ext [n] (joint_types : [n]jointT)
              (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
              (gravity : [6]f64)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
@@ -206,7 +205,6 @@ def rnea_vtree_with_f_ext [n] (p : [n]i64) (joint_types : [n]jointT)
               map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
               ) (iota n) 
 
-  let vtree_transformation = T.lprp <| mkt2 lp rp Xup
   let from_joint_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
 
   let to_root_F   = map XBtoA_MtoF from_joint_to_root_M 
@@ -233,5 +231,5 @@ def main =
   let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
   let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
   let qdd = [0.61f64, 0.36f64, 0.4f64, 0.73f64, 0.96f64]
-  let (_, p, js, Is, Xtrees) = autoTree 5 1 0 1
-  in trace <| rnea'' p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd qdd [0,1,2,3,4] [9,8,7,6,5]
+  let (_, _, js, Is, Xtrees) = autoTree 5 1 0 1
+  in trace <| rnea'' js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd qdd [0,1,2,3,4] [9,8,7,6,5]

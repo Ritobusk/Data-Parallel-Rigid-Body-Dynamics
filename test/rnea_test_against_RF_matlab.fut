@@ -25,7 +25,7 @@ entry test_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [n]f64
   let lp = tmp.lp 
   let rp = tmp.rp 
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in rnea'' p js Is Xtrees gravity qs qds qdds lp rp
+  in rnea'' js Is Xtrees gravity qs qds qdds lp rp
 
 
 
@@ -45,4 +45,4 @@ entry test_fext_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [
   let lp = tmp.lp 
   let rp = tmp.rp 
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in rnea_vtree_with_f_ext p js Is Xtrees gravity qs qds qdds fext lp rp
+  in rnea_vtree_with_f_ext js Is Xtrees gravity qs qds qdds fext lp rp
