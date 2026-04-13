@@ -1,6 +1,8 @@
 import "matrix_ops"
 import "spatial_ops"
+import "lib/github.com/diku-dk/vtree/vtree"
 
+module T = vtree
 
 -- Inspiration is taken from: https://royfeatherstone.org/spatial/v2/sourceText/autoTree.txt
 -- Creates a kinematic tree 
