@@ -9,6 +9,13 @@ def matmul [n][m][p] 'a
       A
 def matmul_f64 = matmul (+) (*) (0f64)
 
+def matmul_rev (A: [6][6]f64) (B: [6][6]f64) : [6][6]f64 =
+  map (\B_row ->
+         map (\A_col ->
+                reduce (+) (0f64) (map2 (*) B_row A_col))
+             (transpose A))
+      B
+
 def mat_mul_vec [n] [m] 'a 
                 (add: a -> a -> a) (mul: a -> a -> a) (zero: a)
                 (A: [n][m]a) (v: [m]a) : [n]a =
