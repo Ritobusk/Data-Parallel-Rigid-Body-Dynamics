@@ -52,7 +52,7 @@ entry rnea_no_vtree_input [n] (a : (i64, f64, f64, f64, [n]f64, [n]f64, [n]f64) 
 -- script input { rnea_input ($loaddata "data/N100000_bf100_rnea_bench.in") }
 entry bench_rnea [n]  (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in rnea'' (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp
+  in rnea_vtree_optimized (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp
 
 
 -- Benchmark the rnea algorithm without vtrees.

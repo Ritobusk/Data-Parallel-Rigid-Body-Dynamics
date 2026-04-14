@@ -195,7 +195,7 @@ def rnea_vtree_optimized [n] (joint_types : [n]jointT)
               ) (iota n) 
 
 
-  let from_root_to_joint_M = rootfix_work_efficient matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
+  let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
   let to_root_F   = map transpose from_root_to_joint_M  
   let from_root_F = map XBtoA_MtoF from_root_to_joint_M 

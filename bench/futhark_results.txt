@@ -94,4 +94,30 @@ rnea_no_vtree_input ($loaddata "data/...:       1094μs (95% CI: [    1085.5,   
 rnea_no_vtree_input ($loaddata "data/...:       4086μs (95% CI: [    4050.9,     4123.9])
 rnea_no_vtree_input ($loaddata "data/...:       7278μs (95% CI: [    7203.0,     7357.9])
 rnea_no_vtree_input ($loaddata "data/...:      30390μs (95% CI: [   30144.7,    30732.4])
-rnea_no_vtree_input ($loaddata "data/...:      62902μs (95% CI: [   62497.7,    63460.4])½
+rnea_no_vtree_input ($loaddata "data/...:      62902μs (95% CI: [   62497.7,    63460.4])
+
+
+CUDA OPTIMIZED RNEA!!!!
+bench_rnea.fut:bench_rnea (no tuning file):
+rnea_input ($loaddata "data/test.in"):          2502μs (95% CI: [    2381.8,     2688.0])
+rnea_input ($loaddata "data/N100_bf1_...:       5122μs (95% CI: [    4842.5,     5394.9])
+rnea_input ($loaddata "data/N500_bf1_...:       6300μs (95% CI: [    5884.3,     6706.0])
+rnea_input ($loaddata "data/N1000_bf1...:       7163μs (95% CI: [    6740.1,     7604.8])
+rnea_input ($loaddata "data/N5000_bf1...:      21439μs (95% CI: [   21185.6,    21890.8])
+rnea_input ($loaddata "data/N10000_bf...:      27098μs (95% CI: [   26742.5,    27701.9])
+rnea_input ($loaddata "data/N50000_bf...:      28650μs (95% CI: [   28378.7,    29028.9])
+rnea_input ($loaddata "data/N100000_b...:      46631μs (95% CI: [   46373.4,    47304.6])
+rnea_input ($loaddata "data/N100_bf2_...:       5291μs (95% CI: [    4991.4,     5575.7])
+rnea_input ($loaddata "data/N500_bf2_...:       6502μs (95% CI: [    6000.8,     6936.1])
+rnea_input ($loaddata "data/N1000_bf2...:       6800μs (95% CI: [    6689.9,     6904.2])
+rnea_input ($loaddata "data/N5000_bf2...:      21299μs (95% CI: [   21157.3,    21558.1])
+rnea_input ($loaddata "data/N10000_bf...:      26438μs (95% CI: [   26355.2,    26575.1])
+rnea_input ($loaddata "data/N50000_bf...:      28620μs (95% CI: [   28514.2,    28734.9])
+rnea_input ($loaddata "data/N100000_b...:      46482μs (95% CI: [   46371.8,    46637.3])
+rnea_input ($loaddata "data/N100_bf10...:       3764μs (95% CI: [    3615.8,     3968.7])
+rnea_input ($loaddata "data/N500_bf10...:       5554μs (95% CI: [    5187.2,     5964.2])
+rnea_input ($loaddata "data/N1000_bf1...:       6593μs (95% CI: [    6399.8,     6826.9])
+rnea_input ($loaddata "data/N5000_bf1...:      24229μs (95% CI: [   23737.3,    24577.5])
+rnea_input ($loaddata "data/N10000_bf...:      26565μs (95% CI: [   26467.1,    26706.4])
+rnea_input ($loaddata "data/N50000_bf...:      28707μs (95% CI: [   28565.2,    28896.6])
+rnea_input ($loaddata "data/N100000_b...:      46557μs (95% CI: [   46356.4,    46918.7])
