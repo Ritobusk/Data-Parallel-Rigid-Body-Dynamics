@@ -6,6 +6,10 @@ import "lib/github.com/diku-dk/vtree/vtree"
 -- an operator as input
 def ilog2 (x: i64 ) = 63 - i64.i32 (i64.clz x)
 
+def next_power_of_two (n : i64) : i64 =
+  loop acc = 2 while acc < n do 
+    acc * 2
+
 def hillis_steele [n] 'a ( xs : [n]a) (op : a -> a -> a) : [n]a =
     let m = ilog2 n
     in loop xs = copy xs for d in (iota (m )) do
@@ -14,8 +18,10 @@ def hillis_steele [n] 'a ( xs : [n]a) (op : a -> a -> a) : [n]a =
         let update_vals = map (\i -> op xs[i] xs[i - offset]) indx_to_update
         in scatter (xs) indx_to_update update_vals
 
-def work_efficient [n] 'a (xs : [n]a) (op : a -> a -> a) (ne : a) : [n]a =
-    let m = ilog2 n
+def work_efficient [n] 'a (op : a -> a -> a) (ne : a) (xs : [n]a)  : [n]a =
+    let k = next_power_of_two n 
+    let m = ilog2 k
+    let xs = tabulate k (\i -> if i < n then xs[i] else ne)
     let upswept =
         loop xs = copy xs for d in 0...m do
             let offset = (2 ** (d +1))
@@ -34,7 +40,7 @@ def work_efficient [n] 'a (xs : [n]a) (op : a -> a -> a) (ne : a) : [n]a =
                                              else xs[itu + offset])
                     indx_to_update (indices indx_to_update))
             in (scatter xs indx_to_update update_vals)
-    in downswept
+    in take n downswept
 
 def rootfix_hillis_steele 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
     let I = replicate (2 * n) ne
@@ -47,7 +53,7 @@ def rootfix_work_efficient 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : 
     let I = replicate (2 * n) ne
     let L = scatter I lp data
     let R = scatter L rp (map inv data)
-    let S = work_efficient  R op ne
+    let S = work_efficient op ne R 
     in map (\i -> S[i]) lp
 
 def rootfix2 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
