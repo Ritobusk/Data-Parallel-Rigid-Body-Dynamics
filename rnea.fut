@@ -2,6 +2,7 @@ import "matrix_ops"
 import "spatial_ops"
 import "treeModel"
 import "lib/github.com/diku-dk/vtree/vtree"
+import "scan_variations"
 
 module T = vtree
 
@@ -10,12 +11,6 @@ def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
 def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =
     {lp=lp,rp=rp,data=ds}
 
-def rootfix2 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
-    let I = replicate (2 * n) ne
-    let L = scatter I lp data
-    let R = scatter L rp (map inv data)
-    let S = scan op ne R
-    in map (\i -> S[i]) lp
 -- Inspiration taken from https://royfeatherstone.org/spatial/v2/sourceText/ID.txt
 -- As far as I understand q, qd and qdd are scalars. This might only be the case for joints with only 1-DOF
 --  q, qd, qdd and tau are column vectors of length model.NB containing the joint position, velocity, acceleration and force variables, respectively.
@@ -205,7 +200,7 @@ def rnea_vtree_optimized [n] (joint_types : [n]jointT)
               ) (iota n) 
 
 
-  let from_root_to_joint_M = rootfix2 matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
+  let from_root_to_joint_M = rootfix_work_efficient matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
   let to_root_F   = map transpose from_root_to_joint_M  --XBtoA_MtoF from_joint_to_root_M 
   let from_root_F = map XBtoA_MtoF from_root_to_joint_M 
