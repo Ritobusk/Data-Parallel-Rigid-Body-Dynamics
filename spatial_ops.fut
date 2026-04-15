@@ -93,13 +93,6 @@ def XBtoA_from_XAtoB_M (XAtoB : [6][6]f64) : [6][6]f64 =
                 else          --q4
                   inv_E[r-3][c-3]
               )
-  -- test
-  -- let test = map (XBtoA_from_XAtoB) Xup
-  -- let v = [1,1,1,1,1,1f64]
-  -- let test1 = trace <|  loop  v' = v for i < n -2 do 
-  --               mat_mul_vec_f64 Xup[i] v'
-  -- let test2 = trace <|  loop  v' = test1 for i < n -2 do 
-  --               mat_mul_vec_f64 test[n - i - 3] v'
 
 -- Force version of XBtoA_from_XAtoB_M 
 def XBtoA_from_XAtoB_F (XAtoB : [6][6]f64) : [6][6]f64 =

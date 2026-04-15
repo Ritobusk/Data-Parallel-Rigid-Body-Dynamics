@@ -158,9 +158,9 @@ def rnea_vtree_optimized [n] (joint_types : [n]jointT)
              (gravity : [6]f64)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
              (lp : [n]i64) (rp : [n]i64) =
-  let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) joint_types q 
-  let vJ      = map2 (\s v -> map (\x -> x * v) s) S qd 
-  let Xup     = map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
+  let (XJ, S) = unzip <| map2 (jcalc) joint_types q 
+  let vJ      = map2 (scal_mul_vec_f64) qd S 
+  let Xup     = map2 (matmul_f64)       XJ Xtree
 
   let Cs = zip Xup vJ
 
@@ -169,49 +169,40 @@ def rnea_vtree_optimized [n] (joint_types : [n]jointT)
     let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
     in (inv_cia, inv_cib)
   
-  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-    (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) 
+    = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
 
   let vtree_vs = T.lprp <| mkt2 lp rp Cs
   let vs = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
-  let vs = map (.1) vs
+          |> map (.1)
 
-  -- as_tmp = S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
-  let as_tmp = map2 (\S_qdd v_cross_S_qd -> map2 (+) S_qdd v_cross_S_qd)
-                        (map (\i -> map (\s -> s * qdd[i]) S[i]) (iota n))
-                        (map (\i -> 
-                          if   i == 0 then replicate 6 0f64
-                          else mat_mul_vec_f64 (crm vs[i]) vJ[i]) (iota n))
-  let as_tmp = as_tmp with [0] = map2 (+) as_tmp[0] (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
+  let S_qdd  = tabulate n (\i -> scal_mul_vec_f64 qdd[i] S[i])
+  let v_cross_S_qd = tabulate n (\i -> if i == 0 then (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
+                                                 else mat_mul_vec_f64 (crm vs[i]) vJ[i])
+  let as_tmp = map2 (vecadd_f64) S_qdd v_cross_S_qd 
 
   let Cs = zip Xup as_tmp
 
   let vtree_as = T.lprp <| mkt2 lp rp Cs
   let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
-  let as = map (.1) as -- Xup[i]*as'[p] + S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
+          |> map (.1) 
 
-  let fBs = map (\i -> 
-              map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
-              ) (iota n) 
-
+  let fBs = tabulate n 
+          (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
 
   let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
-  let to_root_F   = map transpose from_root_to_joint_M  
+  let to_root_F   = map transpose  from_root_to_joint_M  
   let from_root_F = map XBtoA_MtoF from_root_to_joint_M 
 
-  let fBs_root = map2 (\X_to_root fbi -> X_to_root `mat_mul_vec_f64` fbi) to_root_F fBs
-
-  let inv_op (ci : [6]f64) : [6]f64 =
-    scal_mul_vec_f64 (-1) (ci)
+  let fBs_root = map2 (mat_mul_vec_f64) to_root_F fBs
 
   let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
-  let fJs_root = T.ileaffix vecadd_f64 inv_op (replicate 6 0f64) vtree_fjs_root
+  let fJs_root = T.ileaffix vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root
 
   let fJs = map2 (\X_to_joint fji -> X_to_joint `mat_mul_vec_f64` fji) from_root_F fJs_root 
 
   in map2 (\s f -> vecmul s f) S fJs  
-
 
 
 -- rnea with vtrees that also take an array of external forces
@@ -223,9 +214,9 @@ def rnea_vtree_with_f_ext [n] (joint_types : [n]jointT)
              (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
              (f_ext : [n][6]f64)
              (lp : [n]i64) (rp : [n]i64) =
-  let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) joint_types q 
-  let vJ      = map2 (\s v -> map (\x -> x * v) s) S qd 
-  let Xup     = map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtree
+  let (XJ, S) = unzip <| map2 (jcalc) joint_types q 
+  let vJ      = map2 (scal_mul_vec_f64) qd S 
+  let Xup     = map2 (matmul_f64)       XJ Xtree
 
   let Cs = zip Xup vJ
 
@@ -234,34 +225,31 @@ def rnea_vtree_with_f_ext [n] (joint_types : [n]jointT)
     let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
     in (inv_cia, inv_cib)
   
-  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-    (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) 
+    = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
 
   let vtree_vs = T.lprp <| mkt2 lp rp Cs
   let vs = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
-  let vs = map (.1) vs
+          |> map (.1)
 
-  let as_tmp = map2 (\S_qdd v_cross_S_qd -> map2 (+) S_qdd v_cross_S_qd)
-                        (map (\i -> map (\s -> s * qdd[i]) S[i]) (iota n))
-                        (map (\i -> 
-                          if   i == 0 then replicate 6 0f64
-                          else mat_mul_vec_f64 (crm vs[i]) vJ[i]) (iota n))
-  let as_tmp = as_tmp with [0] = map2 (+) as_tmp[0] (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
+  let S_qdd  = tabulate n (\i -> scal_mul_vec_f64 qdd[i] S[i])
+  let v_cross_S_qd = tabulate n (\i -> if i == 0 then (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
+                                                 else mat_mul_vec_f64 (crm vs[i]) vJ[i])
+  let as_tmp = map2 (vecadd_f64) S_qdd v_cross_S_qd 
 
   let Cs = zip Xup as_tmp
 
   let vtree_as = T.lprp <| mkt2 lp rp Cs
   let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
-  let as = map (.1) as -- Xup[i]*as'[p] + S[i]*qdd[i] + (crm vs'[i]) * vJ[i] 
+          |> map (.1) 
 
-  let fBs = map (\i -> 
-              map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
-              ) (iota n) 
+  let fBs = tabulate n 
+          (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
 
-  let from_joint_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
+  let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
-  let to_root_F   = map XBtoA_MtoF from_joint_to_root_M 
-  let from_root_F = map transpose from_joint_to_root_M 
+  let to_root_F   = map transpose  from_root_to_joint_M  
+  let from_root_F = map XBtoA_MtoF from_root_to_joint_M 
 
   -- Here you add the external forces
   --  Since you transform the body forces to root coordinates the external force can just be added 
@@ -269,16 +257,12 @@ def rnea_vtree_with_f_ext [n] (joint_types : [n]jointT)
             (X_to_root `mat_mul_vec_f64` fbi)  `vecadd_f64` (scal_mul_vec_f64 (-1) f_xi)
               ) to_root_F fBs f_ext
 
-  let inv_op (ci : [6]f64) : [6]f64 =
-    scal_mul_vec_f64 (-1) (ci)
-
   let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
-  let fJs_root = T.ileaffix vecadd_f64 inv_op (replicate 6 0f64) vtree_fjs_root
+  let fJs_root = T.ileaffix vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root
 
   let fJs = map2 (\X_to_joint fji -> X_to_joint `mat_mul_vec_f64` fji) from_root_F fJs_root 
 
   in map2 (\s f -> vecmul s f) S fJs  
-
 
 def main = 
   let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]

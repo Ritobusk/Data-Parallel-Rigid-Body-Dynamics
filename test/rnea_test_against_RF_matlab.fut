@@ -29,7 +29,7 @@ entry test_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [n]f64
 
 
 
--- Test the vtree rnea algorithm with external forces.
+-- Test the vtree rnea algorithm with external forces against results obtained from the matlab library made by Roy Featherstone.
 -- ==
 -- entry: test_fext_rnea
 -- input  @ data/10N_2bf_fext_rnea.in
