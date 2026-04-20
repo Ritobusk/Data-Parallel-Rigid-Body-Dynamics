@@ -130,10 +130,10 @@ def rnea'' [n] (joint_types : [n]jointT)
               map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
               ) (iota n) 
 
-  let from_joint_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
+  let from_body_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
 
-  let to_root_F   = map XBtoA_MtoF from_joint_to_root_M 
-  let from_root_F = map transpose from_joint_to_root_M 
+  let to_root_F   = map XBtoA_MtoF from_body_to_root_M 
+  let from_root_F = map transpose from_body_to_root_M 
 
   let fBs_root = map2 (\X_to_root fbi -> X_to_root `mat_mul_vec_f64` fbi) to_root_F fBs
 
@@ -183,11 +183,11 @@ def rnea_vtree_optimized [n] (joint_types : [n]jointT)
           (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
 
   let vtree_transform = T.lprp <| mkt2 lp rp Xup
-  let from_root_to_joint_M = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
-  -- let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
+  let from_root_to_body_M = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
+  -- let from_root_to_body_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
-  let to_root_F   = map transpose  from_root_to_joint_M  
-  let from_root_F = map XBtoA_MtoF from_root_to_joint_M 
+  let to_root_F   = map transpose  from_root_to_body_M  
+  let from_root_F = map XBtoA_MtoF from_root_to_body_M 
 
   let fBs_root = map2 (mat_mul_vec_f64) to_root_F fBs
 
@@ -236,10 +236,10 @@ def rnea_vtree_with_f_ext [n] (joint_types : [n]jointT)
   let fBs = tabulate n 
           (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
 
-  let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
+  let from_root_to_body_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
-  let to_root_F   = map transpose  from_root_to_joint_M  
-  let from_root_F = map XBtoA_MtoF from_root_to_joint_M 
+  let to_root_F   = map transpose  from_root_to_body_M  
+  let from_root_F = map XBtoA_MtoF from_root_to_body_M 
 
   -- Here you add the external forces
   --  Since you transform the body forces to root coordinates the external force can just be added 
