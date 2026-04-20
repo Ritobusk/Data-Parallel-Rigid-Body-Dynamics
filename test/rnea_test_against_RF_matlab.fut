@@ -18,6 +18,8 @@ import "../lib/github.com/diku-dk/vtree/vtree"
 -- output @ data/N1000_bf2_rnea.out
 -- input @ data/N1000_bf100_rnea.in
 -- output @ data/N1000_bf100_rnea.out
+-- input @ data/N100000_bf2_rnea.in
+-- output @ data/N100000_bf2_rnea.out
 entry test_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [n]f64)  : [n]f64 =
   let (_, p, js, Is, Xtrees) = autoTree n children 0 1
   let vtree =  T.mk_parent p (iota n)
@@ -38,6 +40,8 @@ entry test_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [n]f64
 -- output @ data/10N_1bf_fext_rnea.out
 -- input  @ data/50N_7bf_fext_rnea.in
 -- output @ data/50N_7bf_fext_rnea.out
+-- input  @ data/N100000_bf2_fext_rnea.in
+-- output @ data/N100000_bf2_fext_rnea.out
 entry test_fext_rnea [n] (children : f64) (qs : [n]f64) (qds : [n]f64) (qdds : [n]f64) (fext : [n][6]f64)  : [n]f64 =
   let (_, p, js, Is, Xtrees) = autoTree n children 0 1
   let vtree =  T.mk_parent p (iota n)

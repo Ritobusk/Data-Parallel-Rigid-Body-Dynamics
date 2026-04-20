@@ -11,10 +11,15 @@ for nb = Ns
     disp(nb)
     model = autoTree(nb, bf, skew, taper);
     input_file = "N" + num2str(nb) + "_bf" + num2str(bf) + "_" + filename_ending
-
-    writeArrayToFile(model.parent, 'i64', input_file);
-    writeCellOf2dArraysToFile(model.I, 'f64', input_file);
-    writeCellOf2dArraysToFile(model.Xtree, 'f64', input_file);
+    fid = fopen(input_file, 'a');
+    fprintf(fid, '%di64 \n', nb);
+    fprintf(fid, '%gf64 \n', bf);
+    fprintf(fid, '%gf64 \n', skew);
+    fprintf(fid, '%gf64 \n', taper);
+    fclose(fid);
+    %writeArrayToFile(model.parent, 'i64', input_file);
+    %writeCellOf2dArraysToFile(model.I, 'f64', input_file);
+    %writeCellOf2dArraysToFile(model.Xtree, 'f64', input_file);
 
     q = round(rand(nb,1), 2);
     qd = round(rand(nb,1), 2);

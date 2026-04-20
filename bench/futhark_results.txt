@@ -121,3 +121,18 @@ rnea_input ($loaddata "data/N5000_bf1...:      24229μs (95% CI: [   23737.3,   
 rnea_input ($loaddata "data/N10000_bf...:      26565μs (95% CI: [   26467.1,    26706.4])
 rnea_input ($loaddata "data/N50000_bf...:      28707μs (95% CI: [   28565.2,    28896.6])
 rnea_input ($loaddata "data/N100000_b...:      46557μs (95% CI: [   46356.4,    46918.7])
+
+Large
+	bf1:
+	rnea_input ($loaddata "data/N500000_b...:     161544μs (95% CI: [  161236.1,   161807.6])
+	rnea_input ($loaddata "data/N1000000_...:     316073μs (95% CI: [  315785.7,   316366.7])
+	
+	bf2:
+	rnea_input ($loaddata "data/N500000_b...:     163615μs (95% CI: [  163389.0,   163804.2])
+	rnea_input ($loaddata "data/N1000000_...:     319666μs (95% CI: [  319507.0,   319823.3])
+
+	bf100:
+	rnea_input ($loaddata "data/N500000_b...:     162513μs (95% CI: [  162307.5,   162789.8])
+	rnea_input ($loaddata "data/N1000000_...:     317177μs (95% CI: [  316638.2,   317864.7])
+
+

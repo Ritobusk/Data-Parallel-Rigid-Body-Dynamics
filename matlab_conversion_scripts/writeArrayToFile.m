@@ -20,9 +20,19 @@ if isempty(A)
 end
 
 % Write as [a, b, c]
-fprintf(fid, ['[%g' t], A(1));
+if t == "f64"
+    fprintf(fid, ['[%.4f' t], A(1));
+else
+    fprintf(fid, ['[%g' t], A(1));
+end
+
 for k = 2:numel(A)
-    fprintf(fid, [', %g' t], A(k));
+    if t == "f64"
+        fprintf(fid, [', %.4f' t], A(k));
+    else
+        fprintf(fid, [', %g' t], A(k));
+    end
+    
 end
 fprintf(fid, ']\n');
 

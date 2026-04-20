@@ -182,7 +182,9 @@ def rnea_vtree_optimized [n] (joint_types : [n]jointT)
   let fBs = tabulate n 
           (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
 
-  let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
+  let vtree_transform = T.lprp <| mkt2 lp rp Xup
+  let from_root_to_joint_M = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
+  -- let from_root_to_joint_M = rootfix_work_efficient_sc matmul_rev XBtoA_from_XAtoB_M (identity 6) lp rp Xup
 
   let to_root_F   = map transpose  from_root_to_joint_M  
   let from_root_F = map XBtoA_MtoF from_root_to_joint_M 
