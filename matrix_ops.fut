@@ -36,6 +36,9 @@ def scal_mul_mat_f64 [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
 def diagonal [a] (diag : [a]f64) : [a][a]f64 =
   tabulate_2d a a (\r c -> if r == c then diag[r] else 0f64)
 
+def get_diagonal [n] (diag : [n][n]f64) : [n]f64 =
+  map (\i -> diag[i][i]) (iota n)
+
 def identity  (size: i64) : [size][size]f64 =
   tabulate_2d size size (\r c -> if r == c then 1f64 else 0f64)
 

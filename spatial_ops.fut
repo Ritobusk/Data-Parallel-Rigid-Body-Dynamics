@@ -173,4 +173,5 @@ def jcalc (jtyp : jointT) (q : f64) : ([6][6]f64, [6]f64) =
   case  #Px -> (xlt [q,0,0], [0,0,0,1f64,0,0])
   case  #Py -> (xlt [0,q,0], [0,0,0,0,1f64,0])
   case  #Pz -> (xlt [0,0,q], [0,0,0,0,0,1f64])
-  case  #helical pitch -> (replicate 6 (replicate 6 (0.0f64)), [0,0,1,0,0,pitch])
+  case  #helical pitch -> 
+      (rotz q `matmul_f64` xlt [0, 0, q * pitch], [0,0,1,0,0,pitch])
