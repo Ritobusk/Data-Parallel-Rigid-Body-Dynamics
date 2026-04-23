@@ -12,8 +12,10 @@ def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, d
     {lp=lp,rp=rp,data=ds}
 
 -- Inspiration taken from https://royfeatherstone.org/spatial/v2/sourceText/ID.txt
--- As far as I understand q, qd and qdd are scalars. This might only be the case for joints with only 1-DOF
---  q, qd, qdd and tau are column vectors of length model.NB containing the joint position, velocity, acceleration and force variables, respectively.
+--  q, qd, qdd and tau are column vectors of length N containing the joint 
+--   position, velocity, acceleration and force variables, respectively.
+-- The parameters from the model that are used are the parent array, the joint types,
+--  the inertia matrices and the Xtree transformations.
 def rnea [n] (p : [n]i64) (joint_types : [n]jointT)
              (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
              (gravity : [6]f64)

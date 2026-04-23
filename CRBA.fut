@@ -75,6 +75,8 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   let d_exsc = (rotate (-1) d_sc) with [0] = 0
   let f_arr  = 
         scatter (replicate d_sc[n-1] false) (d_exsc) (replicate n true)
+  let ii1 = trace <| map (\x -> x-1) <| scan (+) 0 <| map i64.bool f_arr
+  let ii2 = trace <| segmented_iota f_arr 
 
   let fhs  = map2 mat_mul_vec_f64 Ics S
 
@@ -84,15 +86,16 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   let Xdown_F = map transpose Xup
   let fijs = replicate d_sc[n-1] (identity 6)
 
-  let (_, paths) = map2 (\p d -> 
+  let parent = trace parent
+  let (_, paths) = trace <| map2 (\p d -> 
         loop (j, path) = (p, replicate tree_depth (-1i64) with [0] = 0i64) for k < d do
-                let path[k] = j
+                let path = path with [k] = j 
                 let j = parent[j]
                 in (j, path)
         ) parent depths 
         |> unzip
 
-  let paths = flatten paths |> filter (> -1i64)
+  let paths = flatten paths |> filter (> -1i64) |> trace
   let fijs  = scatter fijs (indices paths) (map (\i -> Xdown_F[i] ) paths)
   let fijs  = scatter fijs (map (\i -> d_exsc[i]) (iota n)) 
                            (map2 (\i f -> Xdown_F[i] `matmul_f64` (diagonal f) ) (iota n) fhs)
@@ -102,6 +105,8 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
 
   -- need to scatter the (S * fijs) around H.
   -- Also I think I might have gotten confused about some index of the parent path stuff.
+  -- Maybe you do not need a segmented_scan and can just index into to_root_F and from_root_F
+  -- Need to create ii1s and ii2s
 
 
 -- for i = 1:model.NB
@@ -119,3 +124,9 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   in (H, C)
 
 
+
+def main = 
+  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
+  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
+  let (_, p, js, Is, Xtrees) = autoTree 5 1 0 1
+  in trace <| crba_vtree p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd [0,1,2,3,4] [9,8,7,6,5]
