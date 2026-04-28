@@ -18,7 +18,7 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
              (gravity : [6]f64)
              (q : [n]f64) (qd : [n]f64) --(tau : [n]f64)
              (lp : [n]i64) (rp : [n]i64) 
-             : ([n][n]f64, [n]f64) =
+             : ([n]f64, [n][n]f64) =
   -- Step 1: Compute the joint-space bias force: tau = ID(model, q, qd, 0)
   let (XJ, S) = unzip <| map2 (jcalc) joint_types q 
   let vJ      = map2 (scal_mul_vec_f64) qd S 
@@ -60,7 +60,7 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   let fJs = map2 (mat_mul_vec_f64) from_root_F fJs_root 
   let C = map2 (vecmul) S fJs  
 
-  -- Step 2: Compute H
+  -- Step 3: Compute composite rigid bodies 
 
   let H = replicate n <| replicate n 0f64
 
@@ -69,39 +69,56 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   let Ics_root = T.ileaffix matadd_f64 (scal_mul_mat_f64 (-1)) (replicate 6 <| replicate 6 0f64) vtree_Ics_root 
   let Ics = map3 (\bXa_F aXb_M rI -> bXa_F `matmul_f64`  (rI `matmul_f64` aXb_M)) from_root_F from_body_to_root_M Ics_root
 
-  let depths = T.depth vtree_Ics_root
+  -- Step 4: Compute H
+
+  let depths = trace <| T.depth vtree_Ics_root
   let tree_depth = reduce i64.max 0i64 depths
-  let d_sc = scan (+) 0i64  (map (+1) depths)
-  let d_exsc = (rotate (-1) d_sc) with [0] = 0
-  let f_arr  = 
-        scatter (replicate d_sc[n-1] false) (d_exsc) (replicate n true)
-  let ii1 = trace <| map (\x -> x-1) <| scan (+) 0 <| map i64.bool f_arr
-  let ii2 = trace <| segmented_iota f_arr 
+  -- I do not care about the root and the ID of a path. These are implicitly known.
+  let sizes = trace <| map (\x -> if x > 0 then x else 0) depths
+  let d_sc = scan (+) 0i64 sizes
+  let (ii1) = replicated_iota sizes 
+  let ii1 = sized d_sc[n-1] ii1
+  let (ii1) = trace (ii1)
+  -- let ii1 = trace <| map (\x -> x) <| scan (+) 0 <| map i64.bool f_arr
+  -- let ii2 = trace <| segmented_iota f_arr 
 
   let fhs  = map2 mat_mul_vec_f64 Ics S
 
   let fhs' = map2 (vecmul) S fhs
   let H =  scatter_2d H (zip (iota n) (iota n)) fhs'
 
-  let Xdown_F = map transpose Xup
-  let fijs = replicate d_sc[n-1] (identity 6)
-
   let parent = trace parent
   let (_, paths) = trace <| map2 (\p d -> 
-        loop (j, path) = (p, replicate tree_depth (-1i64) with [0] = 0i64) for k < d do
+        loop (j, path) = (p, replicate tree_depth (-1i64) ) for k < (d) do
                 let path = path with [k] = j 
                 let j = parent[j]
                 in (j, path)
         ) parent depths 
         |> unzip
+  let paths = flatten paths |> filter (> -1i64) |> sized (d_sc[n-1])
 
-  let paths = flatten paths |> filter (> -1i64) |> trace
-  let fijs  = scatter fijs (indices paths) (map (\i -> Xdown_F[i] ) paths)
-  let fijs  = scatter fijs (map (\i -> d_exsc[i]) (iota n)) 
-                           (map2 (\i f -> Xdown_F[i] `matmul_f64` (diagonal f) ) (iota n) fhs)
+  let tmp = map2 (\i j ->
+          let f = from_root_F[j] `mat_mul_vec_f64` (to_root_F[i] `mat_mul_vec_f64` fhs[i])
+          let fh = S[j] `vecmul` f
+          in fh
+      ) ii1 paths
 
-  let fijs'  = segmented_scan matmul_rev (identity 6) f_arr fijs
-             |> map get_diagonal
+  let H =  scatter_2d H (zip ii1 paths) tmp
+  let H =  scatter_2d H (zip paths ii1) tmp
+
+  -- let d_exsc = (rotate (-1) d_sc) with [0] = 0
+  -- let f_arr  = 
+  --       scatter (replicate d_sc[n-1] false) (d_exsc) (replicate n true)
+  -- let Xdown_F = map transpose Xup
+  -- let fijs = replicate d_sc[n-1] (identity 6)
+  --
+  --
+  -- let fijs  = scatter fijs (indices paths) (map (\i -> Xdown_F[i] ) paths)
+  -- let fijs  = scatter fijs (map (\i -> d_exsc[i]) (iota n)) 
+  --                          (map2 (\i f -> Xdown_F[i] `matmul_f64` (diagonal f) ) (iota n) fhs)
+  --
+  -- let fijs'  = segmented_scan matmul_rev (identity 6) f_arr fijs
+  --            |> map get_diagonal
 
   -- need to scatter the (S * fijs) around H.
   -- Also I think I might have gotten confused about some index of the parent path stuff.
@@ -113,7 +130,7 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
 --   fh = IC{i} * S{i};
 --   H(i,i) = S{i}' * fh;
 --   j = i;
---   while model.parent(j) > 0
+--   while model.parent(j) > 0 --  Root is: parent(1) = 0
 --     fh = Xup{j}' * fh;
 --     j = model.parent(j);
 --     H(i,j) = S{j}' * fh;
@@ -121,12 +138,87 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
 --   end
 -- end
 
-  in (H, C)
+  in (C, H)
+
+def crba_vtree' [n] [nd] [ndd] (joint_types : [n]jointT)
+             (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
+             (gravity : [6]f64)
+             (q : [n]f64) (qd : [n]f64) --(tau : [n]f64)
+             (lp : [n]i64) (rp : [n]i64) 
+             (paths : [nd]i64) (p_ii1 : [ndd]i64)
+             : ([n]f64, [n][n]f64) =
+  -- Step 1: Compute the joint-space bias force: tau = ID(model, q, qd, 0)
+  let (XJ, S) = unzip <| map2 (jcalc) joint_types q 
+  let vJ      = map2 (scal_mul_vec_f64) qd S 
+  let Xup     = map2 (matmul_f64)       XJ Xtree
+
+  let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+    let inv_cia = XBtoA_from_XAtoB_M ci.0
+    let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+    in (inv_cia, inv_cib)
+  
+  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) 
+    = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+
+  let vtree_vs = T.lprp <| mkt2 lp rp (zip Xup vJ)
+  let vs = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
+          |> map (.1)
+
+  let as_tmp = tabulate n (\i -> if i == 0 then (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
+                                                 else mat_mul_vec_f64 (crm vs[i]) vJ[i])
+  let vtree_as = T.lprp <| mkt2 lp rp (zip Xup as_tmp)
+  let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
+          |> map (.1) 
+
+  let fBs = tabulate n 
+          (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
+
+  let vtree_transform = T.lprp <| mkt2 lp rp Xup
+  let from_root_to_body_M = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
+  let from_body_to_root_M = map XBtoA_from_XAtoB_M from_root_to_body_M
+
+  let to_root_F   = map transpose  from_root_to_body_M  
+  let from_root_F = map XBtoA_MtoF from_root_to_body_M 
+
+  let fBs_root = map2 (mat_mul_vec_f64) to_root_F fBs
+
+  let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
+  let fJs_root = T.ileaffix vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root
+
+  let fJs = map2 (mat_mul_vec_f64) from_root_F fJs_root 
+  let C = map2 (vecmul) S fJs  
+
+  -- Step 3: Compute composite rigid bodies 
+
+  let H = replicate n <| replicate n 0f64
+
+  let I_to_root = map3 (\bXa_F aXb_M I -> bXa_F `matmul_f64`  (I `matmul_f64` aXb_M)) to_root_F from_root_to_body_M Is
+  let vtree_Ics_root = T.lprp <| mkt2 lp rp I_to_root 
+  let Ics_root = T.ileaffix matadd_f64 (scal_mul_mat_f64 (-1)) (replicate 6 <| replicate 6 0f64) vtree_Ics_root 
+  let Ics = map3 (\bXa_F aXb_M rI -> bXa_F `matmul_f64`  (rI `matmul_f64` aXb_M)) from_root_F from_body_to_root_M Ics_root
+
+  -- Step 4: Compute H
+  let fhs  = map2 mat_mul_vec_f64 Ics S
+  let fhs' = map2 (vecmul) S fhs
+  let H =  scatter_2d H (zip (iota n) (iota n)) fhs'
+  let p_ii1 = sized nd p_ii1
+
+  let tmp = map2 (\i j ->
+          let f = from_root_F[j] `mat_mul_vec_f64` (to_root_F[i] `mat_mul_vec_f64` fhs[i])
+          let fh = S[j] `vecmul` f
+          in fh
+      ) p_ii1 paths
+
+  let H =  scatter_2d H (zip p_ii1 paths) tmp
+  let H =  scatter_2d H (zip paths p_ii1) tmp
+  in (C, H)
 
 
 
 def main = 
   let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
   let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
-  let (_, p, js, Is, Xtrees) = autoTree 5 1 0 1
-  in trace <| crba_vtree p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd [0,1,2,3,4] [9,8,7,6,5]
+  let (_, _, js, Is, Xtrees,lp,rp, paths, p_ii1) = autoVTree 5 1 0 1
+  let paths = sized (length paths) paths
+  let p_ii1 = sized (length paths) p_ii1
+  in trace <| crba_vtree' js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd lp rp paths p_ii1
