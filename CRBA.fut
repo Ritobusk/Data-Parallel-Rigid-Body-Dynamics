@@ -219,6 +219,4 @@ def main =
   let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
   let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
   let (_, _, js, Is, Xtrees,lp,rp, paths, p_ii1) = autoVTree 5 1 0 1
-  let paths = sized (length paths) paths
-  let p_ii1 = sized (length paths) p_ii1
   in trace <| crba_vtree' js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd lp rp paths p_ii1
