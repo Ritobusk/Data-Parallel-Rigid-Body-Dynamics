@@ -76,11 +76,22 @@ def work_efficient_sc [n] 'a (op : a -> a -> a) (ne : a)  (xs : [n]a)  : [n]a =
                     |> take n 
     in org_arr with [n-1] = final_elem
 
+
+-- taken from https://futhark-lang.org/blog/2019-04-10-what-is-the-minimal-basis-for-futhark.html
+def scan' [n] 'a (op: a -> a -> a) (_ne: a) (as: [n]a): [n]a =
+  let iters = i64.f32 (f32.ceil (f32.log2 (f32.i64 n)))
+  in loop as for i < iters do
+       map (\j -> if j < 2**i
+                  then as[j]
+                  else as[j] `op` as[j-2**i])
+           (iota n)
+
+
 def rootfix_hillis_steele 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
     let I = replicate (2 * n) ne
     let L = scatter I lp data
     let R = scatter L rp (map inv data)
-    let S = hillis_steele R op
+    let S = scan' op ne R
     in map (\i -> S[i]) lp
 
 def rootfix_work_efficient 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
