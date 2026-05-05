@@ -4,6 +4,27 @@ import "treeModel"
 import "lib/github.com/diku-dk/vtree/vtree"
 -- The scan implementations are my DPP implementation where I modified them to take
 -- an operator as input
+
+def blocked 'a [n] (op: a -> a -> a) (ne: a) (xs: [n]a) : [n]a =
+  let block_size = #[param(scan_block_size)] 256i64
+  let num_blocks = (n + block_size - 1) / block_size
+  let block_scans =
+    tabulate num_blocks (\i ->
+      let block =
+        tabulate block_size (\j ->
+          let l = i * block_size + j
+          in if l < n then xs[l] else ne)
+      in #[sequential] scan op ne block)
+  let carry_outs =
+    -- Can use any scan for this.
+    scan op ne (map last block_scans)
+  in map2 (\x l ->
+             let i = l / block_size
+             in if i > 0 then x `op` carry_outs[i - 1] else x)
+          (take n (flatten block_scans))
+          (iota n)
+
+
 def ilog2 (x: i64 ) = 63 - i64.i32 (i64.clz x)
 
 def next_power_of_two (n : i64) : i64 =
@@ -86,8 +107,14 @@ def scan' [n] 'a (op: a -> a -> a) (_ne: a) (as: [n]a): [n]a =
                   else as[j] `op` as[j-2**i])
            (iota n)
 
+def rootfix_blocked 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
+    let I = replicate (2 * n) ne
+    let L = scatter I lp data
+    let R = scatter L rp (map inv data)
+    let S = blocked op ne R
+    in map (\i -> S[i]) lp
 
-def rootfix_hillis_steele 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
+def rootfix_thursday 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64) (rp : [n]i64) (data : [n]a) : [n]a =
     let I = replicate (2 * n) ne
     let L = scatter I lp data
     let R = scatter L rp (map inv data)
@@ -137,63 +164,47 @@ entry complex_scan_input  (n : i64) :
     let Cs = zip Xup vJ
     in (Cs, lp, rp)
 
-
 -- ==
--- entry: test_work_efficient2
--- compiled random input { [256]i32 }  output {true}
--- compiled random input { [500]i32}   output {true}
--- compiled random input { [65536]i32}  output {true}
--- compiled random input { [104999]i32}  output {true}
-entry test_work_efficient2 [n] (xs : [n]i32) : bool =
-    let a = work_efficient (+) 0 xs 
-    let b = exscan (+) 0 xs
-    in map2 (\x y ->  (x - y) == 0) a b 
-       |> and
-
-
--- ==
--- entry: test_work_efficient_rootfix_against_exscan
--- input { 256i64 }  output {true}
--- input { 4016i64 }  output {true}
--- input { 6384i64 }  output {true}
--- input { 131072i64 }  output {true}
-entry test_work_efficient_rootfix_against_exscan (n : i64) : bool =
-    let (data, lp, rp) = complex_scan_input n
-    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-      let inv_cia = XBtoA_from_XAtoB_M ci.0
-      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
-      in (inv_cia, inv_cib)
-    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
-    let a = rootfix_work_efficient operator inv_op (identity 6, replicate 6 0f64) lp rp data
-    let b = rootfix_exscan operator inv_op (identity 6, replicate 6 0f64) lp rp data
-    in map2 (\xr yr -> 
-                map2 (\x y -> f64.abs (x - y) < 1e-8f64) xr yr
-                |> reduce (&&) true
-            ) (map (.1) a) (map (.1) b)
-        |> and
-
--- ==
--- entry: test_hillis_steele_rootfix
+-- entry: test_thursday_rootfix
 -- script input { complex_scan_input 256i64 }  
 -- script input { complex_scan_input 4096i64 }  
 -- script input { complex_scan_input 16384i64 }  
 -- script input { complex_scan_input 131072i64 }  
-entry test_hillis_steele_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
+-- script input { complex_scan_input 191072i64 }  
+-- script input { complex_scan_input 491072i64 }  
+entry test_thursday_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
       let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
       in (inv_cia, inv_cib)
     let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
-    in rootfix_hillis_steele operator inv_op (identity 6, replicate 6 0f64) lp rp data
+    in rootfix_thursday operator inv_op (identity 6, replicate 6 0f64) lp rp data
 
+-- ==
+-- entry: test_blocked_rootfix
+-- script input { complex_scan_input 256i64 }  
+-- script input { complex_scan_input 4096i64 }  
+-- script input { complex_scan_input 16384i64 }  
+-- script input { complex_scan_input 131072i64 }  
+-- script input { complex_scan_input 191072i64 }  
+-- script input { complex_scan_input 491072i64 }  
+entry test_blocked_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
+    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      let inv_cia = XBtoA_from_XAtoB_M ci.0
+      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+      in (inv_cia, inv_cib)
+    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+    in rootfix_blocked operator inv_op (identity 6, replicate 6 0f64) lp rp data
 -- ==
 -- entry: test_work_efficient_rootfix
 -- script input { complex_scan_input 256i64 }  
 -- script input { complex_scan_input 4096i64 }  
 -- script input { complex_scan_input 16384i64 }  
 -- script input { complex_scan_input 131072i64 }  
+-- script input { complex_scan_input 191072i64 }  
+-- script input { complex_scan_input 491072i64 }  
 entry test_work_efficient_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -204,12 +215,14 @@ entry test_work_efficient_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i
     in rootfix_work_efficient operator inv_op (identity 6, replicate 6 0f64) lp rp data
 
 -- ==
--- entry: test_rootfix
+-- entry: test_rootfix_normal_scan
 -- script input { complex_scan_input 256i64 }  
 -- script input { complex_scan_input 4096i64 }  
 -- script input { complex_scan_input 16384i64 }  
 -- script input { complex_scan_input 131072i64 }  
-entry test_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
+-- script input { complex_scan_input 191072i64 }  
+-- script input { complex_scan_input 491072i64 }  
+entry test_rootfix_normal_scan [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
       let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
@@ -247,6 +260,42 @@ entry test_work_efficient [n] (xs : [n]i32) : [n]i32 =
 -- compiled random input { [4194304]i32}  auto output
 entry test_regular_scan [n] (xs : [n]i32) : [n]i32 =
     scan (+) 0 xs
+
+-- ==
+-- entry: test_work_efficient2
+-- compiled random input { [256]i32 }  output {true}
+-- compiled random input { [500]i32}   output {true}
+-- compiled random input { [65536]i32}  output {true}
+-- compiled random input { [104999]i32}  output {true}
+entry test_work_efficient2 [n] (xs : [n]i32) : bool =
+    let a = work_efficient (+) 0 xs 
+    let b = exscan (+) 0 xs
+    in map2 (\x y ->  (x - y) == 0) a b 
+       |> and
+
+
+-- ==
+-- entry: test_work_efficient_rootfix_against_exscan
+-- input { 256i64 }  output {true}
+-- input { 4016i64 }  output {true}
+-- input { 6384i64 }  output {true}
+-- input { 131072i64 }  output {true}
+entry test_work_efficient_rootfix_against_exscan (n : i64) : bool =
+    let (data, lp, rp) = complex_scan_input n
+    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      let inv_cia = XBtoA_from_XAtoB_M ci.0
+      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+      in (inv_cia, inv_cib)
+    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+    let a = rootfix_work_efficient operator inv_op (identity 6, replicate 6 0f64) lp rp data
+    let b = rootfix_exscan operator inv_op (identity 6, replicate 6 0f64) lp rp data
+    in map2 (\xr yr -> 
+                map2 (\x y -> f64.abs (x - y) < 1e-8f64) xr yr
+                |> reduce (&&) true
+            ) (map (.1) a) (map (.1) b)
+        |> and
+
 
 
 -- def main =
