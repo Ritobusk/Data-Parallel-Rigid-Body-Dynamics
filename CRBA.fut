@@ -60,7 +60,7 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   let fJs = map2 (mat_mul_vec_f64) from_root_F fJs_root 
   let C = map2 (vecmul) S fJs  
 
-  -- Step 3: Compute composite rigid bodies 
+  -- Step 2: Compute composite rigid bodies 
 
   let H = replicate n <| replicate n 0f64
 
@@ -69,18 +69,15 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
   let Ics_root = T.ileaffix matadd_f64 (scal_mul_mat_f64 (-1)) (replicate 6 <| replicate 6 0f64) vtree_Ics_root 
   let Ics = map3 (\bXa_F aXb_M rI -> bXa_F `matmul_f64`  (rI `matmul_f64` aXb_M)) from_root_F from_body_to_root_M Ics_root
 
-  -- Step 4: Compute H
+  -- Step 3: Compute H
 
   let depths = trace <| T.depth vtree_Ics_root
   let tree_depth = reduce i64.max 0i64 depths
-  -- I do not care about the root and the ID of a path. These are implicitly known.
   let sizes = trace <| map (\x -> if x > 0 then x else 0) depths
   let d_sc = scan (+) 0i64 sizes
   let (ii1) = replicated_iota sizes 
   let ii1 = sized d_sc[n-1] ii1
   let (ii1) = trace (ii1)
-  -- let ii1 = trace <| map (\x -> x) <| scan (+) 0 <| map i64.bool f_arr
-  -- let ii2 = trace <| segmented_iota f_arr 
 
   let fhs  = map2 mat_mul_vec_f64 Ics S
 
@@ -105,38 +102,6 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
 
   let H =  scatter_2d H (zip ii1 paths) tmp
   let H =  scatter_2d H (zip paths ii1) tmp
-
-  -- let d_exsc = (rotate (-1) d_sc) with [0] = 0
-  -- let f_arr  = 
-  --       scatter (replicate d_sc[n-1] false) (d_exsc) (replicate n true)
-  -- let Xdown_F = map transpose Xup
-  -- let fijs = replicate d_sc[n-1] (identity 6)
-  --
-  --
-  -- let fijs  = scatter fijs (indices paths) (map (\i -> Xdown_F[i] ) paths)
-  -- let fijs  = scatter fijs (map (\i -> d_exsc[i]) (iota n)) 
-  --                          (map2 (\i f -> Xdown_F[i] `matmul_f64` (diagonal f) ) (iota n) fhs)
-  --
-  -- let fijs'  = segmented_scan matmul_rev (identity 6) f_arr fijs
-  --            |> map get_diagonal
-
-  -- need to scatter the (S * fijs) around H.
-  -- Also I think I might have gotten confused about some index of the parent path stuff.
-  -- Maybe you do not need a segmented_scan and can just index into to_root_F and from_root_F
-  -- Need to create ii1s and ii2s
-
-
--- for i = 1:model.NB
---   fh = IC{i} * S{i};
---   H(i,i) = S{i}' * fh;
---   j = i;
---   while model.parent(j) > 0 --  Root is: parent(1) = 0
---     fh = Xup{j}' * fh;
---     j = model.parent(j);
---     H(i,j) = S{j}' * fh;
---     H(j,i) = H(i,j);
---   end
--- end
 
   in (C, H)
 
@@ -188,7 +153,7 @@ def crba_vtree' [n] [nd] [ndd] (joint_types : [n]jointT)
   let fJs = map2 (mat_mul_vec_f64) from_root_F fJs_root 
   let C = map2 (vecmul) S fJs  
 
-  -- Step 3: Compute composite rigid bodies 
+  -- Step 2: Compute composite rigid bodies 
 
   let H = replicate n <| replicate n 0f64
 
@@ -197,20 +162,19 @@ def crba_vtree' [n] [nd] [ndd] (joint_types : [n]jointT)
   let Ics_root = T.ileaffix matadd_f64 (scal_mul_mat_f64 (-1)) (replicate 6 <| replicate 6 0f64) vtree_Ics_root 
   let Ics = map3 (\bXa_F aXb_M rI -> bXa_F `matmul_f64`  (rI `matmul_f64` aXb_M)) from_root_F from_body_to_root_M Ics_root
 
-  -- Step 4: Compute H
+  -- Step 3: Compute H
   let fhs  = map2 mat_mul_vec_f64 Ics S
-  let fhs' = map2 (vecmul) S fhs
-  let H =  scatter_2d H (zip (iota n) (iota n)) fhs'
+  let Hii = map2 (vecmul) S fhs
+  let H =  scatter_2d H (zip (iota n) (iota n)) Hii
   let p_ii1 = sized nd p_ii1
 
-  let tmp = map2 (\i j ->
+  let Hij = map2 (\i j ->
           let f = from_root_F[j] `mat_mul_vec_f64` (to_root_F[i] `mat_mul_vec_f64` fhs[i])
-          let fh = S[j] `vecmul` f
-          in fh
+          in S[j] `vecmul` f
       ) p_ii1 paths
 
-  let H =  scatter_2d H (zip p_ii1 paths) tmp
-  let H =  scatter_2d H (zip paths p_ii1) tmp
+  let H =  scatter_2d H (zip p_ii1 paths) Hij
+  let H =  scatter_2d H (zip paths p_ii1) Hij
   in (C, H)
 
 
