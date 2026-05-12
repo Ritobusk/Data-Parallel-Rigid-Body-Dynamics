@@ -53,6 +53,7 @@ def autoVTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) :
     let Xtree       = map (\i -> if i == 0 then xlt [0,0,0] -- identity
                                  else matmul_f64 (rotx skew)  (xlt [lengths[parents'[i]], 0, 0]) -- Not sure if this just puts all the children in the excact same place or not...
                           ) ids
+
     let vtree = T.mk_parent parents' (iota nb)
     let tmp = T.unmk vtree
     let lp = tmp.lp 
@@ -60,8 +61,7 @@ def autoVTree (nb : i64) (bf : f64) (skew : f64) (taper : f64) :
 
     let depths = T.depth vtree
     let tree_depth = reduce i64.max 0i64 depths
-    let sizes = map (\x -> if x > 0 then x else 0) depths
-    let p_ii1 = replicated_iota sizes 
+    let p_ii1 = replicated_iota depths 
     let (_, paths) = map2 (\p d -> 
         loop (j, path) = (p, replicate tree_depth (-1i64) ) for k < (d) do
                 let path = path with [k] = j 
