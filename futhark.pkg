@@ -1,3 +1,4 @@
 require {
   github.com/diku-dk/vtree 0.0.0-20260320125734+2c7ef8752162614f3f7ceb505a1e71e62f05e12c #2c7ef8752162614f3f7ceb505a1e71e62f05e12c
+  github.com/diku-dk/cpprandom 1.5.0 #ec96adc06f7a91040b2c1f7f9fdc56b9b2e9f3a3
 }
