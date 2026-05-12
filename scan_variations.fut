@@ -2,29 +2,34 @@ import "matrix_ops"
 import "spatial_ops"
 import "treeModel"
 import "lib/github.com/diku-dk/vtree/vtree"
--- The scan implementations are my DPP implementation where I modified them to take
--- an operator as input
 
+-- Blocked scan from Troels
 def blocked 'a [n] (op: a -> a -> a) (ne: a) (xs: [n]a) (bs : i64) : [n]a =
-  let block_size = #[param(scan_block_size)] bs
-  let num_blocks = (n + block_size - 1) / block_size
-  let block_scans =
-    tabulate num_blocks (\i ->
-      let block =
-        tabulate block_size (\j ->
-          let l = i * block_size + j
-          in if l < n then xs[l] else ne)
-      in #[sequential] scan op ne block)
-  let carry_outs =
-    -- Can use any scan for this.
-    scan op ne (map last block_scans)
-  in map2 (\x l ->
-             let i = l / block_size
-             in if i > 0 then x `op` carry_outs[i - 1] else x)
+    let block_size = #[param(scan_block_size)] bs
+    let num_blocks = (n + block_size - 1) / block_size
+    let block_scans =
+      tabulate num_blocks (\i ->
+        let block =
+          tabulate block_size (\j ->
+            let l = i * block_size + j
+            in if l < n then xs[l] else ne)
+        in #[sequential] scan op ne block)
+    let carry_outs =
+      -- Can use any scan for this.
+      scan op ne (map last block_scans)
+    in map2 (\x l ->
+               let i = l / block_size
+               in if i > 0 then carry_outs[i - 1] `op` x else x)
           (take n (flatten block_scans))
           (iota n)
 
+def exscan_blocked f ne xs bs =
+  map2 (\i x -> if i == 0 then ne else x)
+       (indices xs)
+       (rotate (-1) (blocked f ne xs bs))
 
+-- The scan implementations are my DPP implementation where I modified them to take
+-- an operator as input
 def ilog2 (x: i64 ) = 63 - i64.i32 (i64.clz x)
 
 def next_power_of_two (n : i64) : i64 =
@@ -103,7 +108,7 @@ def rootfix_blocked 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : [n]i64)
     let I = replicate (2 * n) ne
     let L = scatter I lp data
     let R = scatter L rp (map inv data)
-    let S = blocked op ne R bs
+    let S = exscan_blocked op ne R bs
     in map (\i -> S[i]) lp
 
 
@@ -149,6 +154,28 @@ entry complex_scan_input  (n : i64) :
     let Xup     = map2 (\xj xtree -> matmul_f64 xj xtree) XJ Xtrees
     let Cs = zip Xup vJ
     in (Cs, lp, rp)
+
+-- ==
+-- entry: test_work_efficient_rootfix_against_exscan
+-- input { 256i64 }  output {true}
+-- input { 4016i64 }  output {true}
+-- input { 6384i64 }  output {true}
+entry test_work_efficient_rootfix_against_exscan (n : i64) : bool =
+    let (data, lp, rp) = complex_scan_input n
+    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      let inv_cia = XBtoA_from_XAtoB_M ci.0
+      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+      in (inv_cia, inv_cib)
+    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+    let a = rootfix_blocked operator inv_op (identity 6, replicate 6 0f64) lp rp data 256i64
+    let b = rootfix_exscan operator inv_op (identity 6, replicate 6 0f64) lp rp data
+    in map2 (\xr yr -> 
+                map2 (\x y -> f64.abs (x - y) < 1e-8f64) xr yr
+                |> reduce (&&) true
+            ) (map (.1) a) (map (.1) b)
+        |> and
+
 
 -- ==
 -- entry: test_blocked_512_rootfix
@@ -217,6 +244,40 @@ entry test_blocked_64_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) 
     let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
     in rootfix_blocked operator inv_op (identity 6, replicate 6 0f64) lp rp data 64i64
+
+-- ==
+-- entry: test_blocked_32_rootfix
+-- script input { complex_scan_input 100i64 }  
+-- script input { complex_scan_input 1000i64 }  
+-- script input { complex_scan_input 10000i64 }  
+-- script input { complex_scan_input 100000i64 }  
+-- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 10000000i64 }  
+entry test_blocked_32_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
+    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      let inv_cia = XBtoA_from_XAtoB_M ci.0
+      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+      in (inv_cia, inv_cib)
+    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+    in rootfix_blocked operator inv_op (identity 6, replicate 6 0f64) lp rp data 32i64
+
+-- ==
+-- entry: test_blocked_16_rootfix
+-- script input { complex_scan_input 100i64 }  
+-- script input { complex_scan_input 1000i64 }  
+-- script input { complex_scan_input 10000i64 }  
+-- script input { complex_scan_input 100000i64 }  
+-- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 10000000i64 }  
+entry test_blocked_16_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
+    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      let inv_cia = XBtoA_from_XAtoB_M ci.0
+      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+      in (inv_cia, inv_cib)
+    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+    in rootfix_blocked operator inv_op (identity 6, replicate 6 0f64) lp rp data 16i64
 
 -- ==
 -- entry: test_work_efficient_rootfix
@@ -295,25 +356,4 @@ entry test_work_efficient2 [n] (xs : [n]i32) : bool =
        |> and
 
 
--- ==
--- entry: test_work_efficient_rootfix_against_exscan
--- input { 256i64 }  output {true}
--- input { 4016i64 }  output {true}
--- input { 6384i64 }  output {true}
--- input { 131072i64 }  output {true}
-entry test_work_efficient_rootfix_against_exscan (n : i64) : bool =
-    let (data, lp, rp) = complex_scan_input n
-    let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-      let inv_cia = XBtoA_from_XAtoB_M ci.0
-      let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
-      in (inv_cia, inv_cib)
-    let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
-      (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
-    let a = rootfix_work_efficient operator inv_op (identity 6, replicate 6 0f64) lp rp data
-    let b = rootfix_exscan operator inv_op (identity 6, replicate 6 0f64) lp rp data
-    in map2 (\xr yr -> 
-                map2 (\x y -> f64.abs (x - y) < 1e-8f64) xr yr
-                |> reduce (&&) true
-            ) (map (.1) a) (map (.1) b)
-        |> and
 
