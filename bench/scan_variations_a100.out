@@ -1,0 +1,83 @@
+complex_scan_input 10000000i64: [szm249@hendrixgate03fl Data-Parallel-Rigid-Body-Dynamics]$ cat vtee_scan_bench_2_a100.out
+Tue May 12 18:48:10 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:37:00.0 Off |                    0 |
+| N/A   73C    P0             53W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA A100-PCIE-40GB          Off |   00000000:86:00.0 Off |                    0 |
+| N/A   52C    P0             37W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jul_11_02:20:44_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.128
+Build cuda_12.2.r12.2/compiler.33053471_0
+hendrixgpu07fl.unicph.domain
+0
+Compiling scan_variations.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+scan_variations.fut:test_blocked_512_rootfix (no tuning file):
+complex_scan_input 100i64:           2020μs (95% CI: [    2018.3,     2024.0])
+complex_scan_input 1000i64:          2089μs (95% CI: [    2087.4,     2090.8])
+complex_scan_input 10000i64:         3174μs (95% CI: [    3167.9,     3179.9])
+complex_scan_input 100000i64:       10142μs (95% CI: [   10140.4,    10144.3])
+complex_scan_input 1000000i64:     497519μs (95% CI: [  329870.1,   669073.0])
+complex_scan_input 2000000i64:    2245153μs (95% CI: [ 2232933.8,  2252405.1])
+
+scan_variations.fut:test_blocked_256_rootfix (no tuning file):
+complex_scan_input 100i64:           1473μs (95% CI: [    1472.1,     1474.6])
+complex_scan_input 1000i64:          1529μs (95% CI: [    1527.3,     1531.0])
+complex_scan_input 10000i64:         2691μs (95% CI: [    2689.7,     2692.3])
+complex_scan_input 100000i64:        6359μs (95% CI: [    6356.0,     6363.0])
+complex_scan_input 1000000i64:     278733μs (95% CI: [  189089.2,   405451.0])
+complex_scan_input 2000000i64:    1609104μs (95% CI: [ 1579946.4,  1692778.9])
+
+scan_variations.fut:test_blocked_128_rootfix (no tuning file):
+complex_scan_input 100i64:           1204μs (95% CI: [    1202.6,     1206.4])
+complex_scan_input 1000i64:          1287μs (95% CI: [    1285.3,     1289.3])
+complex_scan_input 10000i64:         2617μs (95% CI: [    2616.1,     2617.6])
+complex_scan_input 100000i64:        4372μs (95% CI: [    4371.2,     4373.8])
+complex_scan_input 1000000i64:      22868μs (95% CI: [   22844.7,    22889.2])
+complex_scan_input 2000000i64:    1821924μs (95% CI: [ 1749397.1,  1862913.0])
+
+scan_variations.fut:test_blocked_64_rootfix (no tuning file):
+complex_scan_input 100i64:           1065μs (95% CI: [    1064.0,     1066.5])
+complex_scan_input 1000i64:          1150μs (95% CI: [    1148.1,     1152.5])
+complex_scan_input 10000i64:         2347μs (95% CI: [    2346.4,     2348.6])
+complex_scan_input 100000i64:        3344μs (95% CI: [    3342.9,     3345.5])
+complex_scan_input 1000000i64:      21529μs (95% CI: [   21487.2,    21569.8])
+complex_scan_input 2000000i64:    1889354μs (95% CI: [ 1884454.4,  1893224.6])
+
+scan_variations.fut:test_work_efficient_rootfix (no tuning file):
+complex_scan_input 100i64:            542μs (95% CI: [     538.4,      545.8])
+complex_scan_input 1000i64:           817μs (95% CI: [     812.2,      823.9])
+complex_scan_input 10000i64:         1743μs (95% CI: [    1742.2,     1747.6])
+complex_scan_input 100000i64:        6439μs (95% CI: [    6436.6,     6441.2])
+complex_scan_input 1000000i64:      48734μs (95% CI: [   48678.1,    48876.2])
+complex_scan_input 2000000i64:    2555461μs (95% CI: [ 2549501.9,  2563817.9])
+
+scan_variations.fut:test_rootfix_normal_scan (no tuning file):
+complex_scan_input 100i64:            890μs (95% CI: [     889.1,      890.8])
+complex_scan_input 1000i64:          1110μs (95% CI: [    1108.4,     1112.3])
+complex_scan_input 10000i64:         2268μs (95% CI: [    2266.4,     2270.1])
+complex_scan_input 100000i64:       14174μs (95% CI: [   14159.3,    14189.6])
+complex_scan_input 1000000i64:     126699μs (95% CI: [  126477.3,   126979.1])
+complex_scan_input 2000000i64:    1038532μs (95% CI: [ 1020601.7,  1056304.0])

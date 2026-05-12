@@ -53,6 +53,18 @@ entry crba_input (n : i64) (bf: f64) :
 -- script input { crba_input 5000i64 2f64 }
 -- script input { crba_input 5000i64 10f64 }
 -- script input { crba_input 5000i64 1000f64 }
+-- script input { crba_input 10000i64 1f64 }
+-- script input { crba_input 10000i64 2f64 }
+-- script input { crba_input 10000i64 10f64 }
+-- script input { crba_input 10000i64 1000f64 }
+-- script input { crba_input 20000i64 1f64 }
+-- script input { crba_input 20000i64 2f64 }
+-- script input { crba_input 20000i64 10f64 }
+-- script input { crba_input 20000i64 1000f64 }
+-- script input { crba_input 40000i64 1f64 }
+-- script input { crba_input 40000i64 2f64 }
+-- script input { crba_input 40000i64 10f64 }
+-- script input { crba_input 40000i64 1000f64 }
 entry bench_crba [n] [nd]  (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) (paths : [nd]i64) (p_ii1 : [nd]i64) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
   in crba_vtree' (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd lp rp paths p_ii1

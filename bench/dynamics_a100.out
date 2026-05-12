@@ -1,0 +1,94 @@
+[szm249@hendrixgate03fl bench]$ cat dynamics_bench_a100.out
+Tue May 12 19:02:45 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:37:00.0 Off |                    0 |
+| N/A   64C    P0             47W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA A100-PCIE-40GB          Off |   00000000:86:00.0 Off |                    0 |
+| N/A   44C    P0             34W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jul_11_02:20:44_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.128
+Build cuda_12.2.r12.2/compiler.33053471_0
+hendrixgpu07fl.unicph.domain
+0
+Compiling bench_rnea2.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea2.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:               1263μs (95% CI: [    1248.1,     1285.4])
+rnea_input 10i64 2.0f64:               1261μs (95% CI: [    1251.1,     1273.7])
+rnea_input 10i64 10.0f64:              1266μs (95% CI: [    1255.4,     1279.8])
+rnea_input 10i64 1000.0f64:            1273μs (95% CI: [    1261.7,     1287.1])
+rnea_input 100i64 1.0f64:              1973μs (95% CI: [    1961.4,     1989.9])
+rnea_input 100i64 2.0f64:              1963μs (95% CI: [    1955.4,     1974.1])
+rnea_input 100i64 10.0f64:             1963μs (95% CI: [    1953.7,     1977.0])
+rnea_input 100i64 1000.0f64:           1955μs (95% CI: [    1948.6,     1964.8])
+rnea_input 1000i64 1.0f64:             2900μs (95% CI: [    2890.7,     2914.2])
+rnea_input 1000i64 2.0f64:             2922μs (95% CI: [    2908.1,     2942.1])
+rnea_input 1000i64 10.0f64:            2917μs (95% CI: [    2903.8,     2934.8])
+rnea_input 1000i64 1000.0f64:          2919μs (95% CI: [    2905.9,     2936.3])
+rnea_input 10000i64 1.0f64:            6602μs (95% CI: [    6595.9,     6626.0])
+rnea_input 10000i64 2.0f64:            6630μs (95% CI: [    6623.1,     6653.6])
+rnea_input 10000i64 10.0f64:           6614μs (95% CI: [    6607.3,     6642.9])
+rnea_input 10000i64 1000.0f64:         6629μs (95% CI: [    6624.3,     6645.7])
+rnea_input 100000i64 1.0f64:          32313μs (95% CI: [   32236.9,    32608.8])
+rnea_input 100000i64 2.0f64:          32427μs (95% CI: [   32380.3,    32601.8])
+rnea_input 100000i64 10.0f64:         32374μs (95% CI: [   32331.0,    32541.2])
+rnea_input 100000i64 1000.0f64:       32358μs (95% CI: [   32319.6,    32500.4])
+rnea_input 1000000i64 1.0f64:        257080μs (95% CI: [  256798.5,   257367.0])
+rnea_input 1000000i64 2.0f64:        259655μs (95% CI: [  259392.8,   259888.4])
+rnea_input 1000000i64 10.0f64:       258470μs (95% CI: [  258245.1,   258696.6])
+rnea_input 1000000i64 1000.0f64:     257950μs (95% CI: [  257720.5,   258224.0])
+Compiling bench_crba2.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_crba2.fut:bench_crba (no tuning file):
+crba_input 10i64 1.0f64:             1462μs (95% CI: [    1451.9,     1480.1])
+crba_input 10i64 2.0f64:             1448μs (95% CI: [    1445.3,     1454.8])
+crba_input 10i64 10.0f64:            1452μs (95% CI: [    1447.5,     1459.0])
+crba_input 10i64 1000.0f64:          1449μs (95% CI: [    1445.7,     1455.5])
+crba_input 100i64 1.0f64:            2271μs (95% CI: [    2261.4,     2284.7])
+crba_input 100i64 2.0f64:            2260μs (95% CI: [    2249.8,     2275.7])
+crba_input 100i64 10.0f64:           2248μs (95% CI: [    2240.4,     2260.3])
+crba_input 100i64 1000.0f64:         2264μs (95% CI: [    2251.8,     2280.3])
+crba_input 1000i64 1.0f64:           3420μs (95% CI: [    3413.8,     3432.6])
+crba_input 1000i64 2.0f64:           3361μs (95% CI: [    3352.9,     3377.8])
+crba_input 1000i64 10.0f64:          3365μs (95% CI: [    3354.5,     3382.2])
+crba_input 1000i64 1000.0f64:        3347μs (95% CI: [    3340.1,     3362.6])
+crba_input 5000i64 1.0f64:           9294μs (95% CI: [    9274.6,     9309.4])
+crba_input 5000i64 2.0f64:           6315μs (95% CI: [    6312.5,     6318.8])
+crba_input 5000i64 10.0f64:          6352μs (95% CI: [    6349.7,     6355.8])
+crba_input 5000i64 1000.0f64:        6338μs (95% CI: [    6335.7,     6341.0])
+crba_input 10000i64 1.0f64:         26444μs (95% CI: [   26416.7,    26514.0])
+crba_input 10000i64 2.0f64:          8868μs (95% CI: [    8863.1,     8881.3])
+crba_input 10000i64 10.0f64:         8835μs (95% CI: [    8828.7,     8851.3])
+crba_input 10000i64 1000.0f64:       8919μs (95% CI: [    8910.7,     8946.7])
+crba_input 20000i64 1.0f64:         92460μs (95% CI: [   92236.9,    93059.7])
+crba_input 20000i64 2.0f64:         14866μs (95% CI: [   14823.2,    15035.6])
+crba_input 20000i64 10.0f64:        14814μs (95% CI: [   14774.6,    14971.2])
+crba_input 20000i64 1000.0f64:      14822μs (95% CI: [   14778.4,    14992.3])
+crba_input 40000i64 1.0f64:        246129μs (95% CI: [  245775.6,   246797.7])
+crba_input 40000i64 2.0f64:         29544μs (95% CI: [   29453.5,    29885.8])
+crba_input 40000i64 10.0f64:        29430μs (95% CI: [   29318.6,    29857.4])
+crba_input 40000i64 1000.0f64:      29321μs (95% CI: [   29267.0,    29521.8])
