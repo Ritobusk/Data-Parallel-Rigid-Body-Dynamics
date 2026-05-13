@@ -184,7 +184,7 @@ entry test_work_efficient_rootfix_against_exscan (n : i64) : bool =
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_512_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -201,7 +201,7 @@ entry test_blocked_512_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_256_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -218,7 +218,7 @@ entry test_blocked_256_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_128_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -235,7 +235,7 @@ entry test_blocked_128_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_64_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -252,7 +252,7 @@ entry test_blocked_64_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) 
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_32_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -269,7 +269,7 @@ entry test_blocked_32_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) 
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_16_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -286,7 +286,7 @@ entry test_blocked_16_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) 
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_work_efficient_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
@@ -303,7 +303,7 @@ entry test_work_efficient_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
--- script input { complex_scan_input 10000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_rootfix_normal_scan [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
       let inv_cia = XBtoA_from_XAtoB_M ci.0
