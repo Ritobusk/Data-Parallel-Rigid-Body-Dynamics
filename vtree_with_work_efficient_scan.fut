@@ -161,6 +161,31 @@ module vtree : vtree = {
          (indices xs)
          (rotate (-1) (scan f ne xs))
 
+  -- Blocked scan from Troels
+  def blocked 'a [n] (op: a -> a -> a) (ne: a) (xs: [n]a) (bs : i64) : [n]a =
+      let block_size = #[param(scan_block_size)] bs
+      let num_blocks = (n + block_size - 1) / block_size
+      let block_scans =
+        tabulate num_blocks (\i ->
+          let block =
+            tabulate block_size (\j ->
+              let l = i * block_size + j
+              in if l < n then xs[l] else ne)
+          in #[sequential] scan op ne block)
+      let carry_outs =
+        -- Can use any scan for this.
+        scan op ne (map last block_scans)
+      in map2 (\x l ->
+                 let i = l / block_size
+                 in if i > 0 then carry_outs[i - 1] `op` x else x)
+            (take n (flatten block_scans))
+            (iota n)
+
+  def exscan_blocked f ne xs bs =
+    map2 (\i x -> if i == 0 then ne else x)
+         (indices xs)
+         (rotate (-1) (blocked f ne xs bs))
+
   def ilog2 (x: i64 ) = 63 - i64.i32 (i64.clz x)
   def next_power_of_two (n : i64) : i64 =
     loop acc = 2 while acc < n do 
