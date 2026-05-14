@@ -98,6 +98,35 @@ rnea_no_vtree_input ($loaddata "data/...:      62902μs (95% CI: [   62497.7,   
 
 
 CUDA OPTIMIZED RNEA!!!!
+Blocked 64
+bench_rnea2.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:               4300μs (95% CI: [    4243.5,     4360.9])
+rnea_input 10i64 2.0f64:               4280μs (95% CI: [    4249.2,     4312.8])
+rnea_input 10i64 10.0f64:              4240μs (95% CI: [    4209.2,     4272.2])
+rnea_input 10i64 1000.0f64:            4232μs (95% CI: [    4199.6,     4266.3])
+rnea_input 100i64 1.0f64:              4739μs (95% CI: [    4706.0,     4783.4])
+rnea_input 100i64 2.0f64:              4774μs (95% CI: [    4742.1,     4809.2])
+rnea_input 100i64 10.0f64:             4748μs (95% CI: [    4710.8,     4789.4])
+rnea_input 100i64 1000.0f64:           4777μs (95% CI: [    4737.8,     4818.3])
+rnea_input 1000i64 1.0f64:             6137μs (95% CI: [    6108.8,     6164.6])
+rnea_input 1000i64 2.0f64:             6092μs (95% CI: [    6067.3,     6116.9])
+rnea_input 1000i64 10.0f64:            6102μs (95% CI: [    6076.3,     6127.9])
+rnea_input 1000i64 1000.0f64:          6149μs (95% CI: [    6111.2,     6262.2])
+rnea_input 10000i64 1.0f64:           20200μs (95% CI: [   20157.3,    20259.8])
+rnea_input 10000i64 2.0f64:           20163μs (95% CI: [   20097.8,    20227.6])
+rnea_input 10000i64 10.0f64:          20156μs (95% CI: [   20092.8,    20219.7])
+rnea_input 10000i64 1000.0f64:        20125μs (95% CI: [   20086.8,    20165.8])
+rnea_input 100000i64 1.0f64:          22726μs (95% CI: [   22685.1,    22770.1])
+rnea_input 100000i64 2.0f64:          23022μs (95% CI: [   22949.6,    23070.6])
+rnea_input 100000i64 10.0f64:         22938μs (95% CI: [   22875.8,    23024.3])
+rnea_input 100000i64 1000.0f64:       22882μs (95% CI: [   22823.7,    22950.6])
+rnea_input 1000000i64 1.0f64:        227756μs (95% CI: [  225938.6,   228520.9])
+rnea_input 1000000i64 2.0f64:        229137μs (95% CI: [  228869.1,   229501.3])
+rnea_input 1000000i64 10.0f64:       226393μs (95% CI: [  226082.2,   226988.7])
+rnea_input 1000000i64 1000.0f64:     223498μs (95% CI: [  223183.1,   223841.8])
+
+
+work_efficient
 bench_rnea.fut:bench_rnea (no tuning file):
 rnea_input ($loaddata "data/test.in"):          2502μs (95% CI: [    2381.8,     2688.0])
 rnea_input ($loaddata "data/N100_bf1_...:       5122μs (95% CI: [    4842.5,     5394.9])
@@ -122,7 +151,7 @@ rnea_input ($loaddata "data/N10000_bf...:      26565μs (95% CI: [   26467.1,   
 rnea_input ($loaddata "data/N50000_bf...:      28707μs (95% CI: [   28565.2,    28896.6])
 rnea_input ($loaddata "data/N100000_b...:      46557μs (95% CI: [   46356.4,    46918.7])
 
-Large
+Large work_efficient
 	bf1:
 	rnea_input ($loaddata "data/N500000_b...:     161544μs (95% CI: [  161236.1,   161807.6])
 	rnea_input ($loaddata "data/N1000000_...:     316073μs (95% CI: [  315785.7,   316366.7])

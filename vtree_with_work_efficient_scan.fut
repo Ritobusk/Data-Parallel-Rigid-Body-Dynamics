@@ -186,36 +186,6 @@ module vtree : vtree = {
          (indices xs)
          (rotate (-1) (blocked f ne xs bs))
 
-  def ilog2 (x: i64 ) = 63 - i64.i32 (i64.clz x)
-  def next_power_of_two (n : i64) : i64 =
-    loop acc = 2 while acc < n do 
-      acc * 2
-
-  def work_efficient [n] 'a (op : a -> a -> a) (ne : a)  (xs : [n]a)  : [n]a =
-    let k = next_power_of_two n 
-    let m = ilog2 k
-    let xs' = tabulate k (\i -> if i < n then xs[i] else ne)
-    let upswept =
-        loop xs' = copy xs' for d in 0...m-1 do
-            let offset = 2 ** (d + 1)
-            let indx_to_update = iota (k/(offset)) 
-                                 |> map (\x -> (x + 1) * offset - 1)
-            let update_vals = map (\i -> op xs'[i - (offset / 2)] xs'[i] ) indx_to_update
-            in (scatter xs' indx_to_update update_vals)
-    let upswept[k-1] = ne
-    let downswept =
-        loop xs' = copy (upswept) for d in m..m-1...1 do
-            let offset = 2 ** (d - 1)
-            let indx_to_update = iota (k/(offset)) 
-                                    |> map (\x -> (x + 1) * offset - 1)
-            let update_vals = 
-                map2 
-                    (\itu i -> if i % 2 == 1 then op xs'[itu] xs'[itu - (offset)]
-                                             else xs'[itu + offset])
-                    indx_to_update (indices indx_to_update)
-            in (scatter xs' indx_to_update update_vals)
-    in take n downswept
-
   def segmented_replicate [n] (reps: [n]i64) (vs: [n]i64) : []i64 =
     map (\i -> vs[i]) (replicated_iota reps)
 
@@ -301,7 +271,7 @@ module vtree : vtree = {
     let I = replicate (2 * n) ne
     let L = scatter I lp data
     let R = scatter L rp (map inv data)
-    let S = work_efficient op ne R
+    let S = exscan_blocked op ne R 64i64
     in map (\i -> S[i]) lp
 
   def irootfix 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (t: t a [n]) : [n]a =
@@ -310,7 +280,7 @@ module vtree : vtree = {
   def ileaffix 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) : [n]a =
     let I = replicate (2 * n) ne
     let L = scatter I lp data
-    let S = work_efficient op ne L
+    let S = exscan_blocked op ne L 64i64
     let Rv = map (\i -> S[i]) rp
     let Lv = map (\i -> inv (S[i])) lp
     in map2 op Rv Lv

@@ -1,3 +1,97 @@
+Thu May 14 02:49:44 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:B1:00.0 Off |                    0 |
+| N/A   28C    P0             31W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+hendrixgpu01fl.unicph.domain
+0
+Compiling scan_variations.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+scan_variations.fut:test_blocked_512_rootfix (no tuning file):
+complex_scan_input 100i64:           2039μs (95% CI: [    2038.8,     2039.5])
+complex_scan_input 1000i64:          2209μs (95% CI: [    2208.6,     2211.1])
+complex_scan_input 10000i64:         3214μs (95% CI: [    3206.0,     3222.5])
+complex_scan_input 100000i64:       10373μs (95% CI: [   10371.8,    10375.0])
+complex_scan_input 1000000i64:     503090μs (95% CI: [  401156.7,   612208.3])
+complex_scan_input 2000000i64:    2733852μs (95% CI: [ 2732182.3,  2735474.3])
+
+scan_variations.fut:test_blocked_256_rootfix (no tuning file):
+complex_scan_input 100i64:           1495μs (95% CI: [    1494.4,     1496.0])
+complex_scan_input 1000i64:          1539μs (95% CI: [    1538.4,     1540.1])
+complex_scan_input 10000i64:         2710μs (95% CI: [    2709.2,     2711.7])
+complex_scan_input 100000i64:        6488μs (95% CI: [    6486.6,     6490.0])
+complex_scan_input 1000000i64:     478160μs (95% CI: [  309581.6,   654874.8])
+complex_scan_input 2000000i64:    1557545μs (95% CI: [ 1547441.5,  1567073.4])
+
+scan_variations.fut:test_blocked_128_rootfix (no tuning file):
+complex_scan_input 100i64:           1218μs (95% CI: [    1217.9,     1218.7])
+complex_scan_input 1000i64:          1301μs (95% CI: [    1300.5,     1301.6])
+complex_scan_input 10000i64:         2641μs (95% CI: [    2640.6,     2641.8])
+complex_scan_input 100000i64:        4442μs (95% CI: [    4441.2,     4442.9])
+complex_scan_input 1000000i64:      24101μs (95% CI: [   24084.0,    24113.6])
+complex_scan_input 2000000i64:    1881995μs (95% CI: [ 1877900.6,  1884802.3])
+
+scan_variations.fut:test_blocked_64_rootfix (no tuning file):
+complex_scan_input 100i64:           1076μs (95% CI: [    1075.8,     1076.2])
+complex_scan_input 1000i64:          1151μs (95% CI: [    1150.3,     1151.2])
+complex_scan_input 10000i64:         2361μs (95% CI: [    2359.8,     2362.2])
+complex_scan_input 100000i64:        3486μs (95% CI: [    3485.5,     3487.4])
+complex_scan_input 1000000i64:      23322μs (95% CI: [   23308.7,    23332.0])
+complex_scan_input 2000000i64:    1934172μs (95% CI: [ 1929490.9,  1937925.4])
+
+scan_variations.fut:test_blocked_32_rootfix (no tuning file):
+complex_scan_input 100i64:           1013μs (95% CI: [    1013.1,     1013.4])
+complex_scan_input 1000i64:          1098μs (95% CI: [    1098.0,     1098.4])
+complex_scan_input 10000i64:         1947μs (95% CI: [    1946.5,     1947.8])
+complex_scan_input 100000i64:        3158μs (95% CI: [    3156.8,     3159.5])
+complex_scan_input 1000000i64:      24030μs (95% CI: [   24001.9,    24083.9])
+complex_scan_input 2000000i64:    1935054μs (95% CI: [ 1929834.0,  1940906.8])
+
+scan_variations.fut:test_blocked_16_rootfix (no tuning file):
+complex_scan_input 100i64:            982μs (95% CI: [     981.8,      982.1])
+complex_scan_input 1000i64:          1078μs (95% CI: [    1077.7,     1078.1])
+complex_scan_input 10000i64:         1743μs (95% CI: [    1742.9,     1743.9])
+complex_scan_input 100000i64:        3276μs (95% CI: [    3274.6,     3277.8])
+complex_scan_input 1000000i64:      27851μs (95% CI: [   27840.5,    27861.7])
+complex_scan_input 2000000i64:    1946062μs (95% CI: [ 1939654.5,  1949422.2])
+
+scan_variations.fut:test_work_efficient_rootfix (no tuning file):
+complex_scan_input 100i64:            521μs (95% CI: [     520.7,      521.1])
+complex_scan_input 1000i64:           785μs (95% CI: [     784.6,      785.6])
+complex_scan_input 10000i64:         1729μs (95% CI: [    1727.5,     1736.0])
+complex_scan_input 100000i64:        6428μs (95% CI: [    6426.8,     6430.2])
+complex_scan_input 1000000i64:      48844μs (95% CI: [   48760.5,    49145.2])
+complex_scan_input 2000000i64:    2578615μs (95% CI: [ 2572047.8,  2587551.8])
+
+scan_variations.fut:test_rootfix_normal_scan (no tuning file):
+complex_scan_input 100i64:            889μs (95% CI: [     888.9,      889.2])
+complex_scan_input 1000i64:          1101μs (95% CI: [    1101.0,     1101.5])
+complex_scan_input 10000i64:         2299μs (95% CI: [    2296.9,     2300.4])
+complex_scan_input 100000i64:       14162μs (95% CI: [   14149.1,    14175.6])
+complex_scan_input 1000000i64:     125237μs (95% CI: [  124950.2,   125564.9])
+complex_scan_input 2000000i64:    1053485μs (95% CI: [ 1034202.7,  1072429.6])
+
+
+
+
+
 complex_scan_input 10000000i64: [szm249@hendrixgate03fl Data-Parallel-Rigid-Body-Dynamics]$ cat vtee_scan_bench_2_a100.out
 Tue May 12 18:48:10 2026
 +-----------------------------------------------------------------------------------------+
