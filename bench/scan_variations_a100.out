@@ -223,6 +223,87 @@ complex_scan_input 3000000i64:      80425μs (95% CI: [   80355.5,    80487.4])
 
 
 
+ONLY TESTING VECTOR VECtor addition
+Fri May 15 17:10:03 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100 80GB PCIe          Off |   00000000:0B:00.0 Off |                    0 |
+| N/A   37C    P0             58W /  300W |       1MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+hendrixgpu21fl.unicph.domain
+0
+Compiling blocked_scan_bench.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+blocked_scan_bench.fut:test_blocked_512_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:            206μs (95% CI: [     206.2,      206.4])
+vtree_vectoradd 1000i64:           235μs (95% CI: [     234.8,      235.0])
+vtree_vectoradd 10000i64:          362μs (95% CI: [     361.0,      364.8])
+vtree_vectoradd 100000i64:        1430μs (95% CI: [    1429.9,     1430.6])
+vtree_vectoradd 1000000i64:       3862μs (95% CI: [    3860.2,     3863.7])
+vtree_vectoradd 2000000i64:       7224μs (95% CI: [    7218.4,     7230.3])
+vtree_vectoradd 3000000i64:      10808μs (95% CI: [   10773.0,    10850.8])
+
+blocked_scan_bench.fut:test_blocked_256_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:            140μs (95% CI: [     139.9,      140.0])
+vtree_vectoradd 1000i64:           159μs (95% CI: [     159.0,      159.7])
+vtree_vectoradd 10000i64:          287μs (95% CI: [     286.4,      286.6])
+vtree_vectoradd 100000i64:         927μs (95% CI: [     926.6,      927.2])
+vtree_vectoradd 1000000i64:       4274μs (95% CI: [    4272.1,     4275.8])
+vtree_vectoradd 2000000i64:       9005μs (95% CI: [    8967.4,     9049.4])
+vtree_vectoradd 3000000i64:      12766μs (95% CI: [   12751.2,    12781.4])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:            105μs (95% CI: [     105.2,      105.3])
+vtree_vectoradd 1000i64:           122μs (95% CI: [     121.8,      121.9])
+vtree_vectoradd 10000i64:          285μs (95% CI: [     284.9,      285.1])
+vtree_vectoradd 100000i64:         773μs (95% CI: [     772.4,      772.9])
+vtree_vectoradd 1000000i64:       5674μs (95% CI: [    5657.8,     5693.0])
+vtree_vectoradd 2000000i64:      11664μs (95% CI: [   11649.7,    11678.7])
+vtree_vectoradd 3000000i64:      22845μs (95% CI: [   22811.4,    22879.2])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:             84μs (95% CI: [      84.1,       84.2])
+vtree_vectoradd 1000i64:           105μs (95% CI: [     104.7,      104.8])
+vtree_vectoradd 10000i64:          269μs (95% CI: [     269.2,      269.4])
+vtree_vectoradd 100000i64:         905μs (95% CI: [     904.6,      905.2])
+vtree_vectoradd 1000000i64:       8985μs (95% CI: [    8979.2,     8990.5])
+vtree_vectoradd 2000000i64:      13903μs (95% CI: [   13825.7,    14120.2])
+vtree_vectoradd 3000000i64:      29041μs (95% CI: [   29010.2,    29068.1])
+
+blocked_scan_bench.fut:test_blocked_32_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:             76μs (95% CI: [      76.0,       76.0])
+vtree_vectoradd 1000i64:            98μs (95% CI: [      98.5,       98.5])
+vtree_vectoradd 10000i64:          262μs (95% CI: [     262.2,      262.3])
+vtree_vectoradd 100000i64:         985μs (95% CI: [     984.8,      985.8])
+vtree_vectoradd 1000000i64:      11163μs (95% CI: [   11150.2,    11177.5])
+vtree_vectoradd 2000000i64:      19278μs (95% CI: [   19252.3,    19293.3])
+vtree_vectoradd 3000000i64:      34112μs (95% CI: [   34031.1,    34200.6])
+
+blocked_scan_bench.fut:test_blocked_128_leaffix_va (no tuning file):
+vtree_vectoradd 100i64:            102μs (95% CI: [     102.2,      102.3])
+vtree_vectoradd 1000i64:           119μs (95% CI: [     118.6,      118.8])
+vtree_vectoradd 10000i64:          283μs (95% CI: [     283.0,      284.2])
+vtree_vectoradd 100000i64:         757μs (95% CI: [     754.3,      768.5])
+vtree_vectoradd 1000000i64:       5578μs (95% CI: [    5565.0,     5598.6])
+vtree_vectoradd 2000000i64:      11510μs (95% CI: [   11491.5,    11527.5])
+vtree_vectoradd 3000000i64:      22511μs (95% CI: [   22488.7,    22537.0])
+
 
 
 
