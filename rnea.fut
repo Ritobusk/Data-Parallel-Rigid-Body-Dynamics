@@ -2,7 +2,6 @@ import "matrix_ops"
 import "spatial_ops"
 import "treeModel"
 import "lib/github.com/diku-dk/vtree/vtree"
-import "scan_variations"
 
 module T = vtree
 
@@ -132,10 +131,11 @@ def rnea'' [n] (joint_types : [n]jointT)
               map2 (+) (mat_mul_vec_f64 Is[i] as[i]) (mat_mul_vec_f64 (matmul_f64 (crf vs[i]) Is[i]) vs[i])
               ) (iota n) 
 
-  let from_body_to_root_M = rootfix2 matmul_f64 XBtoA_from_XAtoB_M (identity 6) lp rp (map XBtoA_from_XAtoB_M Xup)
+  let vtree_transform = T.lprp <| mkt2 lp rp Xup
+  let from_root_to_body_M = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
 
-  let to_root_F   = map XBtoA_MtoF from_body_to_root_M 
-  let from_root_F = map transpose from_body_to_root_M 
+  let to_root_F   = map transpose  from_root_to_body_M  
+  let from_root_F = map XBtoA_MtoF from_root_to_body_M 
 
   let fBs_root = map2 (\X_to_root fbi -> X_to_root `mat_mul_vec_f64` fbi) to_root_F fBs
 
@@ -375,18 +375,24 @@ def rnea_vtree_optimized3 [n] (joint_types : [n]jointT)
   let (transformation_tree, vs) = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
           |> unzip
 
+  let to_root_F   = map transpose  transformation_tree  
+  let from_root_F = map XBtoA_MtoF transformation_tree 
+  let to_root_M =   map (XBtoA_FtoM) to_root_F 
+
+
   let as_tmp = tabulate n (\i -> if i == 0 then aJ[i] `vecadd_f64` (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
                                            else aJ[i] `vecadd_f64` (mat_mul_vec_f64 (crm vs[i]) vJ[i]))
 
-  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) 
-    = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+  let as_tmp = map2 mat_mul_vec_f64 to_root_M as_tmp
 
-  let vtree_as = T.lprp <| mkt2 lp rp (zip Xup as_tmp)
-  let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
-          |> map (.1) 
+  let vtree_as = T.lprp <| mkt2 lp rp as_tmp
+  let as_root = T.irootfix vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64)  vtree_as
 
-  let to_root_F   = map transpose  transformation_tree  
-  let from_root_F = map XBtoA_MtoF transformation_tree 
+  let as = map2 mat_mul_vec_f64 transformation_tree as_root
+  -- let vtree_as = T.lprp <| mkt2 lp rp (zip Xup as_tmp)
+  -- let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
+  --         |> map (.1) 
+
 
   let fBs_root = tabulate n 
           (\i -> to_root_F[i] `mat_mul_vec_f64` (Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])))

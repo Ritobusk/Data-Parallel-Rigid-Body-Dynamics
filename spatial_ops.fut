@@ -68,6 +68,21 @@ def XBtoA_MtoF (XAtoB : [6][6]f64) : [6][6]f64 =
                 else          --q4
                   XAtoB[r][c]
               )
+
+-- Transform a motion Plucker transform to a force Plucker transfrom
+def XBtoA_FtoM (XAtoB : [6][6]f64) : [6][6]f64 =
+  tabulate_2d 6 6 
+    (\r c -> if r < 3 then
+                if c < 3 then --q2
+                  XAtoB[r][c]
+                else          --q1
+                  0f64
+             else
+                if c < 3 then --q3
+                  XAtoB[r-3][c+3]
+                else          --q4
+                  XAtoB[r][c]
+              )
  
 -- Motion
 -- Given a transformation from A to B get to inverse, i.e. 
