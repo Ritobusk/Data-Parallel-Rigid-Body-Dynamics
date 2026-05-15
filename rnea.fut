@@ -1,7 +1,7 @@
 import "matrix_ops"
 import "spatial_ops"
 import "treeModel"
-import "lib/github.com/diku-dk/vtree/vtree"
+import "vtree_with_work_efficient_scan"
 
 module T = vtree
 
@@ -372,7 +372,7 @@ def rnea_vtree_optimized3 [n] (joint_types : [n]jointT)
     = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
 
   let vtree_vs = T.lprp <| mkt2 lp rp (zip Xup vJ)
-  let (transformation_tree, vs) = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_vs
+  let (transformation_tree, vs) = T.irootfix_b operator inv_op (identity 6, replicate 6 0f64) vtree_vs 64i64
           |> unzip
 
   let to_root_F   = map transpose  transformation_tree  
@@ -386,18 +386,14 @@ def rnea_vtree_optimized3 [n] (joint_types : [n]jointT)
   let as_tmp = map2 mat_mul_vec_f64 to_root_M as_tmp
 
   let vtree_as = T.lprp <| mkt2 lp rp as_tmp
-  let as_root = T.irootfix vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64)  vtree_as
+  let as_root = T.irootfix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64)  vtree_as 512i64
 
   let as = map2 mat_mul_vec_f64 transformation_tree as_root
-  -- let vtree_as = T.lprp <| mkt2 lp rp (zip Xup as_tmp)
-  -- let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
-  --         |> map (.1) 
-
 
   let fBs_root = tabulate n 
           (\i -> to_root_F[i] `mat_mul_vec_f64` (Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])))
 
   let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
-  let fJs_root = T.ileaffix vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root
+  let fJs_root = T.ileaffix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root 512i64
 
   in map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S

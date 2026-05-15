@@ -16,8 +16,10 @@
 -- Includes contributions from Aziz Rmadi, Elias Smedegaard, and Thomas Bonde
 -- Hansen.
 
-import "../segmented/segmented"
-import "../sorts/radix_sort"
+import "lib/github.com/diku-dk/segmented/segmented"
+import "lib/github.com/diku-dk/sorts/radix_sort"
+--import "../segmented/segmented"
+--import "../sorts/radix_sort"
 
 module type vtree = {
   -- | The type of v-trees with `n` nodes.
@@ -52,6 +54,42 @@ module type vtree = {
 
   -- | `map f t` maps a function `f` over the nodes in the tree.
   val map 'a 'b [n] : (a -> b) -> t a [n] -> t b [n]
+  -- | `rootfix f inv ne t` computes, for each node `n` in the tree with the path
+  -- `n0->n1->...->nm->n` from the root `n0` to `n`, the values `f n0 (f n1
+  -- (...nm...))` (i.e., excluding the data for node `n`).
+  val rootfix_b 'a [n] :
+    (op: a -> a -> a)
+    -> (inv: a -> a)
+    -> (ne: a)
+    -> t a [n] -> i64-> [n]a
+
+  -- | `irootfix f inv ne t` computes, for each node `n` in the tree with the
+  -- path `n0->n2->...->n` from the root `n0` to `n`, the values `f n0 (f n1
+  -- (...n...))` (i.e., including the data for node `n`).
+  val irootfix_b 'a [n] :
+    (op: a -> a -> a)
+    -> (inv: a -> a)
+    -> (ne: a)
+    -> t a [n]  -> i64 -> [n]a
+
+  -- | `leaffix f inv ne t` computes, for each node `n` in the tree with descendants
+  -- `[n1,n2,...,nm]` the accumulated value `f n1 (f n2 (...nm...))` (i.e.,
+  -- excluding the data for node `n`).
+  val leaffix_b 'a [n] :
+    (op: a -> a -> a)
+    -> (inv: a -> a)
+    -> (ne: a)
+    -> t a [n] -> i64-> [n]a
+
+  -- | `ileaffixi f inv ne t` computes, for each node `n` in the tree with
+  -- descendants `[n1,n2,...,nm]` the accumulated value `f n (f n1 (f n2
+  -- (...nm...)))` (i.e., including the data for node `n`).
+  val ileaffix_b 'a [n] :
+    (op: a -> a -> a)
+    -> (inv: a -> a)
+    -> (ne: a)
+    -> t a [n]  -> i64 -> [n]a
+
 
   -- | `rootfix f inv ne t` computes, for each node `n` in the tree with the path
   -- `n0->n1->...->nm->n` from the root `n0` to `n`, the values `f n0 (f n1
@@ -266,6 +304,28 @@ module vtree : vtree = {
     {subtrees, subtrees_offsets = exscan (+) 0 shapes}
 
   def lprp 'a [n] (x: t a [n]) : t a [n] = x
+
+  def rootfix_b 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) (bs : i64) : [n]a =
+    let I = replicate (2 * n) ne
+    let L = scatter I lp data
+    let R = scatter L rp (map inv data)
+    let S = exscan_blocked op ne R bs
+    in map (\i -> S[i]) lp
+
+  def irootfix_b 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (t: t a [n]) (bs : i64) : [n]a =
+    map2 op (rootfix_b op inv ne t bs) t.data
+
+  def ileaffix_b 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) (bs : i64) : [n]a =
+    let I = replicate (2 * n) ne
+    let L = scatter I lp data
+    let S = exscan_blocked op ne L bs
+    let Rv = map (\i -> S[i]) rp
+    let Lv = map (\i -> inv (S[i])) lp
+    in map2 op Rv Lv
+
+  def leaffix_b 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (t: t a [n]) (bs : i64) : [n]a =
+    map2 op (ileaffix_b op inv ne t bs) (map inv t.data)
+
 
   def rootfix 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) ({lp, rp, data}: t a [n]) : [n]a =
     let I = replicate (2 * n) ne

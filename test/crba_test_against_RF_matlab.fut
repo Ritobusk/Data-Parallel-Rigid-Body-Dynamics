@@ -19,4 +19,4 @@ import "../lib/github.com/diku-dk/vtree/vtree"
 entry test_crba [n] (children : f64) (qs : [n]f64) (qds : [n]f64)  : ([n]f64, [n][n]f64) =
   let (_, _, js, Is, Xtrees, lp, rp, paths, p_ii1) = autoVTree n children 0 1
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in crba_vtree' js Is Xtrees gravity qs qds lp rp paths p_ii1
+  in crba_vtree_optimized js Is Xtrees gravity qs qds lp rp paths p_ii1

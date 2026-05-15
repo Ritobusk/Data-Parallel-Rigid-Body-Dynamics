@@ -1,7 +1,7 @@
 import "matrix_ops"
 import "spatial_ops"
 import "treeModel"
-import "lib/github.com/diku-dk/vtree/vtree"
+import "vtree_with_work_efficient_scan"
 import "lib/github.com/diku-dk/segmented/segmented"
 
 module T = vtree
@@ -151,15 +151,14 @@ def crba_vtree' [n] [nd] [ndd] (joint_types : [n]jointT)
   let C = map2 (vecmul) S fJs  
 
   -- Step 2: Compute composite rigid bodies 
-
-  let H = replicate n <| replicate n 0f64
-
   let I_to_root = map3 (\bXa_F aXb_M I -> bXa_F `matmul_f64`  (I `matmul_f64` aXb_M)) to_root_F from_root_to_body_M Is
   let vtree_Ics_root = T.lprp <| mkt2 lp rp I_to_root 
   let Ics_root = T.ileaffix matadd_f64 (scal_mul_mat_f64 (-1)) (replicate 6 <| replicate 6 0f64) vtree_Ics_root 
   let Ics = map3 (\bXa_F aXb_M rI -> bXa_F `matmul_f64`  (rI `matmul_f64` aXb_M)) from_root_F from_body_to_root_M Ics_root
 
   -- Step 3: Compute H
+  let H = replicate n <| replicate n 0f64
+
   let fhs  = map2 mat_mul_vec_f64 Ics S
   let Hii = map2 (vecmul) S fhs
   let H =  scatter_2d H (zip (iota n) (iota n)) Hii
@@ -173,6 +172,77 @@ def crba_vtree' [n] [nd] [ndd] (joint_types : [n]jointT)
   let H =  scatter_2d H (zip p_ii1 paths) Hij
   let H =  scatter_2d H (zip paths p_ii1) Hij
   in (C, H)
+
+def crba_vtree_optimized [n] [nd] [ndd] (joint_types : [n]jointT)
+             (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
+             (gravity : [6]f64)
+             (q : [n]f64) (qd : [n]f64) --(tau : [n]f64)
+             (lp : [n]i64) (rp : [n]i64) 
+             (paths : [nd]i64) (p_ii1 : [ndd]i64)
+             : ([n]f64, [n][n]f64) =
+  -- Step 1: Compute the joint-space bias force: tau = ID(model, q, qd, 0)
+  let (Xup, S) = unzip <| map3 (\Xti jti qi -> 
+                    let (Xji, si) = jcalc jti qi
+                    in (Xji `matmul_f64` Xti, si)) Xtree joint_types q 
+  let vJ = map2 (`scal_mul_vec_f64`) qd S
+
+  let inv_op (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) =
+    let inv_cia = XBtoA_from_XAtoB_M ci.0
+    let inv_cib = scal_mul_vec_f64 (-1) (mat_mul_vec_f64 inv_cia ci.1)
+    in (inv_cia, inv_cib)
+  
+  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) 
+    = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+
+  let vtree_vs = T.lprp <| mkt2 lp rp (zip Xup vJ)
+  let (from_root_to_body_M, vs) = T.irootfix_b operator inv_op (identity 6, replicate 6 0f64) vtree_vs 64i64
+          |> unzip
+
+  let to_root_F   = map transpose  from_root_to_body_M
+  let from_root_F = map XBtoA_MtoF from_root_to_body_M
+  let to_root_M =   map (XBtoA_FtoM) to_root_F 
+
+  let as_tmp = tabulate n (\i -> if i == 0 then (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
+                                           else (mat_mul_vec_f64 (crm vs[i]) vJ[i]))
+
+  let as_tmp = map2 mat_mul_vec_f64 to_root_M as_tmp
+
+  let vtree_as = T.lprp <| mkt2 lp rp as_tmp
+  let as_root = T.irootfix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64)  vtree_as 512i64
+
+  let as = map2 mat_mul_vec_f64 from_root_to_body_M as_root
+
+  let fBs_root = tabulate n 
+          (\i -> to_root_F[i] `mat_mul_vec_f64` (Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])))
+
+  let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
+  let fJs_root = T.ileaffix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root 512i64
+
+  let C = map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
+
+  -- Step 2: Compute composite rigid bodies 
+  let I_to_root = map3 (\bXa_F aXb_M I -> bXa_F `matmul_f64`  (I `matmul_f64` aXb_M)) to_root_F from_root_to_body_M Is
+  let vtree_Ics_root = T.lprp <| mkt2 lp rp I_to_root 
+  let Ics_root = T.ileaffix_b matadd_f64 (scal_mul_mat_f64 (-1)) (replicate 6 <| replicate 6 0f64) vtree_Ics_root 256i64
+  let Ics = map3 (\bXa_F aXb_M rI -> bXa_F `matmul_f64`  (rI `matmul_f64` aXb_M)) from_root_F to_root_M Ics_root
+
+  -- Step 3: Compute H
+  let H = replicate n <| replicate n 0f64
+
+  let fhs  = map2 mat_mul_vec_f64 Ics S
+  let Hii = map2 (vecmul) S fhs
+  let H =  scatter_2d H (zip (iota n) (iota n)) Hii
+  let p_ii1 = sized nd p_ii1
+
+  let Hij = map2 (\i j ->
+          let f = from_root_F[j] `mat_mul_vec_f64` (to_root_F[i] `mat_mul_vec_f64` fhs[i])
+          in S[j] `vecmul` f
+      ) p_ii1 paths
+
+  let H =  scatter_2d H (zip p_ii1 paths) Hij
+  let H =  scatter_2d H (zip paths p_ii1) Hij
+  in (C, H)
+
 
 def crba_seq [n] (p : [n]i64)  (joint_types : [n]jointT)
              (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
