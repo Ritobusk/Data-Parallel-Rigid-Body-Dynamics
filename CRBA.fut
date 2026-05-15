@@ -3,7 +3,6 @@ import "spatial_ops"
 import "treeModel"
 import "lib/github.com/diku-dk/vtree/vtree"
 import "lib/github.com/diku-dk/segmented/segmented"
-import "scan_variations"
 
 module T = vtree
 
@@ -71,21 +70,19 @@ def crba_vtree [n] (parent : [n]i64) (joint_types : [n]jointT)
 
   -- Step 3: Compute H
 
-  let depths = trace <| T.depth vtree_Ics_root
+  let depths = T.depth vtree_Ics_root
   let tree_depth = reduce i64.max 0i64 depths
-  let sizes = trace <| map (\x -> if x > 0 then x else 0) depths
+  let sizes = map (\x -> if x > 0 then x else 0) depths
   let d_sc = scan (+) 0i64 sizes
   let (ii1) = replicated_iota sizes 
   let ii1 = sized d_sc[n-1] ii1
-  let (ii1) = trace (ii1)
 
   let fhs  = map2 mat_mul_vec_f64 Ics S
 
   let fhs' = map2 (vecmul) S fhs
   let H =  scatter_2d H (zip (iota n) (iota n)) fhs'
 
-  let parent = trace parent
-  let (_, paths) = trace <| map2 (\p d -> 
+  let (_, paths) = map2 (\p d -> 
         loop (j, path) = (p, replicate tree_depth (-1i64) ) for k < (d) do
                 let path = path with [k] = j 
                 let j = parent[j]
@@ -177,10 +174,74 @@ def crba_vtree' [n] [nd] [ndd] (joint_types : [n]jointT)
   let H =  scatter_2d H (zip paths p_ii1) Hij
   in (C, H)
 
+def crba_seq [n] (p : [n]i64)  (joint_types : [n]jointT)
+             (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
+             (gravity : [6]f64)
+             (q : [n]f64) (qd : [n]f64) 
+             : ([n]f64, [n][n]f64) =
+  let (XJ, S) = unzip <| map2 (jcalc) joint_types q 
+  let vJ      = map2 (scal_mul_vec_f64) qd  S 
+  let Xup     = map2 (matmul_f64) XJ Xtree
 
+  let (vs, as) = loop (vs', as') = (replicate n (replicate 6 0f64), replicate n (replicate 6 0f64)) for i < n do
+    if i == 0 then 
+        let vs' = vs' with [i] = vJ[i]
+        let as' = as' with [i] = mat_mul_vec_f64 Xup[i]  ((-1) `scal_mul_vec_f64` gravity)
+        in (vs', as')
+    else 
+        let parent = p[i]
+        let vs'' = vs' with [i] = map2 (+) (Xup[i] `mat_mul_vec_f64`  vs'[parent])  vJ[i]
+        let as'' = as' with [i] =  mat_mul_vec_f64 Xup[i] (copy as'[parent])
+                                |> vecadd_f64 ( (crm vs''[i]) `mat_mul_vec_f64` vJ[i])
+        in (vs'', as'')
 
-def main = 
-  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
-  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
-  let (_, _, js, Is, Xtrees,lp,rp, paths, p_ii1) = autoVTree 5 1 0 1
-  in trace <| crba_vtree' js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd lp rp paths p_ii1
+  let fBs = tabulate n 
+          (\i -> Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i]))
+
+  let (C, _) = loop (tau', fs') = (replicate n 0f64, fBs) for i < n do
+    let idx = n - (i+1)
+    let parent = p[idx]
+    let tau' = tau' with [idx] = vecmul S[idx]  fs'[idx] 
+    in 
+      if idx > 0 then
+        let fs'' = fs' with [parent] = map2 (+) fs'[parent] ((transpose Xup[idx]) `mat_mul_vec_f64` fs'[idx])
+        in (tau', fs'')
+      else (tau', fs')
+
+  -- Step 2: Compute composite rigid bodies 
+
+  let Ics = loop IC = (copy Is) for i < n do
+    let idx = n - (i+1)
+    let parent = p[idx]
+    in 
+        if idx > 0 then
+          let tmp = (copy IC[parent]) `matadd_f64` ((transpose Xup[idx]) `matmul_f64` ((copy IC[idx]) `matmul_f64` Xup[idx]) )
+          let ic = IC with [parent] = tmp
+          in ic
+        else IC
+    
+  let p' = map (\i -> if i == 0 then -1 else p[i]) (iota n)
+
+  let H'' = loop H = (replicate n <| replicate n 0f64) for i < n do
+    let fh = Ics[i] `mat_mul_vec_f64` S[i]
+    let H  = H with [i,i] = vecmul S[i] fh
+    let (H'',_,_) =  loop (h, j, f) = (H, i, fh) while p'[j] >= 0 do
+        let fh' = (transpose Xup[j]) `mat_mul_vec_f64` f
+        let j = p'[j]
+        let tmp = vecmul S[j] fh'
+        let h' = h with [i,j] = tmp
+        let h'' = h' with [j,i] = (copy h'[i,j])
+        in (h'', j, fh')
+
+    in H''
+  in (C, H'')
+
+--def main = 
+--  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
+--  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
+--  let (_, _, js, Is, Xtrees,lp,rp, paths, p_ii1) = autoVTree 5 1 0 1
+--  let (c', h') = crba_vtree' js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd lp rp paths p_ii1
+--  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
+--  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
+--  let (_, p, js, Is, Xtrees) = autoTree 5 1 0 1
+--  in trace <| crba_seq p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd 
