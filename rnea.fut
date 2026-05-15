@@ -378,6 +378,9 @@ def rnea_vtree_optimized3 [n] (joint_types : [n]jointT)
   let as_tmp = tabulate n (\i -> if i == 0 then aJ[i] `vecadd_f64` (mat_mul_vec_f64 Xup[0] (map (\x -> -1 * x) gravity))
                                            else aJ[i] `vecadd_f64` (mat_mul_vec_f64 (crm vs[i]) vJ[i]))
 
+  let operator (si : ([6][6]f64, [6]f64)) (ci : ([6][6]f64, [6]f64)) : ([6][6]f64, [6]f64) 
+    = (ci.0 `matmul_f64` si.0,    (ci.0 `mat_mul_vec_f64` si.1) `vecadd_f64` ci.1)
+
   let vtree_as = T.lprp <| mkt2 lp rp (zip Xup as_tmp)
   let as = T.irootfix operator inv_op (identity 6, replicate 6 0f64) vtree_as
           |> map (.1) 
