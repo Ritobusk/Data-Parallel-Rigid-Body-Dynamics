@@ -34,39 +34,39 @@ entry crba_input (n : i64) (bf: f64) :
 -- ==
 -- entry: bench_crba
 -- script input { crba_input 10i64 1f64 }
+-- script input { crba_input 10i64 1.01f64 }
 -- script input { crba_input 10i64 1.1f64 }
 -- script input { crba_input 10i64 1.2f64 }
--- script input { crba_input 10i64 1.4f64 }
 -- script input { crba_input 10i64 2f64 }
 -- script input { crba_input 100i64 1f64 }
+-- script input { crba_input 100i64 1.01f64 }
 -- script input { crba_input 100i64 1.1f64 }
 -- script input { crba_input 100i64 1.2f64 }
--- script input { crba_input 100i64 1.4f64 }
 -- script input { crba_input 100i64 2f64 }
 -- script input { crba_input 1000i64 1f64 }
+-- script input { crba_input 1000i64 1.01f64 }
 -- script input { crba_input 1000i64 1.1f64 }
 -- script input { crba_input 1000i64 1.2f64 }
--- script input { crba_input 1000i64 1.4f64 }
 -- script input { crba_input 1000i64 2f64 }
 -- script input { crba_input 5000i64 1f64 }
+-- script input { crba_input 5000i64 1.01f64 }
 -- script input { crba_input 5000i64 1.1f64 }
 -- script input { crba_input 5000i64 1.2f64 }
--- script input { crba_input 5000i64 1.4f64 }
 -- script input { crba_input 5000i64 2f64 }
 -- script input { crba_input 10000i64 1f64 }
+-- script input { crba_input 10000i64 1.01f64 }
 -- script input { crba_input 10000i64 1.1f64 }
 -- script input { crba_input 10000i64 1.2f64 }
--- script input { crba_input 10000i64 1.4f64 }
 -- script input { crba_input 10000i64 2f64 }
 -- script input { crba_input 20000i64 1f64 }
+-- script input { crba_input 20000i64 1.01f64 }
 -- script input { crba_input 20000i64 1.1f64 }
 -- script input { crba_input 20000i64 1.2f64 }
--- script input { crba_input 20000i64 1.4f64 }
 -- script input { crba_input 20000i64 2f64 }
 -- script input { crba_input 40000i64 1f64 }
+-- script input { crba_input 40000i64 1.01f64 }
 -- script input { crba_input 40000i64 1.1f64 }
 -- script input { crba_input 40000i64 1.2f64 }
--- script input { crba_input 40000i64 1.4f64 }
 -- script input { crba_input 40000i64 2f64 }
 entry bench_crba [n]  (p: [n]i64) (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
