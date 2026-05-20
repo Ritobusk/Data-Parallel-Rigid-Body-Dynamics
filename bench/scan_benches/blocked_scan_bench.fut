@@ -73,6 +73,26 @@ entry test_blocked_64_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (vecadd_f64) (scal_mul_vec_f64 (-1)) (replicate 6 0f64) t 64
 
+-- ==
+-- entry: test_blocked_512_rootfix_mm
+-- script input { vtree_matrixmul 100i64 }  
+-- script input { vtree_matrixmul 1000i64 }  
+-- script input { vtree_matrixmul 10000i64 }  
+-- script input { vtree_matrixmul 100000i64 }  
+-- script input { vtree_matrixmul 1000000i64 }  
+entry test_blocked_512_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 512
+-- ==
+-- entry: test_blocked_256_rootfix_mm
+-- script input { vtree_matrixmul 100i64 }  
+-- script input { vtree_matrixmul 1000i64 }  
+-- script input { vtree_matrixmul 10000i64 }  
+-- script input { vtree_matrixmul 100000i64 }  
+-- script input { vtree_matrixmul 1000000i64 }  
+entry test_blocked_256_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 256
 
 -- ==
 -- entry: test_blocked_128_rootfix_mm
@@ -96,6 +116,17 @@ entry test_blocked_128_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : 
 entry test_blocked_64_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 64
+
+-- ==
+-- entry: test_blocked_32_rootfix_mm
+-- script input { vtree_matrixmul 100i64 }  
+-- script input { vtree_matrixmul 1000i64 }  
+-- script input { vtree_matrixmul 10000i64 }  
+-- script input { vtree_matrixmul 100000i64 }  
+-- script input { vtree_matrixmul 1000000i64 }  
+entry test_blocked_32_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 32
 
 
 -- ==

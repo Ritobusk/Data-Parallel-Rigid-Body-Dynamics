@@ -515,9 +515,48 @@ def rnea_vtree_optimized4 [n] (joint_types : [n]jointT)
   -- let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
   -- let fJs_root = T.ileaffix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root 512i64
   let fJs_root = ileaffix_vector_add  vecadd_f64  lp rp fBs_root
-
   in map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
 
+-- Same as above rnea'' but using different scans for vtrees
+def rnea_vtree_optimized5 [n] (joint_types : [n]jointT)
+             (Is : [n][6][6]f64) (Xtree : [n][6][6]f64) 
+             (gravity : [6]f64)
+             (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
+             (lp : [n]i64) (rp : [n]i64) 
+             : [n]f64 =
+  let (Xup, S) = unzip <| map3 (\Xti jti qi -> 
+                    let (Xji, si) = jcalc jti qi
+                    in (Xji `matmul_f64` Xti, si)) Xtree joint_types q 
+
+  let vtree_transform = T.lprp <| mkt2 lp rp Xup
+  let transformation_tree = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
+  let to_root_F   = map transpose  transformation_tree  
+  let from_root_F = map XBtoA_MtoF transformation_tree 
+  let to_root_M =   map (XBtoA_FtoM) to_root_F 
+
+  let (vJ, aJ) = map4 (\qdi qddi si Xroot -> (Xroot `mat_mul_vec_f64` (qdi `scal_mul_vec_f64` si),
+                                              Xroot `mat_mul_vec_f64` (qddi `scal_mul_vec_f64` si))
+                       ) qd qdd S to_root_M
+                |> unzip
+
+  let vs = irootfix_vector_add  lp rp vJ
+
+  let as_tmp = tabulate n (\i -> if i == 0 then aJ[i] `vecadd_f64` ( (map (\x -> -1 * x) gravity))
+                                           else aJ[i] `vecadd_f64` (mat_mul_vec_f64 (crm vs[i]) vJ[i]))
+
+  let as_root = irootfix_vector_add  lp rp as_tmp
+
+  let vs = map2 mat_mul_vec_f64 transformation_tree vs
+  let as = map2 mat_mul_vec_f64 transformation_tree as_root
+
+  let fBs_root = tabulate n 
+          (\i -> to_root_F[i] `mat_mul_vec_f64` (Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])))
+  --
+  -- let vtree_fjs_root = T.lprp <| mkt2 lp rp fBs_root
+  -- let fJs_root = T.ileaffix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root 512i64
+  let fJs_root = ileaffix_vector_add  vecadd_f64  lp rp fBs_root
+
+  in map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
 
 
 
@@ -555,3 +594,18 @@ def rnea_vtree_optimized_generalized_coordinates [n] (joint_types : [n]jointT)
   let fJs_root = T.ileaffix_b vecadd_f64 (scal_mul_vec_f64 (-1)) (replicate 6 0f64) vtree_fjs_root 512i64
 
   in map2 (\fji si -> si `vecmul` fji)  fJs_root S
+
+
+let main = 
+  let (_, p, js, Is, Xtrees) = autoTree 4 1 0 1
+  let vtree =  T.mk_parent p (iota 4)
+  let qs = [0.1, 0.2, 0.3, 0.4]
+  let qds = [0.1, 0.2, 0.3, 0.4]
+  let qdds = [0.1, 0.2, 0.3, 0.4]
+  let tmp = T.unmk vtree
+  let lp = tmp.lp 
+  let rp = tmp.rp 
+  let gravity = [0f64, 0, 0, 0, 0, -9.81]
+  let tmp =  trace <| rnea_vtree_optimized4 js Is Xtrees gravity qs qds qdds lp rp
+  let tmp2 =  trace <| rnea_vtree_optimized5 js Is Xtrees gravity qs qds qdds lp rp
+  in (tmp, tmp2)
