@@ -79,6 +79,18 @@ def rootfix_work_efficient 'a [n] (op: a -> a -> a) (inv: a -> a) (ne: a) (lp : 
     let S = work_efficient op ne R 
     in map (\i -> S[i]) lp
 
+def rootfix_vector_add [n]   (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
+    let I = replicate (2 * n) (replicate 6 0f64)
+    let L = scatter I lp data
+    let R = scatter L rp (map ((scal_mul_vec_f64 (-1))) data)
+    let S0 = scan (+) 0 (iota (2*n) |> map (\i -> R[i][0])) 
+    let S1 = scan (+) 0 (iota (2*n) |> map (\i -> R[i][1])) 
+    let S2 = scan (+) 0 (iota (2*n) |> map (\i -> R[i][2])) 
+    let S3 = scan (+) 0 (iota (2*n) |> map (\i -> R[i][3])) 
+    let S4 = scan (+) 0 (iota (2*n) |> map (\i -> R[i][4])) 
+    let S5 = scan (+) 0 (iota (2*n) |> map (\i -> R[i][5])) 
+    in map (\i -> [S0[i], S1[i], S2[i], S3[i], S4[i], S5[i] ]) lp
+
 entry vtree_vectoradd  (n : i64) :   
     ([n][6]f64, [n]i64, [n]i64) =
     let (_, p, js, _, Xtrees) = autoTree n 2 0 1
@@ -145,6 +157,15 @@ entry test_normal_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) 
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix (vecadd_f64) (scal_mul_vec_f64 (-1)) (replicate 6 0f64) t
 
+-- ==
+-- entry: test_unfolded_rootfix_va
+-- script input { vtree_vectoradd 100i64 }  
+-- script input { vtree_vectoradd 1000i64 }  
+-- script input { vtree_vectoradd 10000i64 }  
+-- script input { vtree_vectoradd 100000i64 }  
+-- script input { vtree_vectoradd 1000000i64 }  
+entry test_unfolded_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
+     rootfix_vector_add  lp rp data
 
 -- ==
 -- entry: test_normal_rootfix_mm

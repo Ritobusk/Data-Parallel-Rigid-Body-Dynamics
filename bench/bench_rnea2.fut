@@ -67,7 +67,40 @@ entry rnea_input (n : i64) (bf: f64) :
 -- script input { rnea_input 1000000i64 2f64 }
 -- script input { rnea_input 1000000i64 10f64 }
 -- script input { rnea_input 1000000i64 1000f64 }
+-- script input { rnea_input 2000000i64 1f64 }
 entry bench_rnea [n] (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in rnea_vtree_optimized3 (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp
+  in rnea_vtree_optimized4 (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp
 
+
+-- Benchmark the vtree rnea algorithm.
+-- ==
+-- entry: bench_rnea2
+-- script input { rnea_input 10i64 1f64 }
+-- script input { rnea_input 10i64 2f64 }
+-- script input { rnea_input 10i64 10f64 }
+-- script input { rnea_input 10i64 1000f64 }
+-- script input { rnea_input 100i64 1f64 }
+-- script input { rnea_input 100i64 2f64 }
+-- script input { rnea_input 100i64 10f64 }
+-- script input { rnea_input 100i64 1000f64 }
+-- script input { rnea_input 1000i64 1f64 }
+-- script input { rnea_input 1000i64 2f64 }
+-- script input { rnea_input 1000i64 10f64 }
+-- script input { rnea_input 1000i64 1000f64 }
+-- script input { rnea_input 10000i64 1f64 }
+-- script input { rnea_input 10000i64 2f64 }
+-- script input { rnea_input 10000i64 10f64 }
+-- script input { rnea_input 10000i64 1000f64 }
+-- script input { rnea_input 100000i64 1f64 }
+-- script input { rnea_input 100000i64 2f64 }
+-- script input { rnea_input 100000i64 10f64 }
+-- script input { rnea_input 100000i64 1000f64 }
+-- script input { rnea_input 1000000i64 1f64 }
+-- script input { rnea_input 1000000i64 2f64 }
+-- script input { rnea_input 1000000i64 10f64 }
+-- script input { rnea_input 1000000i64 1000f64 }
+-- script input { rnea_input 2000000i64 1f64 }
+entry bench_rnea2 [n] (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
+  let gravity = [0f64, 0, 0, 0, 0, -9.81]
+  in rnea_vtree_optimized3 (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp

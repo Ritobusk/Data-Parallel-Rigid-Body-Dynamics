@@ -65,9 +65,7 @@ entry rnea_input (n : i64) (bf: f64) :
 -- script input { rnea_input 1000000i64 10f64 }
 -- script input { rnea_input 1000000i64 1000f64 }
 -- script input { rnea_input 2000000i64 1f64 }
--- script input { rnea_input 2000000i64 2f64 }
--- script input { rnea_input 2000000i64 10f64 }
--- script input { rnea_input 2000000i64 1000f64 }
+-- script input { rnea_input 4000000i64 1f64 }
 entry bench_rnea_no_vtree [n] (p : [n]i64)  (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in rnea' p (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd
+  in rnea p (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd
