@@ -1,3 +1,73 @@
+NEWEST OPTIMIZED RNEA
+
+[szm249@hendrixgate03fl bench]$ cat rnea_bench_a100_new_mm_and_unfolded.out
+Wed May 20 17:27:38 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:89:00.0 Off |                    0 |
+| N/A   29C    P0             29W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jul_11_02:20:44_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.128
+Build cuda_12.2.r12.2/compiler.33053471_0
+hendrixgpu02fl.unicph.domain
+0
+Compiling bench_rnea2.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea2.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:               1273μs (95% CI: [    1268.7,     1277.7])
+rnea_input 10i64 2.0f64:               1271μs (95% CI: [    1268.6,     1273.9])
+rnea_input 10i64 1.5f64:               1280μs (95% CI: [    1276.6,     1287.5])
+rnea_input 10i64 1000.0f64:            1265μs (95% CI: [    1263.2,     1267.4])
+rnea_input 100i64 1.0f64:              1311μs (95% CI: [    1309.0,     1313.9])
+rnea_input 100i64 2.0f64:              1309μs (95% CI: [    1306.6,     1311.0])
+rnea_input 100i64 1.5f64:              1309μs (95% CI: [    1306.9,     1311.7])
+rnea_input 100i64 1000.0f64:           1307μs (95% CI: [    1305.4,     1309.2])
+rnea_input 1000i64 1.0f64:             1448μs (95% CI: [    1446.1,     1449.4])
+rnea_input 1000i64 2.0f64:             1449μs (95% CI: [    1447.1,     1450.5])
+rnea_input 1000i64 1.5f64:             1446μs (95% CI: [    1445.1,     1447.9])
+rnea_input 1000i64 1000.0f64:          1444μs (95% CI: [    1443.4,     1445.6])
+rnea_input 10000i64 1.0f64:            2790μs (95% CI: [    2788.6,     2793.4])
+rnea_input 10000i64 2.0f64:            2789μs (95% CI: [    2788.0,     2790.8])
+rnea_input 10000i64 1.5f64:            2798μs (95% CI: [    2796.2,     2800.0])
+rnea_input 10000i64 1000.0f64:         2790μs (95% CI: [    2789.0,     2792.2])
+rnea_input 100000i64 1.0f64:           5769μs (95% CI: [    5766.7,     5772.0])
+rnea_input 100000i64 2.0f64:           5855μs (95% CI: [    5853.9,     5857.3])
+rnea_input 100000i64 1.5f64:           5846μs (95% CI: [    5843.5,     5849.1])
+rnea_input 100000i64 1000.0f64:        5770μs (95% CI: [    5767.7,     5772.8])
+rnea_input 1000000i64 1.0f64:         44751μs (95% CI: [   44729.7,    44767.0])
+rnea_input 1000000i64 2.0f64:         46966μs (95% CI: [   46951.5,    46983.1])
+rnea_input 1000000i64 1.5f64:         47276μs (95% CI: [   47241.9,    47305.8])
+rnea_input 1000000i64 1000.0f64:      45398μs (95% CI: [   45356.3,    45428.7])
+rnea_input 2000000i64 1.0f64:         86827μs (95% CI: [   86796.5,    86866.5])
+rnea_input 2000000i64 2.0f64:         91674μs (95% CI: [   91574.7,    91731.4])
+rnea_input 2000000i64 1.5f64:         92293μs (95% CI: [   92234.9,    92346.2])
+rnea_input 2000000i64 1000.0f64:      88222μs (95% CI: [   88198.9,    88254.0])
+rnea_input 3000000i64 1.0f64:        130175μs (95% CI: [  130110.9,   130230.1])
+rnea_input 3000000i64 2.0f64:        137611μs (95% CI: [  137539.3,   137691.6])
+rnea_input 3000000i64 1.5f64:        138747μs (95% CI: [  138681.4,   138824.9])
+rnea_input 3000000i64 1000.0f64:     132317μs (95% CI: [  132273.3,   132368.3])
+
+
+RNEA with SEQUENTIAL
 [szm249@hendrixgate03fl bench]$ cat dynamics_bench_h100_cpu_and_blocked.out
 Architecture:        x86_64
 CPU op-mode(s):      32-bit, 64-bit

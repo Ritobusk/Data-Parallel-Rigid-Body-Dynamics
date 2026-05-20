@@ -1,0 +1,145 @@
+
+VECTOR ADDITION UNFOLDED:
+
+[szm249@hendrixgate01fl sca_benches]$ cat vtee_scan_benches_a100_3m_va_with_unfolded.out
+Wed May 20 13:57:05 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:37:00.0 Off |                    0 |
+| N/A   67C    P0             46W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+hendrixgpu08fl.unicph.domain
+0
+Compiling scan_variations.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+scan_variations.fut:test_normal_leaffix_va (no tuning file):
+vtree_vectoradd 100i64:                79μs (95% CI: [      79.1,       79.3])
+vtree_vectoradd 1000i64:              422μs (95% CI: [     421.6,      421.8])
+vtree_vectoradd 10000i64:            3801μs (95% CI: [    3800.7,     3802.2])
+vtree_vectoradd 100000i64:          38593μs (95% CI: [   38558.8,    38684.8])
+vtree_vectoradd 1000000i64:        697385μs (95% CI: [  697337.9,   697410.9])
+
+scan_variations.fut:test_unfolded_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:                42μs (95% CI: [      42.4,       42.5])
+vtree_vectoradd 1000i64:               58μs (95% CI: [      58.3,       58.5])
+vtree_vectoradd 10000i64:              59μs (95% CI: [      58.8,       58.9])
+vtree_vectoradd 100000i64:            111μs (95% CI: [     110.6,      111.0])
+vtree_vectoradd 1000000i64:          1204μs (95% CI: [    1203.6,     1205.2])
+
+-- BEST BLOCKED --
+blocked_scan_bench.fut:test_blocked_512_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:            206μs (95% CI: [     206.2,      206.4])
+vtree_vectoradd 1000i64:           235μs (95% CI: [     234.8,      235.0])
+vtree_vectoradd 10000i64:          362μs (95% CI: [     361.0,      364.8])
+vtree_vectoradd 100000i64:        1430μs (95% CI: [    1429.9,     1430.6])
+vtree_vectoradd 1000000i64:       3862μs (95% CI: [    3860.2,     3863.7])
+
+vtree_vectoradd 2000000i64:       7224μs (95% CI: [    7218.4,     7230.3])
+vtree_vectoradd 3000000i64:      10808μs (95% CI: [   10773.0,    10850.8])
+
+scan_variations.fut:test_work_efficient_rootfix_against_exscan (no tuning file):
+#0 ("256i64"):                       3614μs (95% CI: [    3604.3,     3632.6])
+#1 ("4016i64"):                      4728μs (95% CI: [    4718.4,     4742.9])
+#2 ("6384i64"):                      5288μs (95% CI: [    5282.3,     5298.1])
+
+scan_variations.fut:bench_blocked (no tuning file):
+[256]i32:                              30μs (95% CI: [      30.5,       30.5])
+[4096]i32:                             48μs (95% CI: [      48.2,       48.3])
+[65536]i32:                            56μs (95% CI: [      56.0,       56.1])
+[1048576]i32:                          57μs (95% CI: [      57.3,       57.4])
+[4194304]i32:                         113μs (95% CI: [     112.5,      112.7])
+
+scan_variations.fut:bench_work_efficient (no tuning file):
+[256]i32:                             120μs (95% CI: [     119.8,      119.9])
+[4096]i32:                            173μs (95% CI: [     172.7,      173.0])
+[65536]i32:                           232μs (95% CI: [     231.6,      231.9])
+[1048576]i32:                         330μs (95% CI: [     329.9,      330.2])
+[4194304]i32:                         532μs (95% CI: [     531.0,      537.0])
+
+scan_variations.fut:bench_regular_scan (no tuning file):
+[256]i32:                              14μs (95% CI: [      14.2,       14.3])
+[4096]i32:                             22μs (95% CI: [      22.2,       22.2])
+[65536]i32:                            32μs (95% CI: [      31.9,       32.0])
+[1048576]i32:                          38μs (95% CI: [      37.5,       37.6])
+[4194304]i32:                          50μs (95% CI: [      50.0,       50.2])
+
+
+MATRIX MATRIX MULTIPLICATION:
+
+[szm249@hendrixgate01fl sca_benches]$ cat vtee_scan_benches_a100_3m_mm_blocked.out
+Wed May 20 17:25:08 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:89:00.0 Off |                    0 |
+| N/A   27C    P0             29W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+hendrixgpu02fl.unicph.domain
+0
+Compiling blocked_scan_bench.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+blocked_scan_bench.fut:test_blocked_512_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:           1789μs (95% CI: [    1787.5,     1790.2])
+vtree_matrixmul 1000i64:          1853μs (95% CI: [    1848.5,     1858.4])
+vtree_matrixmul 10000i64:         2903μs (95% CI: [    2899.8,     2905.4])
+vtree_matrixmul 100000i64:       10522μs (95% CI: [   10518.8,    10525.0])
+vtree_matrixmul 1000000i64:      36129μs (95% CI: [   36115.4,    36142.9])
+
+blocked_scan_bench.fut:test_blocked_256_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:           1287μs (95% CI: [    1286.3,     1288.4])
+vtree_matrixmul 1000i64:          1364μs (95% CI: [    1363.1,     1364.0])
+vtree_matrixmul 10000i64:         2504μs (95% CI: [    2503.1,     2505.2])
+vtree_matrixmul 100000i64:        7189μs (95% CI: [    7186.8,     7192.1])
+vtree_matrixmul 1000000i64:      37338μs (95% CI: [   37219.0,    37374.1])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:           1060μs (95% CI: [    1059.3,     1060.6])
+vtree_matrixmul 1000i64:          1156μs (95% CI: [    1155.3,     1156.2])
+vtree_matrixmul 10000i64:         2481μs (95% CI: [    2479.9,     2482.1])
+vtree_matrixmul 100000i64:        5425μs (95% CI: [    5423.3,     5426.6])
+vtree_matrixmul 1000000i64:      36713μs (95% CI: [   36687.6,    36733.6])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:            943μs (95% CI: [     942.5,      943.2])
+vtree_matrixmul 1000i64:          1036μs (95% CI: [    1035.4,     1036.4])
+vtree_matrixmul 10000i64:         2259μs (95% CI: [    2258.2,     2260.1])
+vtree_matrixmul 100000i64:        4645μs (95% CI: [    4643.9,     4646.8])
+vtree_matrixmul 1000000i64:      35487μs (95% CI: [   35473.1,    35502.7])
+
+blocked_scan_bench.fut:test_blocked_32_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:            885μs (95% CI: [     884.4,      885.2])
+vtree_matrixmul 1000i64:           963μs (95% CI: [     962.4,      963.1])
+vtree_matrixmul 10000i64:         1897μs (95% CI: [    1894.7,     1898.9])
+vtree_matrixmul 100000i64:        4306μs (95% CI: [    4304.1,     4307.7])
+vtree_matrixmul 1000000i64:      36938μs (95% CI: [   36887.2,    36995.5])
