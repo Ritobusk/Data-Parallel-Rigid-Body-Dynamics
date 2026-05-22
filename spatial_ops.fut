@@ -1,6 +1,10 @@
 import "matrix_ops"
 
 type jointT = #Rx | #Ry | #Rz | #Px | #Py | #Pz | #helical f64
+type mv = {w : [3]f64, v_O : [3]f64}
+type fv = {n : [3]f64, f_O : [3]f64}
+type X_Compact = {rot: [3][3]f64, r : [3]f64}
+type I_Compact = {m: f64, h : [3]f64, I : [6]f64}
 
 def skew (v : [3]f64) : [3][3]f64 =
   [[0,     -v[2], v[1]],
@@ -16,6 +20,33 @@ def xlt (r : [3]f64) : [6][6]f64 =
      [0,    r[2], -r[1],1,0,0],
      [-r[2],0,    r[0], 0,1,0],
      [r[1], -r[0],0,    0,0,1]]
+
+-- Rotation of theta radians about the X-axis
+def rotx3d (theta : f64) : [3][3]f64 =
+    let s = f64.sin theta
+    let c = f64.cos theta
+    in 
+      [[1,0, 0],
+       [0,c, s],
+       [0,-s,c]]
+
+-- Rotation of theta radians about the X-axis
+def roty3d (theta : f64) : [3][3]f64 =
+    let s = f64.sin theta
+    let c = f64.cos theta
+    in 
+      [[c,0, -s],
+       [0,1, 0],
+       [s,0,c]]
+
+-- Rotation of theta radians about the X-axis
+def rotz3d (theta : f64) : [3][3]f64 =
+    let s = f64.sin theta
+    let c = f64.cos theta
+    in 
+      [[c, s, 0],
+       [-s,c, 0],
+       [0, 0, 1]]
 
 -- Rotation of theta radians about the X-axis
 def rotx (theta : f64) : [6][6]f64 =
@@ -169,6 +200,14 @@ def mcI (m : f64) (CoM : [3]f64) (I : [3][3]f64) : [6][6]f64 =
                 )
 
 -- Reverse of mcI
+def to_I_Compact (I : [6][6]f64) : I_Compact =
+  let m = I[5,5]
+  let mC = I[:3, 3:6]
+  let c = [mC[1,2]/m, (-mC[0,2])/m, (mC[0,1])/m]
+  let Ic = I[:3, :3] `matsub_f64` (scal_mul_mat_f64 (1/m) (mC `matmul_f64` (transpose mC)))
+  let ltIc = lower_triangle_3d Ic 
+  in {m = m, h = c, I = ltIc}
+  
 -- function  [m,c,I] = rbi_to_mcI( rbi )
 --
 -- if all(size(rbi)==[6 6])		% spatial
@@ -178,6 +217,46 @@ def mcI (m : f64) (CoM : [3]f64) (I : [3][3]f64) : [6][6]f64 =
 --   c = skew(mC)/m;
 --   I = rbi(1:3,1:3) - mC*mC'/m;
 
+-- constant times motion vector
+def scal_mul_mv (s : f64) (mv : mv) : mv =
+  let w   = scal_mul_vec_f64 s  mv.w  
+  let v_O = scal_mul_vec_f64 s  mv.v_O  
+  in {w = w, v_O = v_O}
+
+-- add motion vector
+def mv_add (mv1 : mv) (mv2 : mv) : mv =
+  let w = mv1.w `vecadd_f64` mv2.w  
+  let v_O = mv1.v_O `vecadd_f64` mv2.v_O 
+  in {w = w, v_O = v_O}
+
+-- From 6x6 Plücker transform matrix to compact representation
+def to_X_Compact (X : [6][6]f64) : X_Compact =
+  let E = X[:3, :3]
+  let rotated_rx = sized 3 (X[3:6, :3])
+  let org_rx = matmul_f64 (transpose E) rotated_rx -- this is: -rx as seen from A
+  let r = [org_rx[1,2], -org_rx[0,2], org_rx[0,1]]
+  in {rot = E, r = r}
+
+-- Transform a motion vector
+def Xm (X : X_Compact ) (m : mv) : mv =
+  let w = X.rot `mat_mul_vec_f64` m.w
+  let v_O = X.rot `mat_mul_vec_f64` (m.v_O `vecsub_f64` ((skew X.r) `mat_mul_vec_f64` m.w) )
+  in {w = w, v_O = v_O}
+
+def transform_XX (X1 : X_Compact ) (X2 : X_Compact) : X_Compact =
+  let E = X1.rot `matmul_f64` X2.rot
+  let r = X2.r `vecadd_f64` ((transpose X2.rot) `mat_mul_vec_f64` X1.r)
+  in {rot = E, r = r}
+
+def transform_identity : X_Compact =
+  let E = identity 3
+  let r  = [0,0,0f64]
+  in {rot = E, r = r}
+
+def transform_inv (X : X_Compact ) : X_Compact =
+  let Et = transpose X.rot
+  let r  = X.rot `mat_mul_vec_f64` (scal_mul_vec_f64 (-1) X.r)
+  in {rot = Et, r = r}
 
 -- For all revolute joints, and also the helical joint, q is an angle in radians.  For all prismatic joints, q is a length in metres.  (If you know what you are doing, then you can choose a different length unit; but you must be sure you are using a consistent set of physical units overall.) 
 def jcalc (jtyp : jointT) (q : f64) : ([6][6]f64, [6]f64) =
@@ -190,3 +269,14 @@ def jcalc (jtyp : jointT) (q : f64) : ([6][6]f64, [6]f64) =
   case  #Pz -> (xlt [0,0,q], [0,0,0,0,0,1f64])
   case  #helical pitch -> 
       (rotz q `matmul_f64` xlt [0, 0, q * pitch], [0,0,1,0,0,pitch])
+
+-- Only revolute joins are correct.
+def jcalcC (jtyp : jointT) (q : f64) : (X_Compact, mv) =
+  match jtyp
+  case  #Rx -> ({rot = rotx3d q, r = [0,0,0f64]}, {w = [1f64,0,0], v_O = [0,0,0]})
+  case  #Ry -> ({rot = roty3d q, r = [0,0,0f64]}, {w = [0,1f64,0], v_O = [0,0,0]})
+  case  #Rz -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
+  case  #Px -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
+  case  #Py -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
+  case  #Pz -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
+  case  #helical pitch ->  ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})

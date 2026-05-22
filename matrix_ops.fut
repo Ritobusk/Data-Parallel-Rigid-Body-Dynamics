@@ -30,6 +30,8 @@ def matadd [n][m] 'a
     tabulate_2d n m (\r c -> add A[r][c] B[r][c])
 def matadd_f64 = matadd (f64.+) 
 
+def matsub_f64 = matadd (f64.-) 
+
 def scal_mul_mat_f64 [n] [m] (s : f64) (A : [n][m]f64) : [n][m]f64 =
     map (\r -> map (\x -> x * s) r) A 
 
@@ -42,11 +44,17 @@ def get_diagonal [n] (diag : [n][n]f64) : [n]f64 =
 def identity  (size: i64) : [size][size]f64 =
   tabulate_2d size size (\r c -> if r == c then 1f64 else 0f64)
 
+def lower_triangle_3d (M : [3][3]f64) : [6]f64 =
+  [M[0,0], M[1,0], M[1,1],  M[2,0],  M[2,1],  M[2,2]]
+
 def vecmul [n] (v1: [n]f64) (v2: [n]f64) : f64 =
   reduce (+) 0f64 (map2 (*) v1 v2)
 
 def vecadd_f64 [n] (v1 : [n]f64) (v2 : [n]f64) : [n]f64 =
   map2 (+) v1 v2
+
+def vecsub_f64 [n] (v1 : [n]f64) (v2 : [n]f64) : [n]f64 =
+  map2 (-) v1 v2
 
 def scal_mul_vec_f64 [n] (s : f64) (v : [n]f64)  : [n]f64 =
   map (\x -> x * s) v
