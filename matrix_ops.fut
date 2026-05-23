@@ -47,6 +47,11 @@ def identity  (size: i64) : [size][size]f64 =
 def lower_triangle_3d (M : [3][3]f64) : [6]f64 =
   [M[0,0], M[1,0], M[1,1],  M[2,0],  M[2,1],  M[2,2]]
 
+def lt_unfold (I : [6]f64) : [3][3]f64 =
+  [[I[0], I[1], I[3]],
+   [I[1], I[2], I[4]],
+   [I[3], I[4], I[5]]]
+
 def vecmul [n] (v1: [n]f64) (v2: [n]f64) : f64 =
   reduce (+) 0f64 (map2 (*) v1 v2)
 

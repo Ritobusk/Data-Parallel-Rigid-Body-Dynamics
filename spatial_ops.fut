@@ -2,7 +2,7 @@ import "matrix_ops"
 
 type jointT = #Rx | #Ry | #Rz | #Px | #Py | #Pz | #helical f64
 type mv = {w : [3]f64, v_O : [3]f64}
-type fv = {n : [3]f64, f_O : [3]f64}
+type fv = {n_O : [3]f64, f : [3]f64}
 type X_Compact = {rot: [3][3]f64, r : [3]f64}
 type I_Compact = {m: f64, h : [3]f64, I : [6]f64}
 
@@ -177,6 +177,11 @@ def crm (v : [6]f64) : [6][6]f64 =
 def crf (v : [6]f64) : [6][6]f64 =
   crm v |> transpose |> scal_mul_mat_f64 (-1f64) 
 
+def cross3d (v1 : [3]f64) (v2: [3]f64) : [3]f64 =
+  [v1[1]*v2[2] - v1[2]*v2[1],
+   v1[2]*v2[0] - v1[0]*v2[2],
+   v1[0]*v2[1] - v1[1]*v2[0]]
+
 -- Make rigid body inertia matrix
 def mcI (m : f64) (CoM : [3]f64) (I : [3][3]f64) : [6][6]f64 =
     let C = skew CoM
@@ -203,19 +208,29 @@ def mcI (m : f64) (CoM : [3]f64) (I : [3][3]f64) : [6][6]f64 =
 def to_I_Compact (I : [6][6]f64) : I_Compact =
   let m = I[5,5]
   let mC = I[:3, 3:6]
-  let c = [mC[1,2]/m, (-mC[0,2])/m, (mC[0,1])/m]
+  let c = [mC[1,2], (-mC[0,2]), (mC[0,1])]
   let Ic = I[:3, :3] `matsub_f64` (scal_mul_mat_f64 (1/m) (mC `matmul_f64` (transpose mC)))
   let ltIc = lower_triangle_3d Ic 
   in {m = m, h = c, I = ltIc}
-  
--- function  [m,c,I] = rbi_to_mcI( rbi )
---
--- if all(size(rbi)==[6 6])		% spatial
---
---   m = rbi(6,6);
---   mC = rbi(1:3,4:6);
---   c = skew(mC)/m;
---   I = rbi(1:3,1:3) - mC*mC'/m;
+
+
+def IC_mul_mv (IC : I_Compact) (m : mv) : fv =
+  let I = lt_unfold IC.I
+  let n_O = (I `mat_mul_vec_f64` m.w) `vecadd_f64` (IC.h `cross3d` m.v_O)
+  let f = ((-1) `scal_mul_vec_f64` m.v_O) `vecsub_f64` (IC.h `cross3d` m.w)
+  in {n_O = n_O, f = f}
+
+-- constant times force vector
+def scal_mul_fv (s : f64) (fv : fv) : fv =
+  let n_O   = scal_mul_vec_f64 s  fv.n_O  
+  let f     = scal_mul_vec_f64 s  fv.f  
+  in {n_O = n_O, f = f}
+
+-- add force vectors
+def fv_add (fv1 : fv) (fv2 : fv) : fv =
+  let n_O   = fv1.n_O `vecadd_f64`  fv2.n_O  
+  let f     = fv1.f   `vecadd_f64`  fv2.f  
+  in {n_O = n_O, f = f}
 
 -- constant times motion vector
 def scal_mul_mv (s : f64) (mv : mv) : mv =
@@ -229,6 +244,9 @@ def mv_add (mv1 : mv) (mv2 : mv) : mv =
   let v_O = mv1.v_O `vecadd_f64` mv2.v_O 
   in {w = w, v_O = v_O}
 
+def scalar_prod (m : mv) (f : fv) : f64 =
+  (m.w `vecmul` f.n_O) + (m.v_O `vecmul` f.f)
+
 -- From 6x6 Plücker transform matrix to compact representation
 def to_X_Compact (X : [6][6]f64) : X_Compact =
   let E = X[:3, :3]
@@ -237,11 +255,49 @@ def to_X_Compact (X : [6][6]f64) : X_Compact =
   let r = [org_rx[1,2], -org_rx[0,2], org_rx[0,1]]
   in {rot = E, r = r}
 
--- Transform a motion vector
+-- From 6x6 Plücker transform matrix to compact representation
+def from_XC_to_aXb (X : X_Compact) : [6][6]f64 =
+  let E = X.rot
+  let r = X.r
+  let q3 = scal_mul_mat_f64 (-1) (matmul_f64 (E) (skew r) )
+  in tabulate_2d 6 6 
+    (\r c -> if r < 3 then
+                if c < 3 then --q2
+                  E[r][c]
+                else          --q1
+                  0
+             else
+                if c < 3 then --q3
+                  q3[r-3][c]
+                else          --q4
+                  E[r-3][c-3]
+              )
+
+-- aXb Transform a motion vector
 def Xm (X : X_Compact ) (m : mv) : mv =
   let w = X.rot `mat_mul_vec_f64` m.w
-  let v_O = X.rot `mat_mul_vec_f64` (m.v_O `vecsub_f64` ((skew X.r) `mat_mul_vec_f64` m.w) )
+  let v_O = X.rot `mat_mul_vec_f64` (m.v_O `vecsub_f64` (X.r `cross3d` m.w) )
   in {w = w, v_O = v_O}
+
+-- bXa Transform a motion vector
+def Xm_inv (X : X_Compact ) (m : mv) : mv =
+  let rot = transpose X.rot
+  let w   = rot `mat_mul_vec_f64` m.w
+  let v_O = (rot `mat_mul_vec_f64` m.v_O) `vecadd_f64` (X.r `cross3d` (w) )
+  in {w = w, v_O = v_O}
+
+-- bXa* Transform a force vector
+def Xf (X : X_Compact ) (f : fv) : fv =
+  let n_O = X.rot `mat_mul_vec_f64` (f.n_O `vecsub_f64` (X.r `cross3d` f.f) )
+  let f   = X.rot `mat_mul_vec_f64` f.f
+  in {n_O = n_O, f = f}
+
+-- bXa* Transform a force vector
+def Xf_inv (X : X_Compact ) (f : fv) : fv =
+  let rot = transpose X.rot
+  let f'   = rot `mat_mul_vec_f64` f.f
+  let n_O = (X.rot `mat_mul_vec_f64` f.n_O) `vecadd_f64` (X.r `cross3d` f') 
+  in {n_O = n_O, f = f'}
 
 def transform_XX (X1 : X_Compact ) (X2 : X_Compact) : X_Compact =
   let E = X1.rot `matmul_f64` X2.rot
