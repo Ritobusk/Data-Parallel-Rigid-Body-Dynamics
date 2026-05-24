@@ -5,6 +5,10 @@ import "vtree_with_work_efficient_scan"
 
 module T = vtree
 
+def exscan f ne xs =
+    map2 (\i x -> if i == 0 then ne else x)
+     (indices xs)
+     (rotate (-1) (scan f ne xs))
 def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
     map2 (\p d -> {parent=p,data=d}) ps ds
 def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =

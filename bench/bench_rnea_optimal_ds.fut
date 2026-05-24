@@ -1,4 +1,3 @@
-
 import "../rnea_optimal"
 import "../treeModel"
 import "../spatial_ops"
@@ -67,6 +66,8 @@ entry rnea_input (n : i64) (bf: f64) :
 -- script input { rnea_input 1000000i64 2f64 }
 -- script input { rnea_input 1000000i64 10f64 }
 -- script input { rnea_input 1000000i64 1000f64 }
+-- script input { rnea_input 2000000i64 1f64 }
+-- script input { rnea_input 4000000i64 1f64 }
 entry bench_rnea [n] (Is : [n]I_Compact) (Xtrees: [n]X_Compact) (lp : [n]i64) (rp : [n]i64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
   let gravity = {w = [0,0,0f64], v_O = [0,0, -9.81f64]}
   in rnea_vtree_optimized_ds (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp

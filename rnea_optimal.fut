@@ -5,6 +5,11 @@ import "vtree_with_work_efficient_scan"
 
 module T = vtree
 
+def exscan f ne xs =
+    map2 (\i x -> if i == 0 then ne else x)
+     (indices xs)
+     (rotate (-1) (scan f ne xs))
+
 def rootfix_vector_add [n]   (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
     let I = replicate (2 * n) (replicate 6 0f64)
     let L = scatter I lp data

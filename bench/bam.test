@@ -1,0 +1,20 @@
+Compiling bench_crba.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_crba.fut:bench_crba (no tuning file):
+rnea_input ($loaddata "data/N10_bf1_crba.in"):       4222μs (95% CI: [    4097.8,     4332.5])
+rnea_input ($loaddata "data/N10_bf2_crba.in"):       3700μs (95% CI: [    3606.9,     3809.0])
+rnea_input ($loaddata "data/N10_bf100_crba.in"):       3677μs (95% CI: [    3649.4,     3715.3])
+rnea_input ($loaddata "data/N50_bf1_crba.in"):       3651μs (95% CI: [    3625.6,     3684.1])
+rnea_input ($loaddata "data/N50_bf2_crba.in"):       3637μs (95% CI: [    3606.7,     3682.1])
+rnea_input ($loaddata "data/N50_bf100_crba.in"):       3650μs (95% CI: [    3623.1,     3686.2])
+rnea_input ($loaddata "data/N100_bf1_crba.in"):       3728μs (95% CI: [    3700.2,     3774.5])
+rnea_input ($loaddata "data/N100_bf2_crba.in"):       3660μs (95% CI: [    3641.2,     3685.6])
+rnea_input ($loaddata "data/N100_bf100_crba.in"):       3670μs (95% CI: [    3652.1,     3691.0])
+rnea_input ($loaddata "data/N500_bf1_crba.in"):       4337μs (95% CI: [    4314.7,     4364.9])
+rnea_input ($loaddata "data/N500_bf2_crba.in"):       4287μs (95% CI: [    4268.8,     4308.0])
+rnea_input ($loaddata "data/N500_bf100_crba.in"):       4297μs (95% CI: [    4277.7,     4320.5])
+rnea_input ($loaddata "data/N5000_bf1_crba.in"):      37604μs (95% CI: [   37533.4,    37669.3])
+rnea_input ($loaddata "data/N5000_bf2_crba.in"):      26815μs (95% CI: [   26760.2,    26880.1])
+rnea_input ($loaddata "data/N5000_bf100_crba.in"):      26853μs (95% CI: [   26781.8,    26919.6])
