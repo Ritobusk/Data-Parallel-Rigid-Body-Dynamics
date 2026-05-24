@@ -1,5 +1,5 @@
 
-import "../rnea"
+import "../rnea_optimal"
 import "../treeModel"
 import "../spatial_ops"
 import "../lib/github.com/diku-dk/vtree/vtree"
@@ -23,8 +23,8 @@ module test_f32_rand_m =
   mktest (uniform_real_distribution f32 minstd_rand)
 
 entry rnea_input (n : i64) (bf: f64) :
-    ([n][6][6]f64, [n][6][6]f64, [n]i64, [n]i64, [n]f64, [n]f64, [n]f64) =
-    let (_, p, _, Is, Xtrees) = autoTree n bf 0f64 1f64
+    ([n]I_Compact, [n]X_Compact, [n]i64, [n]i64, [n]f64, [n]f64, [n]f64) =
+    let (_, p, _, Is, Xtrees) = autoTreeC n bf 0f64 1f64
     let p = sized n p
     let Is = sized n Is
     let Xtrees = sized n Xtrees
@@ -67,8 +67,7 @@ entry rnea_input (n : i64) (bf: f64) :
 -- script input { rnea_input 1000000i64 2f64 }
 -- script input { rnea_input 1000000i64 10f64 }
 -- script input { rnea_input 1000000i64 1000f64 }
--- script input { rnea_input 2000000i64 1f64 }
-entry bench_rnea [n] (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
-  let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in rnea_vtree_optimized5 (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp
+entry bench_rnea [n] (Is : [n]I_Compact) (Xtrees: [n]X_Compact) (lp : [n]i64) (rp : [n]i64) (q : [n]f64)  (qd : [n]f64) (qdd : [n]f64) : [n]f64 =
+  let gravity = {w = [0,0,0f64], v_O = [0,0, -9.81f64]}
+  in rnea_vtree_optimized_ds (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd qdd lp rp
 

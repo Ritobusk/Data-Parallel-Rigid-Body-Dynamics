@@ -71,3 +71,43 @@ def rnea_vtree_optimized_ds [n] (joint_types : [n]jointT)
 
   in map3 (\frt fji si -> si `scalar_prod` (frt `Xf` fji))  transformation_tree fJs_root S
 
+def rnea_optimized_ds_seq [n] (p : [n]i64) (joint_types : [n]jointT)
+             (Is : [n]I_Compact) (Xtree : [n]X_Compact) 
+             (gravity : mv) (q : [n]f64) (qd : [n]f64) (qdd : [n]f64)
+             : [n]f64 =
+  let (XJ, S) = unzip <| map2 (jcalcC) joint_types q 
+  let vJ      = map2 (scal_mul_mv) qd  S 
+  let Xup     = map2 (transform_XX) XJ Xtree
+
+  let empty_mv = {w = [0,0,0f64], v_O = [0,0,0f64]}
+  let (vs, as) = loop (vs', as') = (replicate n empty_mv, replicate n empty_mv) for i < n do
+    if i == 0 then 
+        let vs' = vs' with [i] = vJ[i]
+        let as' = as' with [i] = (mv_add) 
+                                   (Xup[i] `Xm`  ( (-1) `scal_mul_mv` gravity  )) 
+                                   (qdd[i] `scal_mul_mv` S[i])
+        in (vs', as')
+    else 
+        let parent = p[i]
+        let vs' = vs' with [i] = mv_add (Xup[i] `Xm`  (copy vs'[parent]))  vJ[i]
+
+        let as' = as' with [i] = mv_add ( Xup[i] `Xm` (copy as'[parent]))   
+                                           ( qdd[i] `scal_mul_mv` S[i])
+                                |> mv_add (  vs'[i] `mv_cross_mv` vJ[i])
+        in (vs', as')
+
+  let fBs = tabulate n 
+          (\i -> Is[i] `IC_mul_mv` as[i] `fv_add` ( vs[i] `mv_cross_fv` (Is[i] `IC_mul_mv` vs[i])))
+
+  let (tau, _) = loop (tau', fs') = (replicate n 0f64, fBs) for i < n do
+    let idx = n - (i+1)
+    let parent = p[idx]
+    let tau' = tau' with [idx] = scalar_prod S[idx]   fs'[idx] 
+    in 
+      if idx > 0 then
+        let fs'' = fs' with [parent] = (fv_add) (copy fs'[parent]) (Xup[idx] `Xf_inv` (copy fs'[idx]))
+        in (tau', fs'')
+      else (tau', fs')
+  in tau
+
+
