@@ -217,7 +217,7 @@ def to_I_Compact (I : [6][6]f64) : I_Compact =
 def IC_mul_mv (IC : I_Compact) (m : mv) : fv =
   let I = lt_unfold IC.I
   let n_O = (I `mat_mul_vec_f64` m.w) `vecadd_f64` (IC.h `cross3d` m.v_O)
-  let f = ((-1) `scal_mul_vec_f64` m.v_O) `vecsub_f64` (IC.h `cross3d` m.w)
+  let f = ((IC.m) `scal_mul_vec_f64` m.v_O) `vecsub_f64` (IC.h `cross3d` m.w)
   in {n_O = n_O, f = f}
 
 def fv_to_6d (f' : fv) : [6]f64 =
@@ -321,9 +321,9 @@ def Xf (X : X_Compact ) (f : fv) : fv =
 
 -- bXa* Transform a force vector
 def Xf_inv (X : X_Compact ) (f : fv) : fv =
-  let rot = transpose X.rot
-  let f'   = rot `mat_mul_vec_f64` f.f
-  let n_O = (X.rot `mat_mul_vec_f64` f.n_O) `vecadd_f64` (X.r `cross3d` f') 
+  let rot' = transpose X.rot
+  let f'   = rot' `mat_mul_vec_f64` f.f
+  let n_O = (rot' `mat_mul_vec_f64` f.n_O) `vecadd_f64` (X.r `cross3d` f') 
   in {n_O = n_O, f = f'}
 
 def transform_XX (X1 : X_Compact ) (X2 : X_Compact) : X_Compact =

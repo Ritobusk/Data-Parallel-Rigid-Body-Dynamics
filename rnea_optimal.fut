@@ -61,7 +61,7 @@ def rnea_vtree_optimized_ds [n] (joint_types : [n]jointT)
   let as = map2 Xm transformation_tree as_root
 
   let fBs_root = tabulate n 
-          (\i -> transformation_tree[i] `Xf` 
+          (\i -> transformation_tree[i] `Xf_inv` 
                      (Is[i] `IC_mul_mv` as[i] `fv_add` (vs[i] `mv_cross_fv` (Is[i] `IC_mul_mv` vs[i])))
           )
       |> map fv_to_6d

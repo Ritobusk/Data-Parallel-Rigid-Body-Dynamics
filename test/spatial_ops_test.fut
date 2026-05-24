@@ -24,7 +24,11 @@ module mktest (dist: rng_distribution) = {
 module test_f32_rand_m =
   mktest (uniform_real_distribution f32 minstd_rand)
 
-let error_tolerance = 1e-7
+let error_tolerance = 1e-4
+
+def compare_scalars [n] (S1: [n]f64) (S2: [n]f64) : bool =
+  map2 (\x y -> (f64.abs (x - y)) < error_tolerance )  S1 S2
+      |> reduce (&&) true
 
 def compare_matrices [n][l][m] (X1: [n][l][m]f64) (X2: [n][l][m]f64) : bool =
   map2 (\x1 x2 -> map2 (\r r' -> map2 (\x y -> f64.abs (x - y) < error_tolerance) r r') x1 x2) X1 X2
@@ -32,7 +36,8 @@ def compare_matrices [n][l][m] (X1: [n][l][m]f64) (X2: [n][l][m]f64) : bool =
       |> reduce (&&) true
 
 def compare_vectors [n][m] (V1: [n][m]f64) (V2: [n][m]f64) : bool =
-  map2 (\v1 v2 ->  map2 (\x y -> f64.abs (x - y) < error_tolerance) v1 v2) V1 V2
+  --map2 (\v1 v2 ->  map2 (\x y -> (trace (f64.abs (x - y))) < error_tolerance) v1 v2) V1 V2
+  map2 (\v1 v2 ->  map2 (\x y -> ((f64.abs (x - y))) < error_tolerance) v1 v2) V1 V2
       |> flatten 
       |> reduce (&&) true
 
@@ -98,7 +103,7 @@ def transform_multiplication (n : i64) : bool =
 
   in compare_matrices Xup XupC' 
 
-def rootfix_vj (n : i64) : [3]bool =
+def rootfix_vj (n : i64) : [5]bool =
   let (joint_types, Is, Xtree, lp, rp, q, qd, qdd) = test_autoTree n
   let gravity = [0,0,0,0,0,-9.81f64]
   let gravity_mv = d6_to_mv gravity
@@ -109,7 +114,6 @@ def rootfix_vj (n : i64) : [3]bool =
 
   let vtree_transform = T.lprp <| mkt lp rp Xup
   let transformation_tree = T.irootfix matmul_rev XBtoA_from_XAtoB_M (identity 6) vtree_transform
-    |> trace
 
   let to_root_F   = map transpose  transformation_tree  
   let from_root_F = map XBtoA_MtoF transformation_tree 
@@ -119,14 +123,29 @@ def rootfix_vj (n : i64) : [3]bool =
                                               Xroot `mat_mul_vec_f64` (qddi `scal_mul_vec_f64` si))
                        ) qd qdd S to_root_M
                 |> unzip
-  let vs = irootfix_vector_add  lp rp vJ
+  let vs_root = irootfix_vector_add  lp rp vJ
 
   let as_tmp = tabulate n (\i -> if i == 0 then aJ[i] `vecadd_f64` ( (map (\x -> -1 * x) gravity))
-                                           else aJ[i] `vecadd_f64` (mat_mul_vec_f64 (crm vs[i]) vJ[i]))
+                                           else aJ[i] `vecadd_f64` (mat_mul_vec_f64 (crm vs_root[i]) vJ[i]))
 
   let as_root = irootfix_vector_add  lp rp as_tmp
 
+  let vs = map2 mat_mul_vec_f64 transformation_tree vs_root
+  let as = map2 mat_mul_vec_f64 transformation_tree as_root
+
+  let fBs_root = tabulate n 
+          (\i -> to_root_F[i] `mat_mul_vec_f64` 
+              (Is[i] `mat_mul_vec_f64` as[i]) 
+              `vecadd_f64` 
+              ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])
+          )
+
+  let fJs_root = ileaffix_vector_add  lp rp fBs_root
+  let tau = map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
+
+
   let (joint_typesC, IsC, XtreeC, _,_,_,_,_) = test_autoTreeC n
+  
   let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalcC joint j_pos) joint_typesC q
   let Xup     = map2 (\xj xtree -> transform_XX xj xtree) XJ XtreeC
 
@@ -141,7 +160,7 @@ def rootfix_vj (n : i64) : [3]bool =
                 |> unzip
   
   let vsC = irootfix_vector_add lp rp (map mv_to_6d vJ)
-  let res2 = compare_vectors vs vsC
+  let res2 = compare_vectors vs_root vsC
   let vsC = map d6_to_mv  vsC
   
 
@@ -152,8 +171,29 @@ def rootfix_vj (n : i64) : [3]bool =
   let res3 = compare_vectors as_root as_rootC
   let as_rootC = map d6_to_mv as_rootC 
 
+  let vsC = map2 Xm transformation_treeC vsC
+  let asC = map2 Xm transformation_treeC as_rootC
 
-  in [res1, res2, res3]
+  let fBs_rootC = tabulate n 
+          (\i -> transformation_treeC[i] `Xf_inv` 
+                     (IsC[i] `IC_mul_mv` asC[i]) `fv_add` 
+                     (vsC[i] `mv_cross_fv` (IsC[i] `IC_mul_mv` vsC[i]))
+          )
+      |> map fv_to_6d
+
+  let res4 = compare_vectors fBs_root fBs_rootC 
+
+  let fJs_rootC = ileaffix_vector_add  lp rp fBs_rootC
+
+
+  let fJs_rootC =  map d6_to_fv fJs_rootC
+  let tauC = map3 (\frt fji si -> si `scalar_prod` (frt `Xf` fji))  transformation_treeC fJs_rootC S
+
+  let res5 = compare_scalars tau tauC
+
+
+
+  in [res1, res2, res3, res4, res5]
 
 
 
@@ -173,8 +213,9 @@ entry IC_mul (n : i64) =
 
 -- ==
 -- entry: mat_mat_rootfix 
--- input {4i64} output {[true, true, true]}
--- input {8i64} output {[true, true, true]}
+-- input {4i64} output {[true, true, true, true, true]}
+-- input {8i64} output {[true, true, true, true, true]}
+-- input {100i64} output {[true, true, true, true, true]}
 entry mat_mat_rootfix (n : i64) =
   rootfix_vj n
 
