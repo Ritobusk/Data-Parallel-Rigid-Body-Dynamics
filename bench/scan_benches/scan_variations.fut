@@ -115,6 +115,9 @@ def rootfix_vector_add2 [n]   (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [
             |> transpose
     in map (\i -> S[i]) lp
 
+def irootfix_vector_add2 'a [n] (lp: [n]i64) (rp: [n]i64) (data : [n][6]f64) : [n][6]f64 =
+    map2 vecadd_f64 (rootfix_vector_add2 lp rp data) data
+
 entry vtree_vectoradd  (n : i64) :   
     ([n][6]f64, [n]i64, [n]i64) =
     let (_, p, js, _, Xtrees) = autoTree n 2 0 1
@@ -127,6 +130,21 @@ entry vtree_vectoradd  (n : i64) :
     let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalc joint j_pos) js (replicate n 1f64) 
     let vJ      = map2 (\s v -> map (\x -> x * v) s) S (replicate n 1f64) 
     in (vJ, lp, rp)
+
+entry vtree_vectoraddC  (n : i64) :   
+    ([n]mv, [n]X_Compact, [n]i64, [n]i64) =
+    let (_, p, js, _, Xtrees) = autoTreeC n 2 0 1
+    let p = sized n p
+    let Xtrees = sized n Xtrees
+    let vtree =  T.mk_parent p  (iota n)
+    let tmp = T.unmk vtree
+    let lp = tmp.lp 
+    let rp = tmp.rp 
+    let (XJ, S) = unzip <| map2 (\joint j_pos -> jcalcC joint j_pos) js (replicate n 1f64) 
+    let vJ      = map2 (scal_mul_mv) (replicate n 1f64) S
+    let Xup     = map2 (\xj xtree -> transform_XX xj xtree) XJ Xtrees
+    in (vJ, Xup, lp, rp)
+
 
 entry vtree_matrixmul  (n : i64) :   
     ([n][6][6]f64, [n]i64, [n]i64) =
@@ -183,6 +201,25 @@ entry complex_scan_input_C  (n : i64) :
     let Xup     = map2 (\xj xtree -> transform_XX xj xtree) XJ Xtrees
     let Cs = zip Xup vJ
     in (Cs, lp, rp)
+
+-- ==
+-- entry: test_unfolded_rootfix_va_with_conversion
+-- script input { vtree_vectoraddC 100i64 }  
+-- script input { vtree_vectoraddC 1000i64 }  
+-- script input { vtree_vectoraddC 10000i64 }  
+-- script input { vtree_vectoraddC 100000i64 }  
+-- script input { vtree_vectoraddC 1000000i64 }  
+-- script input { vtree_vectoraddC 2000000i64 }  
+-- script input { vtree_vectoraddC 4000000i64 }  
+-- script input { vtree_vectoraddC 8000000i64 }  
+entry test_unfolded_rootfix_va_with_conversion [n] (vJ : [n]mv) (Xup : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]mv=
+    let vtree_transform = T.lprp <| mkt2 lp rp Xup
+    let transformation_tree = T.irootfix_blocked transform_XX_rev X_inv (copy transform_identity) vtree_transform 64i64
+    let vJ'  = map2 Xm transformation_tree vJ
+    let vJ'' = map mv_to_6d vJ'
+    in irootfix_vector_add2  lp rp vJ''
+        |> map d6_to_mv
+        
 
 -- ==
 -- entry: test_normal_leaffix_va

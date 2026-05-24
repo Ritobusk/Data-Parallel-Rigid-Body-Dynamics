@@ -1,4 +1,472 @@
-NEWEST OPTIMIZED RNEA
+NEW FUTHARK:
+[szm249@hendrixgate01fl bench]$ cat new_futhark_dynamics_bench_a100_cpu_and_new_ds.out
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+CPU(s):              48
+On-line CPU(s) list: 0-47
+Thread(s) per core:  2
+Core(s) per socket:  12
+Socket(s):           2
+NUMA node(s):        2
+Vendor ID:           GenuineIntel
+CPU family:          6
+Model:               85
+Model name:          Intel(R) Xeon(R) Silver 4214R CPU @ 2.40GHz
+Stepping:            7
+CPU MHz:             2780.955
+CPU max MHz:         3500.0000
+CPU min MHz:         1000.0000
+BogoMIPS:            4800.00
+Virtualization:      VT-x
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            1024K
+L3 cache:            16896K
+NUMA node0 CPU(s):   0-11,24-35
+NUMA node1 CPU(s):   12-23,36-47
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 invpcid_single intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_pkg_req pku ospke avx512_vnni md_clear flush_l1d arch_capabilities
+Mon May 25 00:38:49 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:37:00.0 Off |                    0 |
+| N/A   28C    P0             32W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jul_11_02:20:44_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.128
+Build cuda_12.2.r12.2/compiler.33053471_0
+hendrixgpu08fl.unicph.domain
+0
+Compiling bench_rnea_optimal_ds.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea_optimal_ds.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:                672μs (95% CI: [     671.4,      673.3])
+rnea_input 10i64 1.5f64:                672μs (95% CI: [     671.3,      672.0])
+rnea_input 10i64 2.0f64:                673μs (95% CI: [     671.9,      679.0])
+rnea_input 10i64 1000.0f64:             671μs (95% CI: [     671.0,      671.7])
+rnea_input 100i64 1.0f64:               672μs (95% CI: [     672.1,      672.8])
+rnea_input 100i64 1.5f64:               675μs (95% CI: [     674.3,      675.0])
+rnea_input 100i64 2.0f64:               675μs (95% CI: [     674.4,      675.1])
+rnea_input 100i64 1000.0f64:            674μs (95% CI: [     673.6,      674.3])
+rnea_input 1000i64 1.0f64:              765μs (95% CI: [     765.2,      765.7])
+rnea_input 1000i64 1.5f64:              769μs (95% CI: [     768.8,      769.2])
+rnea_input 1000i64 2.0f64:              769μs (95% CI: [     768.7,      769.1])
+rnea_input 1000i64 1000.0f64:           769μs (95% CI: [     768.7,      769.3])
+rnea_input 10000i64 1.0f64:            1285μs (95% CI: [    1284.3,     1285.4])
+rnea_input 10000i64 1.5f64:            1297μs (95% CI: [    1296.9,     1297.8])
+rnea_input 10000i64 2.0f64:            1294μs (95% CI: [    1293.4,     1294.2])
+rnea_input 10000i64 1000.0f64:         1293μs (95% CI: [    1292.4,     1293.3])
+rnea_input 100000i64 1.0f64:           1554μs (95% CI: [    1552.9,     1554.2])
+rnea_input 100000i64 1.5f64:           1644μs (95% CI: [    1642.9,     1644.3])
+rnea_input 100000i64 2.0f64:           1637μs (95% CI: [    1636.3,     1637.4])
+rnea_input 100000i64 1000.0f64:        1623μs (95% CI: [    1621.9,     1623.3])
+rnea_input 1000000i64 1.0f64:         11332μs (95% CI: [   11327.4,    11336.7])
+rnea_input 1000000i64 1.5f64:         14552μs (95% CI: [   14547.0,    14557.8])
+rnea_input 1000000i64 2.0f64:         14475μs (95% CI: [   14469.7,    14483.1])
+rnea_input 1000000i64 1000.0f64:      12734μs (95% CI: [   12728.4,    12739.7])
+rnea_input 2000000i64 1.0f64:         21963μs (95% CI: [   21953.3,    21974.1])
+rnea_input 2000000i64 1.5f64:         29077μs (95% CI: [   29062.9,    29089.7])
+rnea_input 2000000i64 2.0f64:         28666μs (95% CI: [   28653.9,    28679.1])
+rnea_input 2000000i64 1000.0f64:      24832μs (95% CI: [   24814.6,    24847.7])
+rnea_input 4000000i64 1.0f64:         43559μs (95% CI: [   43535.8,    43584.7])
+rnea_input 4000000i64 1.5f64:         58893μs (95% CI: [   58867.8,    58919.7])
+rnea_input 4000000i64 2.0f64:         57644μs (95% CI: [   57617.9,    57668.6])
+rnea_input 4000000i64 1000.0f64:      49431μs (95% CI: [   49389.8,    49475.8])
+rnea_input 8000000i64 1.0f64:
+bench_rnea_optimal_ds.c:7924: CUDA call
+  cuCtxSynchronize()
+failed with error code 700 (an illegal memory access was encountered)
+
+
+rnea_input 8000000i64 1.5f64:
+bench_rnea_optimal_ds.c:8306: CUDA call
+  cuMemFree_v2(mem)
+failed with error code 700 (an illegal memory access was encountered)
+
+
+rnea_input 8000000i64 2.0f64:
+bench_rnea_optimal_ds.c:8306: CUDA call
+  cuMemFree_v2(mem)
+failed with error code 700 (an illegal memory access was encountered)
+
+
+rnea_input 8000000i64 1000.0f64:
+bench_rnea_optimal_ds.c:8306: CUDA call
+  cuMemFree_v2(mem)
+failed with error code 700 (an illegal memory access was encountered)
+
+
+
+Failed to run bench_rnea_optimal_ds.fut
+Server terminated with nonzero exit code 255 and stderr:
+./bench_rnea_optimal_ds: bench_rnea_optimal_ds.c:8058: CUDA call
+  gpu_free_all(ctx)
+failed with error code 1 (invalid argument)
+
+Compiling bench_rnea_no_vtree.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea_no_vtree.fut:bench_rnea_optimized_ds_seq (no tuning file):
+rnea_inputC 10i64 1.0f64:                  4μs (95% CI: [       4.3,        4.3])
+rnea_inputC 10i64 1.5f64:                  4μs (95% CI: [       4.3,        4.3])
+rnea_inputC 10i64 2.0f64:                  4μs (95% CI: [       4.1,        4.2])
+rnea_inputC 10i64 1000.0f64:               5μs (95% CI: [       4.6,        4.7])
+rnea_inputC 100i64 1.0f64:                27μs (95% CI: [      27.2,       27.2])
+rnea_inputC 100i64 1.5f64:                27μs (95% CI: [      26.6,       26.6])
+rnea_inputC 100i64 2.0f64:                27μs (95% CI: [      26.9,       27.0])
+rnea_inputC 100i64 1000.0f64:             27μs (95% CI: [      27.1,       27.1])
+rnea_inputC 1000i64 1.0f64:              247μs (95% CI: [     246.1,      246.9])
+rnea_inputC 1000i64 1.5f64:              244μs (95% CI: [     243.2,      244.1])
+rnea_inputC 1000i64 2.0f64:              244μs (95% CI: [     243.5,      244.4])
+rnea_inputC 1000i64 1000.0f64:           241μs (95% CI: [     240.4,      241.2])
+rnea_inputC 10000i64 1.0f64:            2418μs (95% CI: [    2413.3,     2422.7])
+rnea_inputC 10000i64 1.5f64:            2414μs (95% CI: [    2409.7,     2418.8])
+rnea_inputC 10000i64 2.0f64:            2424μs (95% CI: [    2419.9,     2428.7])
+rnea_inputC 10000i64 1000.0f64:         2410μs (95% CI: [    2406.1,     2414.7])
+rnea_inputC 100000i64 1.0f64:          26009μs (95% CI: [   25934.4,    26059.4])
+rnea_inputC 100000i64 1.5f64:          26005μs (95% CI: [   25919.4,    26095.3])
+rnea_inputC 100000i64 2.0f64:          25987μs (95% CI: [   25896.2,    26087.6])
+rnea_inputC 100000i64 1000.0f64:       25904μs (95% CI: [   25817.3,    25987.5])
+rnea_inputC 1000000i64 1.0f64:        280587μs (95% CI: [  280249.4,   281112.4])
+rnea_inputC 1000000i64 1.5f64:        284465μs (95% CI: [  283951.0,   284689.9])
+rnea_inputC 1000000i64 2.0f64:        283649μs (95% CI: [  283289.8,   284095.1])
+rnea_inputC 1000000i64 1000.0f64:     282437μs (95% CI: [  281722.8,   283023.1])
+rnea_inputC 2000000i64 1.0f64:        632937μs (95% CI: [  631899.1,   633852.9])
+rnea_inputC 2000000i64 1.5f64:        637391μs (95% CI: [  635567.0,   639072.0])
+rnea_inputC 2000000i64 2.0f64:        637154μs (95% CI: [  634999.0,   639108.2])
+rnea_inputC 2000000i64 1000.0f64:     636744μs (95% CI: [  635709.8,   637761.9])
+rnea_inputC 4000000i64 1.0f64:       1253346μs (95% CI: [ 1252680.9,  1254925.7])
+rnea_inputC 4000000i64 1.5f64:       1261256μs (95% CI: [ 1258932.1,  1262770.8])
+rnea_inputC 4000000i64 2.0f64:       1259433μs (95% CI: [ 1255623.7,  1262081.8])
+rnea_inputC 4000000i64 1000.0f64:    1256522μs (95% CI: [ 1255050.0,  1257984.8])
+rnea_inputC 8000000i64 1.0f64:       2510670μs (95% CI: [ 2505415.3,  2514817.9])
+rnea_inputC 8000000i64 1.5f64:       2541463μs (95% CI: [ 2537969.7,  2544629.7])
+rnea_inputC 8000000i64 2.0f64:       2534553μs (95% CI: [ 2531934.7,  2537775.1])
+rnea_inputC 8000000i64 1000.0f64:    2533842μs (95% CI: [ 2529131.0,  2538149.6])
+
+bench_rnea_no_vtree.fut:bench_rnea_no_vtree (no tuning file):
+rnea_input 10i64 1.0f64:                   6μs (95% CI: [       6.1,        6.1])
+rnea_input 10i64 2.0f64:                   6μs (95% CI: [       6.1,        6.2])
+rnea_input 10i64 10.0f64:                  6μs (95% CI: [       5.9,        5.9])
+rnea_input 10i64 1000.0f64:                6μs (95% CI: [       6.2,        6.2])
+rnea_input 100i64 1.0f64:                 50μs (95% CI: [      50.0,       50.4])
+rnea_input 100i64 2.0f64:                 50μs (95% CI: [      49.9,       50.0])
+rnea_input 100i64 10.0f64:                48μs (95% CI: [      47.9,       48.0])
+rnea_input 100i64 1000.0f64:              50μs (95% CI: [      50.2,       50.3])
+rnea_input 1000i64 1.0f64:               494μs (95% CI: [     493.1,      494.4])
+rnea_input 1000i64 2.0f64:               491μs (95% CI: [     489.9,      491.3])
+rnea_input 1000i64 10.0f64:              475μs (95% CI: [     473.9,      475.9])
+rnea_input 1000i64 1000.0f64:            480μs (95% CI: [     478.9,      480.9])
+rnea_input 10000i64 1.0f64:             5019μs (95% CI: [    4999.1,     5040.0])
+rnea_input 10000i64 2.0f64:             4997μs (95% CI: [    4975.6,     5020.6])
+rnea_input 10000i64 10.0f64:            4930μs (95% CI: [    4908.5,     4952.8])
+rnea_input 10000i64 1000.0f64:          4928μs (95% CI: [    4908.9,     4948.5])
+rnea_input 100000i64 1.0f64:           67987μs (95% CI: [   67885.7,    68113.8])
+rnea_input 100000i64 2.0f64:           67997μs (95% CI: [   67827.3,    68210.8])
+rnea_input 100000i64 10.0f64:          68220μs (95% CI: [   68100.8,    68320.1])
+rnea_input 100000i64 1000.0f64:        68136μs (95% CI: [   68005.3,    68267.7])
+rnea_input 1000000i64 1.0f64:         671467μs (95% CI: [  668966.8,   673474.1])
+rnea_input 1000000i64 2.0f64:         661187μs (95% CI: [  659643.3,   664674.3])
+rnea_input 1000000i64 10.0f64:        664631μs (95% CI: [  661504.0,   667034.0])
+rnea_input 1000000i64 1000.0f64:      657734μs (95% CI: [  656577.5,   659159.2])
+rnea_input 2000000i64 1.0f64:        1313913μs (95% CI: [ 1312227.6,  1315822.3])
+rnea_input 4000000i64 1.0f64:        2627744μs (95% CI: [ 2623860.4,  2632697.2])
+rnea_input 8000000i64 1.0f64:        5237120μs (95% CI: [ 5230606.4,  5242603.5])
+Compiling bench_rnea2.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea2.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:               1875μs (95% CI: [    1874.6,     1875.8])
+rnea_input 10i64 1.5f64:               1876μs (95% CI: [    1875.6,     1877.4])
+rnea_input 10i64 2.0f64:               1875μs (95% CI: [    1874.5,     1875.0])
+rnea_input 10i64 1000.0f64:            1875μs (95% CI: [    1874.5,     1875.1])
+rnea_input 100i64 1.0f64:              1917μs (95% CI: [    1916.2,     1917.0])
+rnea_input 100i64 1.5f64:              1919μs (95% CI: [    1918.5,     1919.1])
+rnea_input 100i64 2.0f64:              1919μs (95% CI: [    1918.9,     1919.5])
+rnea_input 100i64 1000.0f64:           1919μs (95% CI: [    1918.6,     1919.3])
+rnea_input 1000i64 1.0f64:             2088μs (95% CI: [    2087.4,     2088.1])
+rnea_input 1000i64 1.5f64:             2095μs (95% CI: [    2094.9,     2096.4])
+rnea_input 1000i64 2.0f64:             2094μs (95% CI: [    2094.1,     2094.8])
+rnea_input 1000i64 1000.0f64:          2091μs (95% CI: [    2090.2,     2090.9])
+rnea_input 10000i64 1.0f64:            3295μs (95% CI: [    3293.8,     3295.2])
+rnea_input 10000i64 1.5f64:            3309μs (95% CI: [    3308.8,     3309.9])
+rnea_input 10000i64 2.0f64:            3325μs (95% CI: [    3324.3,     3325.7])
+rnea_input 10000i64 1000.0f64:         3303μs (95% CI: [    3302.9,     3303.9])
+rnea_input 100000i64 1.0f64:           7567μs (95% CI: [    7565.3,     7569.6])
+rnea_input 100000i64 1.5f64:           7706μs (95% CI: [    7704.4,     7708.3])
+rnea_input 100000i64 2.0f64:           7700μs (95% CI: [    7698.4,     7701.6])
+rnea_input 100000i64 1000.0f64:        7621μs (95% CI: [    7618.7,     7624.3])
+rnea_input 1000000i64 1.0f64:         61559μs (95% CI: [   61434.0,    61685.9])
+rnea_input 1000000i64 1.5f64:         64831μs (95% CI: [   64725.0,    64904.7])
+rnea_input 1000000i64 2.0f64:         64795μs (95% CI: [   64765.4,    64824.8])
+rnea_input 1000000i64 1000.0f64:      62938μs (95% CI: [   62897.8,    62985.9])
+rnea_input 2000000i64 1.0f64:        119494μs (95% CI: [  119409.1,   119580.6])
+rnea_input 2000000i64 1.5f64:        126707μs (95% CI: [  126612.8,   126783.1])
+rnea_input 2000000i64 2.0f64:        126000μs (95% CI: [  125942.2,   126046.5])
+rnea_input 2000000i64 1000.0f64:     122124μs (95% CI: [  122044.2,   122197.3])
+rnea_input 4000000i64 1.0f64:        236443μs (95% CI: [  236319.8,   236594.8])
+rnea_input 4000000i64 1.5f64:        251428μs (95% CI: [  251360.8,   251490.3])
+rnea_input 4000000i64 2.0f64:        249776μs (95% CI: [  249693.1,   249850.2])
+rnea_input 4000000i64 1000.0f64:     241542μs (95% CI: [  241393.1,   241671.2])
+rnea_input 8000000i64 1.0f64:        479873μs (95% CI: [  479696.6,   480282.1])
+rnea_input 8000000i64 1.5f64:        510495μs (95% CI: [  510301.4,   510698.3])
+rnea_input 8000000i64 2.0f64:        507036μs (95% CI: [  506786.2,   507311.1])
+rnea_input 8000000i64 1000.0f64:     489807μs (95% CI: [  489576.1,   490226.8])
+
+OLD FUTHARK:
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+CPU(s):              96
+On-line CPU(s) list: 0-95
+Thread(s) per core:  2
+Core(s) per socket:  24
+Socket(s):           2
+NUMA node(s):        8
+Vendor ID:           AuthenticAMD
+CPU family:          25
+Model:               1
+Model name:          AMD EPYC 7413 24-Core Processor
+Stepping:            1
+CPU MHz:             2645.069
+BogoMIPS:            5290.13
+Virtualization:      AMD-V
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            512K
+L3 cache:            32768K
+NUMA node0 CPU(s):   0-5,48-53
+NUMA node1 CPU(s):   6-11,54-59
+NUMA node2 CPU(s):   12-17,60-65
+NUMA node3 CPU(s):   18-23,66-71
+NUMA node4 CPU(s):   24-29,72-77
+NUMA node5 CPU(s):   30-35,78-83
+NUMA node6 CPU(s):   36-41,84-89
+NUMA node7 CPU(s):   42-47,90-95
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq monitor ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 invpcid_single hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr wbnoinvd amd_ppin brs arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca
+Sun May 24 21:56:00 2026
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 545.23.08              Driver Version: 545.23.08    CUDA Version: 12.3     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA A100-SXM4-40GB          Off | 00000000:41:00.0 Off |                    0 |
+| N/A   22C    P0              47W / 400W |      4MiB / 40960MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA A100-SXM4-40GB          Off | 00000000:C1:00.0 Off |                    0 |
+| N/A   22C    P0              48W / 400W |      4MiB / 40960MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jul_11_02:20:44_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.128
+Build cuda_12.2.r12.2/compiler.33053471_0
+hendrixgpu04fl.unicph.domain
+0
+
+NEWEST OPTIMIZED RNEA WITH NEW OPTIMAL DS
+
+Compiling bench_rnea_optimal_ds.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea_optimal_ds.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:                585μs (95% CI: [     584.1,      587.4])
+rnea_input 10i64 1.5f64:                588μs (95% CI: [     584.9,      600.5])
+rnea_input 10i64 2.0f64:                584μs (95% CI: [     583.5,      585.8])
+rnea_input 10i64 1000.0f64:             585μs (95% CI: [     584.3,      586.2])
+rnea_input 100i64 1.0f64:               569μs (95% CI: [     567.1,      573.5])
+rnea_input 100i64 1.5f64:               567μs (95% CI: [     566.6,      568.6])
+rnea_input 100i64 2.0f64:               568μs (95% CI: [     567.2,      570.0])
+rnea_input 100i64 1000.0f64:            567μs (95% CI: [     565.9,      567.9])
+rnea_input 1000i64 1.0f64:              644μs (95% CI: [     643.6,      645.6])
+rnea_input 1000i64 1.5f64:              646μs (95% CI: [     645.1,      646.9])
+rnea_input 1000i64 2.0f64:              652μs (95% CI: [     651.0,      653.3])
+rnea_input 1000i64 1000.0f64:           649μs (95% CI: [     647.8,      650.2])
+rnea_input 10000i64 1.0f64:            1219μs (95% CI: [    1217.2,     1222.3])
+rnea_input 10000i64 1.5f64:            1226μs (95% CI: [    1224.6,     1227.5])
+rnea_input 10000i64 2.0f64:            1226μs (95% CI: [    1224.3,     1229.6])
+rnea_input 10000i64 1000.0f64:         1219μs (95% CI: [    1218.5,     1221.3])
+rnea_input 100000i64 1.0f64:           2914μs (95% CI: [    2911.0,     2919.7])
+rnea_input 100000i64 1.5f64:           2936μs (95% CI: [    2932.4,     2942.1])
+rnea_input 100000i64 2.0f64:           2931μs (95% CI: [    2927.9,     2937.6])
+rnea_input 100000i64 1000.0f64:        2915μs (95% CI: [    2912.4,     2921.3])
+rnea_input 1000000i64 1.0f64:         26028μs (95% CI: [   26015.0,    26051.4])
+rnea_input 1000000i64 1.5f64:         28307μs (95% CI: [   28277.1,    28359.4])
+rnea_input 1000000i64 2.0f64:         28225μs (95% CI: [   28207.6,    28263.9])
+rnea_input 1000000i64 1000.0f64:      26781μs (95% CI: [   26751.4,    26836.0])
+rnea_input 2000000i64 1.0f64:         51321μs (95% CI: [   51299.9,    51376.4])
+rnea_input 2000000i64 1.5f64:         56625μs (95% CI: [   56572.7,    56710.8])
+rnea_input 2000000i64 2.0f64:         56199μs (95% CI: [   56171.2,    56262.6])
+rnea_input 2000000i64 1000.0f64:      52904μs (95% CI: [   52870.8,    52966.8])
+rnea_input 4000000i64 1.0f64:        102314μs (95% CI: [  102283.9,   102347.6])
+rnea_input 4000000i64 1.5f64:        113639μs (95% CI: [  113614.7,   113676.0])
+rnea_input 4000000i64 2.0f64:        112429μs (95% CI: [  112397.2,   112488.5])
+rnea_input 4000000i64 1000.0f64:     105737μs (95% CI: [  105675.9,   105776.2])
+rnea_input 8000000i64 1.0f64:        205687μs (95% CI: [  205648.9,   205741.6])
+rnea_input 8000000i64 1.5f64:        229237μs (95% CI: [  229196.0,   229282.3])
+rnea_input 8000000i64 2.0f64:        226298μs (95% CI: [  226264.0,   226352.0])
+rnea_input 8000000i64 1000.0f64:     212851μs (95% CI: [  212787.7,   212941.0])
+
+
+
+NEWEST OPTIMIZED SEQUENTIAL RNEA WITH NEW OPTIMAL DS
+Compiling bench_rnea_no_vtree.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_rnea_no_vtree.fut:bench_rnea_optimized_ds_seq (no tuning file):
+rnea_inputC 10i64 1.0f64:                  3μs (95% CI: [       3.2,        3.2])
+rnea_inputC 10i64 1.5f64:                  3μs (95% CI: [       3.2,        3.2])
+rnea_inputC 10i64 2.0f64:                  3μs (95% CI: [       3.1,        3.1])
+rnea_inputC 10i64 1000.0f64:               3μs (95% CI: [       3.0,        3.0])
+rnea_inputC 100i64 1.0f64:                20μs (95% CI: [      20.5,       20.5])
+rnea_inputC 100i64 1.5f64:                20μs (95% CI: [      20.0,       20.0])
+rnea_inputC 100i64 2.0f64:                20μs (95% CI: [      20.4,       20.5])
+rnea_inputC 100i64 1000.0f64:             20μs (95% CI: [      20.0,       20.1])
+rnea_inputC 1000i64 1.0f64:              189μs (95% CI: [     188.6,      188.8])
+rnea_inputC 1000i64 1.5f64:              184μs (95% CI: [     183.9,      184.1])
+rnea_inputC 1000i64 2.0f64:              187μs (95% CI: [     187.0,      187.2])
+rnea_inputC 1000i64 1000.0f64:           184μs (95% CI: [     183.6,      183.9])
+rnea_inputC 10000i64 1.0f64:            1877μs (95% CI: [    1876.5,     1878.6])
+rnea_inputC 10000i64 1.5f64:            1840μs (95% CI: [    1838.7,     1842.0])
+rnea_inputC 10000i64 2.0f64:            1878μs (95% CI: [    1876.2,     1880.4])
+rnea_inputC 10000i64 1000.0f64:         1841μs (95% CI: [    1839.6,     1842.7])
+rnea_inputC 100000i64 1.0f64:          19058μs (95% CI: [   19000.2,    19133.1])
+rnea_inputC 100000i64 1.5f64:          18733μs (95% CI: [   18679.3,    18808.1])
+rnea_inputC 100000i64 2.0f64:          18876μs (95% CI: [   18819.5,    18956.0])
+rnea_inputC 100000i64 1000.0f64:       18590μs (95% CI: [   18541.6,    18664.4])
+rnea_inputC 1000000i64 1.0f64:        199413μs (95% CI: [  198662.0,   200110.5])
+rnea_inputC 1000000i64 1.5f64:        195544μs (95% CI: [  195436.8,   195696.5])
+rnea_inputC 1000000i64 2.0f64:        203583μs (95% CI: [  199002.0,   212220.2])
+rnea_inputC 1000000i64 1000.0f64:     195619μs (95% CI: [  194961.9,   196310.9])
+rnea_inputC 2000000i64 1.0f64:        421550μs (95% CI: [  420129.2,   423028.4])
+rnea_inputC 2000000i64 1.5f64:        418097μs (95% CI: [  416967.7,   419376.3])
+rnea_inputC 2000000i64 2.0f64:        424742μs (95% CI: [  421448.8,   434457.9])
+rnea_inputC 2000000i64 1000.0f64:     415447μs (95% CI: [  414354.1,   416537.8])
+rnea_inputC 4000000i64 1.0f64:        839508μs (95% CI: [  838812.9,   841395.7])
+rnea_inputC 4000000i64 1.5f64:        825015μs (95% CI: [  824371.2,   826049.6])
+rnea_inputC 4000000i64 2.0f64:        834995μs (95% CI: [  833423.6,   836359.3])
+rnea_inputC 4000000i64 1000.0f64:     823925μs (95% CI: [  822974.7,   824935.2])
+rnea_inputC 8000000i64 1.0f64:       1665550μs (95% CI: [ 1660113.1,  1670653.6])
+rnea_inputC 8000000i64 1.5f64:       1643463μs (95% CI: [ 1642706.1,  1644369.7])
+rnea_inputC 8000000i64 2.0f64:       1638245μs (95% CI: [ 1635664.0,  1640542.2])
+rnea_inputC 8000000i64 1000.0f64:    1633818μs (95% CI: [ 1629279.8,  1638358.2])
+
+
+OLD OPTIMIZED SEQUENTIAL RNEA 
+bench_rnea_no_vtree.fut:bench_rnea_no_vtree (no tuning file):
+rnea_input 10i64 1.0f64:                   3μs (95% CI: [       3.4,        3.5])
+rnea_input 10i64 2.0f64:                   3μs (95% CI: [       3.5,        3.5])
+rnea_input 10i64 10.0f64:                  3μs (95% CI: [       3.4,        3.5])
+rnea_input 10i64 1000.0f64:                6μs (95% CI: [       5.6,        5.6])
+rnea_input 100i64 1.0f64:                 29μs (95% CI: [      29.4,       29.4])
+rnea_input 100i64 2.0f64:                 29μs (95% CI: [      29.1,       29.1])
+rnea_input 100i64 10.0f64:                29μs (95% CI: [      28.8,       28.8])
+rnea_input 100i64 1000.0f64:              29μs (95% CI: [      28.7,       28.7])
+rnea_input 1000i64 1.0f64:               290μs (95% CI: [     290.1,      290.4])
+rnea_input 1000i64 2.0f64:               286μs (95% CI: [     285.6,      286.0])
+rnea_input 1000i64 10.0f64:              290μs (95% CI: [     289.9,      290.3])
+rnea_input 1000i64 1000.0f64:            285μs (95% CI: [     285.3,      285.7])
+rnea_input 10000i64 1.0f64:             2892μs (95% CI: [    2888.7,     2895.2])
+rnea_input 10000i64 2.0f64:             2860μs (95% CI: [    2858.0,     2862.6])
+rnea_input 10000i64 10.0f64:            2871μs (95% CI: [    2868.0,     2875.8])
+rnea_input 10000i64 1000.0f64:          2900μs (95% CI: [    2896.7,     2906.0])
+rnea_input 100000i64 1.0f64:           29859μs (95% CI: [   29710.3,    30016.8])
+rnea_input 100000i64 2.0f64:           29248μs (95% CI: [   29162.9,    29350.3])
+rnea_input 100000i64 10.0f64:          29462μs (95% CI: [   29297.5,    29623.5])
+rnea_input 100000i64 1000.0f64:        30249μs (95% CI: [   29411.3,    33467.1])
+rnea_input 1000000i64 1.0f64:         334476μs (95% CI: [  331261.2,   339341.4])
+rnea_input 1000000i64 2.0f64:         333939μs (95% CI: [  331419.1,   336695.2])
+rnea_input 1000000i64 10.0f64:        335931μs (95% CI: [  332492.9,   338225.8])
+rnea_input 1000000i64 1000.0f64:      333528μs (95% CI: [  331289.1,   335509.1])
+rnea_input 2000000i64 1.0f64:         657251μs (95% CI: [  655446.4,   658782.5])
+rnea_input 4000000i64 1.0f64:        1322924μs (95% CI: [ 1318777.9,  1327244.8])
+rnea_input 8000000i64 1.0f64:        2615450μs (95% CI: [ 2611461.4,  2620571.1])
+Compiling bench_rnea2.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+
+OLD OPTIMIZED VTREE RNEA 
+
+bench_rnea2.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:               1151μs (95% CI: [    1150.6,     1151.3])
+rnea_input 10i64 1.5f64:               1156μs (95% CI: [    1152.8,     1164.4])
+rnea_input 10i64 2.0f64:               1154μs (95% CI: [    1152.9,     1156.1])
+rnea_input 10i64 1000.0f64:            1155μs (95% CI: [    1153.9,     1157.6])
+rnea_input 100i64 1.0f64:              1192μs (95% CI: [    1190.2,     1195.1])
+rnea_input 100i64 1.5f64:              1192μs (95% CI: [    1190.8,     1193.6])
+rnea_input 100i64 2.0f64:              1192μs (95% CI: [    1190.9,     1194.4])
+rnea_input 100i64 1000.0f64:           1191μs (95% CI: [    1190.6,     1192.4])
+rnea_input 1000i64 1.0f64:             1328μs (95% CI: [    1326.9,     1330.0])
+rnea_input 1000i64 1.5f64:             1331μs (95% CI: [    1329.9,     1333.1])
+rnea_input 1000i64 2.0f64:             1331μs (95% CI: [    1330.0,     1333.8])
+rnea_input 1000i64 1000.0f64:          1328μs (95% CI: [    1327.2,     1329.5])
+rnea_input 10000i64 1.0f64:            2684μs (95% CI: [    2680.8,     2689.3])
+rnea_input 10000i64 1.5f64:            2696μs (95% CI: [    2693.2,     2702.2])
+rnea_input 10000i64 2.0f64:            2696μs (95% CI: [    2693.2,     2702.0])
+rnea_input 10000i64 1000.0f64:         2688μs (95% CI: [    2685.7,     2693.6])
+rnea_input 100000i64 1.0f64:           7053μs (95% CI: [    7046.5,     7066.7])
+rnea_input 100000i64 1.5f64:           7159μs (95% CI: [    7153.3,     7170.1])
+rnea_input 100000i64 2.0f64:           7101μs (95% CI: [    7096.2,     7112.2])
+rnea_input 100000i64 1000.0f64:        7092μs (95% CI: [    7082.0,     7108.0])
+rnea_input 1000000i64 1.0f64:         59246μs (95% CI: [   59185.0,    59316.4])
+rnea_input 1000000i64 1.5f64:         61650μs (95% CI: [   61621.6,    61705.5])
+rnea_input 1000000i64 2.0f64:         61476μs (95% CI: [   61422.9,    61568.5])
+rnea_input 1000000i64 1000.0f64:      59883μs (95% CI: [   59834.6,    59949.8])
+rnea_input 2000000i64 1.0f64:        116629μs (95% CI: [  116555.6,   116722.4])
+rnea_input 2000000i64 1.5f64:        122140μs (95% CI: [  122086.4,   122203.2])
+rnea_input 2000000i64 2.0f64:        121502μs (95% CI: [  121468.0,   121534.5])
+rnea_input 2000000i64 1000.0f64:     117991μs (95% CI: [  117937.1,   118035.5])
+rnea_input 4000000i64 1.0f64:        232003μs (95% CI: [  231956.5,   232053.8])
+rnea_input 4000000i64 1.5f64:        243770μs (95% CI: [  243714.2,   243833.1])
+rnea_input 4000000i64 2.0f64:        242105μs (95% CI: [  242024.8,   242179.4])
+rnea_input 4000000i64 1000.0f64:     234922μs (95% CI: [  234827.3,   234987.3])
+rnea_input 8000000i64 1.0f64:        470676μs (95% CI: [  470583.7,   470756.0])
+rnea_input 8000000i64 1.5f64:        495334μs (95% CI: [  495248.7,   495379.9])
+rnea_input 8000000i64 2.0f64:        491752μs (95% CI: [  491593.9,   491903.2])
+rnea_input 8000000i64 1000.0f64:     476964μs (95% CI: [  476847.8,   477071.5])
+
+
+
+
+
+
+
+OLD OPTIMIZED RNEA
 
 [szm249@hendrixgate03fl bench]$ cat rnea_bench_a100_new_mm_and_unfolded.out
 Wed May 20 17:27:38 2026
