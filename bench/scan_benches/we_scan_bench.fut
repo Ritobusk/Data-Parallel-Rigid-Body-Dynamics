@@ -79,17 +79,6 @@ entry complex_scan_input_C  (n : i64) :
     in (Cs, lp, rp)
 
 -- ==
--- entry: bench_we_leaffix_va
--- script input { vtree_vectoradd 100i64 }  
--- script input { vtree_vectoradd 1000i64 }  
--- script input { vtree_vectoradd 10000i64 }  
--- script input { vtree_vectoradd 100000i64 }  
--- script input { vtree_vectoradd 1000000i64 }  
-entry bench_we_leaffix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
-    let t = T.lprp <| mkt2 lp rp data
-    in T.ileaffix_we (vecadd_f64) (scal_mul_vec_f64 (-1)) (replicate 6 0f64) t
-
--- ==
 -- entry: bench_we_rootfix_va
 -- script input { vtree_vectoradd 100i64 }  
 -- script input { vtree_vectoradd 1000i64 }  
@@ -118,6 +107,9 @@ entry bench_we_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) 
 -- script input { vtree_matrixmul_C 10000i64 }  
 -- script input { vtree_matrixmul_C 100000i64 }  
 -- script input { vtree_matrixmul_C 1000000i64 }  
+-- script input { vtree_matrixmul_C 2000000i64 }  
+-- script input { vtree_matrixmul_C 4000000i64 }  
+-- script input { vtree_matrixmul_C 8000000i64 }  
 entry bench_we_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_we (transform_XX) (transform_inv) (copy transform_identity) t 
@@ -140,6 +132,9 @@ entry test_work_efficient_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i
 -- script input { complex_scan_input_C 10000i64 }  
 -- script input { complex_scan_input_C 100000i64 }  
 -- script input { complex_scan_input_C 1000000i64 }  
+-- script input { complex_scan_input_C 2000000i64 }  
+-- script input { complex_scan_input_C 4000000i64 }  
+-- script input { complex_scan_input_C 8000000i64 }  
 entry test_work_efficient_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact,mv) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_we operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t 

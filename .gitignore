@@ -1,3 +1,10 @@
+*
+
+!*.fut
+!*.out
+!*.sh
+!**/
+
 spatial_v2
 *.c
 *.actual

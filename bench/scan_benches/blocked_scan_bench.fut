@@ -85,9 +85,27 @@ entry complex_scan_input_C  (n : i64) :
 -- script input { vtree_matrixmul_C 10000i64 }  
 -- script input { vtree_matrixmul_C 100000i64 }  
 -- script input { vtree_matrixmul_C 1000000i64 }  
+-- script input { vtree_matrixmul_C 2000000i64 }  
+-- script input { vtree_matrixmul_C 4000000i64 }  
+-- script input { vtree_matrixmul_C 8000000i64 }  
 entry test_blocked_512_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (transform_XX) (transform_inv) (copy transform_identity) t 512
+
+-- ==
+-- entry: test_blocked_256_rootfix_mm_C
+-- script input { vtree_matrixmul_C 100i64 }  
+-- script input { vtree_matrixmul_C 1000i64 }  
+-- script input { vtree_matrixmul_C 10000i64 }  
+-- script input { vtree_matrixmul_C 100000i64 }  
+-- script input { vtree_matrixmul_C 1000000i64 }  
+-- script input { vtree_matrixmul_C 2000000i64 }  
+-- script input { vtree_matrixmul_C 4000000i64 }  
+-- script input { vtree_matrixmul_C 8000000i64 }  
+entry test_blocked_256_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked (transform_XX) (transform_inv) (copy transform_identity) t 256
+
 -- ==
 -- entry: test_blocked_128_rootfix_mm_C
 -- script input { vtree_matrixmul_C 100i64 }  
@@ -95,9 +113,26 @@ entry test_blocked_512_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp 
 -- script input { vtree_matrixmul_C 10000i64 }  
 -- script input { vtree_matrixmul_C 100000i64 }  
 -- script input { vtree_matrixmul_C 1000000i64 }  
+-- script input { vtree_matrixmul_C 2000000i64 }  
+-- script input { vtree_matrixmul_C 4000000i64 }  
+-- script input { vtree_matrixmul_C 8000000i64 }  
 entry test_blocked_128_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (transform_XX) (transform_inv) (copy transform_identity) t 128
+
+-- ==
+-- entry: test_blocked_64_rootfix_mm_C
+-- script input { vtree_matrixmul_C 100i64 }  
+-- script input { vtree_matrixmul_C 1000i64 }  
+-- script input { vtree_matrixmul_C 10000i64 }  
+-- script input { vtree_matrixmul_C 100000i64 }  
+-- script input { vtree_matrixmul_C 1000000i64 }  
+-- script input { vtree_matrixmul_C 2000000i64 }  
+-- script input { vtree_matrixmul_C 4000000i64 }  
+-- script input { vtree_matrixmul_C 8000000i64 }  
+entry test_blocked_64_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked (transform_XX) (transform_inv) (copy transform_identity) t 64
 
 -- ==
 -- entry: test_blocked_32_rootfix_mm_C
@@ -106,6 +141,9 @@ entry test_blocked_128_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp 
 -- script input { vtree_matrixmul_C 10000i64 }  
 -- script input { vtree_matrixmul_C 100000i64 }  
 -- script input { vtree_matrixmul_C 1000000i64 }  
+-- script input { vtree_matrixmul_C 2000000i64 }  
+-- script input { vtree_matrixmul_C 4000000i64 }  
+-- script input { vtree_matrixmul_C 8000000i64 }  
 entry test_blocked_32_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (transform_XX) (transform_inv) (copy transform_identity) t 32
@@ -118,9 +156,27 @@ entry test_blocked_32_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp :
 -- script input { complex_scan_input_C  10000i64 }  
 -- script input { complex_scan_input_C  100000i64 }  
 -- script input { complex_scan_input_C  1000000i64 }  
+-- script input { complex_scan_input_C  2000000i64 }  
+-- script input { complex_scan_input_C  4000000i64 }  
+-- script input { complex_scan_input_C  8000000i64 }  
 entry test_blocked_512_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact,mv) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t 512
+
+-- ==
+-- entry: test_blocked_256_rootfix_C
+-- script input { complex_scan_input_C  100i64 }  
+-- script input { complex_scan_input_C  1000i64 }  
+-- script input { complex_scan_input_C  10000i64 }  
+-- script input { complex_scan_input_C  100000i64 }  
+-- script input { complex_scan_input_C  1000000i64 }  
+-- script input { complex_scan_input_C  2000000i64 }  
+-- script input { complex_scan_input_C  4000000i64 }  
+-- script input { complex_scan_input_C  8000000i64 }  
+entry test_blocked_256_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact,mv) =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t 256
+
 -- ==
 -- entry: test_blocked_128_rootfix_C
 -- script input { complex_scan_input_C  100i64 }  
@@ -128,9 +184,26 @@ entry test_blocked_512_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (
 -- script input { complex_scan_input_C  10000i64 }  
 -- script input { complex_scan_input_C  100000i64 }  
 -- script input { complex_scan_input_C  1000000i64 }  
+-- script input { complex_scan_input_C  2000000i64 }  
+-- script input { complex_scan_input_C  4000000i64 }  
+-- script input { complex_scan_input_C  8000000i64 }  
 entry test_blocked_128_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact,mv) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t 128
+
+-- ==
+-- entry: test_blocked_64_rootfix_C
+-- script input { complex_scan_input_C  100i64 }  
+-- script input { complex_scan_input_C  1000i64 }  
+-- script input { complex_scan_input_C  10000i64 }  
+-- script input { complex_scan_input_C  100000i64 }  
+-- script input { complex_scan_input_C  1000000i64 }  
+-- script input { complex_scan_input_C  2000000i64 }  
+-- script input { complex_scan_input_C  4000000i64 }  
+-- script input { complex_scan_input_C  8000000i64 }  
+entry test_blocked_64_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact,mv) =
+    let t = T.lprp <| mkt2 lp rp data
+    in T.irootfix_blocked operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t 64
 
 -- ==
 -- entry: test_blocked_32_rootfix_C
@@ -139,6 +212,9 @@ entry test_blocked_128_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (
 -- script input { complex_scan_input_C  10000i64 }  
 -- script input { complex_scan_input_C  100000i64 }  
 -- script input { complex_scan_input_C  1000000i64 }  
+-- script input { complex_scan_input_C  2000000i64 }  
+-- script input { complex_scan_input_C  4000000i64 }  
+-- script input { complex_scan_input_C  8000000i64 }  
 entry test_blocked_32_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact,mv) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t 32
