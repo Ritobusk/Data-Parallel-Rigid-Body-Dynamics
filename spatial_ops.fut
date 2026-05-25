@@ -213,12 +213,61 @@ def to_I_Compact (I : [6][6]f64) : I_Compact =
   let ltIc = lower_triangle_3d Ic 
   in {m = m, h = c, I = ltIc}
 
+def from_IC_to_6x6d (IC : I_Compact) : [6][6]f64 =
+  let c = scal_mul_vec_f64 (1/IC.m) IC.h
+  let I = (lt_unfold IC.I) `matsub_f64` ((IC.m `scal_mul_mat_f64` (skew c)) `matmul_f64` (transpose (skew c) ))
+  in mcI IC.m (c) (I)
+
+def IC_identity : I_Compact =
+  let I = replicate 6 0f64
+  let h  = [0,0,0f64]
+  let m = 0f64
+  in {m = m, h = h, I = I}
+
+def IC_inv (IC : I_Compact) : I_Compact =
+  let I = (-1) `scal_mul_vec_f64` IC.I
+  let h  = (-1) `scal_mul_vec_f64` IC.h
+  let m = (-1) * IC.m
+  in {m = m, h = h, I = I}
+
 
 def IC_mul_mv (IC : I_Compact) (m : mv) : fv =
   let I = lt_unfold IC.I
   let n_O = (I `mat_mul_vec_f64` m.w) `vecadd_f64` (IC.h `cross3d` m.v_O)
   let f = ((IC.m) `scal_mul_vec_f64` m.v_O) `vecsub_f64` (IC.h `cross3d` m.w)
   in {n_O = n_O, f = f}
+
+def IC_add (IC1 : I_Compact) (IC2 : I_Compact) : I_Compact =
+  let m = IC1.m + IC2.m
+  let h =  IC1.h `vecadd_f64` IC2.h
+  let I = IC1.I `vecadd_f64` IC2.I
+  in {m = m, h = h, I = I}
+
+def transform_IC (X : X_Compact) (IC : I_Compact) : I_Compact =
+  let Et = (transpose X.rot)  
+  let h_min_mr = IC.h `vecsub_f64` (IC.m `scal_mul_vec_f64` X.r)
+  let rx = skew X.r
+  let h = X.rot `mat_mul_vec_f64` h_min_mr
+  let I = lt_unfold IC.I
+  let I' = (X.rot `matmul_f64` 
+              ((I `matadd_f64` (rx `matmul_f64` (skew IC.h))) `matadd_f64` 
+              ( ((skew h_min_mr) `matmul_f64` rx ) ) 
+            ) 
+            ) `matmul_f64` Et
+  in {m = IC.m, h = h, I = lower_triangle_3d I'}
+
+def transform_IC_inv (X : X_Compact) (IC : I_Compact) : I_Compact =
+  let Et = (transpose X.rot)  
+  let Eth = Et `mat_mul_vec_f64` IC.h
+  let rx = skew X.r
+  let mr = IC.m `scal_mul_vec_f64` X.r
+  let h = Eth `vecadd_f64` mr
+  let I = lt_unfold IC.I
+  let I1 = Et `matmul_f64` (I `matmul_f64` X.rot) 
+  let I2 = (rx) `matmul_f64` (skew Eth) 
+  let I3 = (skew h) `matmul_f64` (rx) 
+  let I' = (I1 `matsub_f64` I2) `matsub_f64` I3
+  in {m = IC.m, h = h, I = lower_triangle_3d I'}
 
 def fv_to_6d (f' : fv) : [6]f64 =
   sized 6 <| f'.n_O ++ f'.f
@@ -364,4 +413,4 @@ def jcalcC (jtyp : jointT) (q : f64) : (X_Compact, mv) =
   case  #Px -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
   case  #Py -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
   case  #Pz -> ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
-  case  #helical pitch ->  ({rot = rotz3d q, r = [0,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})
+  case  #helical pitch ->  ({rot = rotz3d q, r = [pitch,0,0f64]}, {w = [0,0,1f64], v_O = [0,0,0]})

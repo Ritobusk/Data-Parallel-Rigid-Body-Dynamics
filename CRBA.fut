@@ -289,7 +289,6 @@ def crba_seq [n] (p : [n]i64)  (joint_types : [n]jointT)
           let ic = IC with [parent] = tmp
           in ic
         else IC
-    
   let p' = map (\i -> if i == 0 then -1 else p[i]) (iota n)
 
   let H'' = loop H = (replicate n <| replicate n 0f64) for i < n do

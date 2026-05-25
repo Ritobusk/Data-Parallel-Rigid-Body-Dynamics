@@ -190,12 +190,54 @@ def rootfix_vj (n : i64) : [5]bool =
   let tauC = map3 (\frt fji si -> si `scalar_prod` (frt `Xf` fji))  transformation_treeC fJs_rootC S
 
   let res5 = compare_scalars tau tauC
-
-
-
   in [res1, res2, res3, res4, res5]
 
+def I_Compact_tests (n : i64) : [4]bool =
+  let (js, Is, Xtrees, _, _, q, _, _) = test_autoTree n
 
+  let Is_add = map2 (matadd_f64) Is (rotate 3 Is)
+
+  let xf_inv   = map transpose  Xtrees  
+  let xf = map XBtoA_MtoF Xtrees 
+  let xm_inv =   map (XBtoA_FtoM) xf_inv 
+
+  let transform_Is = map3 (\xf' x_i is -> xf' `matmul_f64` ( is `matmul_f64` x_i) ) xf xm_inv Is
+
+  let Is = trace Is
+  let transform_Is_inv = map3 (\xf' x_i is -> xf' `matmul_f64` ( is `matmul_f64` x_i) ) xf_inv Xtrees Is
+    |> trace
+
+  let (jsC, IsC, XtreesC,_,_,_, _, _) = test_autoTreeC n
+  let Is_addC = map2 (\x y -> IC_add x y) IsC (rotate 3 IsC)
+  let Is_addC = (map from_IC_to_6x6d Is_addC)
+
+  let res1 = compare_matrices Is_add Is_addC
+
+  let transform_IsC = map2 (transform_IC) XtreesC IsC
+  let transform_IsC = map from_IC_to_6x6d transform_IsC 
+
+  let res2 = compare_matrices transform_Is  transform_IsC  
+
+  let transform_IsC_inv = map2 (transform_IC_inv) XtreesC IsC
+    |> trace
+  let transform_IsC_inv = map from_IC_to_6x6d transform_IsC_inv
+    |> trace
+
+  let res3 = compare_matrices transform_Is_inv  transform_IsC_inv  
+  let res4 = true
+
+  let out = trace [res1,res2,res3,res4]
+  in out
+
+
+
+-- ==
+-- entry: IC_tests 
+-- input {4i64} output {[true, true, true, true]}
+-- input {8i64} output {[true, true, true, true]}
+-- input {100i64} output {[true, true, true, true]}
+entry IC_tests (n : i64) =
+  I_Compact_tests n
 
 -- ==
 -- entry: plucker_transform 
@@ -220,4 +262,4 @@ entry mat_mat_rootfix (n : i64) =
   rootfix_vj n
 
 def main =
-  rootfix_vj 4
+  I_Compact_tests 4
