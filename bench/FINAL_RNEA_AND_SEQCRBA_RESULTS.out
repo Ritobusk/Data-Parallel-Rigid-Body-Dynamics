@@ -61,6 +61,44 @@ Build cuda_12.2.r12.2/compiler.33053471_0
 hendrixgpu04fl.unicph.domain
 0
 \nRNEA vtree GPU - Optimal Data Structure\n
+
+
+USING MATMAT MUL TO CREATE TRANSFORMATION TREE THEN USING LEAFFIX TO COMPUTE vs
+bench_rnea_optimal_ds.fut:bench_rnea (no tuning file):
+rnea_input 10i64 1.0f64:                657μs (95% CI: [     656.2,      657.1])
+rnea_input 10i64 1.5f64:                656μs (95% CI: [     656.1,      656.7])
+rnea_input 10i64 2.0f64:                657μs (95% CI: [     656.4,      657.0])
+rnea_input 10i64 1000.0f64:             660μs (95% CI: [     659.7,      660.3])
+rnea_input 100i64 1.0f64:               668μs (95% CI: [     666.1,      678.3])
+rnea_input 100i64 1.5f64:               668μs (95% CI: [     667.8,      668.4])
+rnea_input 100i64 2.0f64:               669μs (95% CI: [     668.2,      668.9])
+rnea_input 100i64 1000.0f64:            668μs (95% CI: [     667.5,      668.2])
+rnea_input 1000i64 1.0f64:              751μs (95% CI: [     750.1,      751.5])
+rnea_input 1000i64 1.5f64:              765μs (95% CI: [     764.3,      765.0])
+rnea_input 1000i64 2.0f64:              767μs (95% CI: [     767.0,      767.7])
+rnea_input 1000i64 1000.0f64:           763μs (95% CI: [     763.0,      763.6])
+rnea_input 10000i64 1.0f64:            1289μs (95% CI: [    1288.1,     1289.1])
+rnea_input 10000i64 1.5f64:            1292μs (95% CI: [    1290.9,     1292.9])
+rnea_input 10000i64 2.0f64:            1289μs (95% CI: [    1288.3,     1289.2])
+rnea_input 10000i64 1000.0f64:         1285μs (95% CI: [    1284.9,     1285.8])
+rnea_input 100000i64 1.0f64:           1551μs (95% CI: [    1550.3,     1551.3])
+rnea_input 100000i64 1.5f64:           1639μs (95% CI: [    1638.2,     1639.6])
+rnea_input 100000i64 2.0f64:           1636μs (95% CI: [    1635.2,     1636.4])
+rnea_input 100000i64 1000.0f64:        1619μs (95% CI: [    1618.2,     1619.2])
+rnea_input 1000000i64 1.0f64:         11318μs (95% CI: [   11314.0,    11322.4])
+rnea_input 1000000i64 1.5f64:         14538μs (95% CI: [   14532.5,    14543.1])
+rnea_input 1000000i64 2.0f64:         14464μs (95% CI: [   14458.1,    14470.1])
+rnea_input 1000000i64 1000.0f64:      12730μs (95% CI: [   12723.5,    12736.1])
+rnea_input 2000000i64 1.0f64:         21927μs (95% CI: [   21908.7,    21942.3])
+rnea_input 2000000i64 1.5f64:         28998μs (95% CI: [   28985.7,    29012.4])
+rnea_input 2000000i64 2.0f64:         28610μs (95% CI: [   28588.2,    28630.4])
+rnea_input 2000000i64 1000.0f64:      24787μs (95% CI: [   24770.7,    24806.5])
+rnea_input 4000000i64 1.0f64:         43591μs (95% CI: [   43564.4,    43612.8])
+rnea_input 4000000i64 1.5f64:         58851μs (95% CI: [   58812.4,    58888.7])
+rnea_input 4000000i64 2.0f64:         57619μs (95% CI: [   57592.0,    57648.1])
+rnea_input 4000000i64 1000.0f64:      49411μs (95% CI: [   49383.7,    49435.5])
+
+USING BULLET OPERATOR TO CREATE TRANSFORMATION TREE AND vs AT THE SAME TIME
 Compiling bench_rnea_optimal_ds.fut...
 Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
 More runs automatically performed for up to 300s to ensure accurate measurement.
