@@ -1,0 +1,359 @@
+cat final_futhark_vtee_scan_benches_a100_new_optimal_ds_FINAL_TEST.out
+Mon May 25 14:41:33 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:86:00.0 Off |                    0 |
+| N/A   50C    P0             36W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+hendrixgpu08fl.unicph.domain
+0
+Compiling scan_variations.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+scan_variations.fut:test_unfolded_rootfix_va_with_conversion (no tuning file):
+vtree_vectoraddC 100i64:                478μs (95% CI: [     477.9,      478.7])
+vtree_vectoraddC 1000i64:               600μs (95% CI: [     600.2,      600.8])
+vtree_vectoraddC 10000i64:              887μs (95% CI: [     886.5,      887.0])
+vtree_vectoraddC 100000i64:            1403μs (95% CI: [    1402.4,     1403.5])
+vtree_vectoraddC 1000000i64:          10040μs (95% CI: [   10034.8,    10045.2])
+vtree_vectoraddC 2000000i64:          19715μs (95% CI: [   19704.4,    19726.3])
+
+scan_variations.fut:test_normal_leaffix_va (no tuning file):
+vtree_vectoradd 100i64:                  88μs (95% CI: [      87.5,       87.6])
+vtree_vectoradd 1000i64:                432μs (95% CI: [     432.1,      432.4])
+vtree_vectoradd 10000i64:              3964μs (95% CI: [    3963.5,     3963.9])
+vtree_vectoradd 100000i64:            39268μs (95% CI: [   39245.5,    39310.3])
+vtree_vectoradd 1000000i64:          697349μs (95% CI: [  697273.4,   697441.8])
+vtree_vectoradd 2000000i64:         1394966μs (95% CI: [ 1394915.8,  1395007.1])
+
+scan_variations.fut:test_unfolded_rootfix_va2 (no tuning file):
+vtree_vectoradd 100i64:                  52μs (95% CI: [      51.9,       52.0])
+vtree_vectoradd 1000i64:                 73μs (95% CI: [      72.6,       72.7])
+vtree_vectoradd 10000i64:                73μs (95% CI: [      73.3,       73.5])
+vtree_vectoradd 100000i64:              127μs (95% CI: [     126.8,      127.0])
+vtree_vectoradd 1000000i64:            1617μs (95% CI: [    1615.6,     1617.5])
+vtree_vectoradd 2000000i64:            3339μs (95% CI: [    3337.8,     3340.6])
+
+scan_variations.fut:test_unfolded_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:                  49μs (95% CI: [      49.1,       49.1])
+vtree_vectoradd 1000i64:                 71μs (95% CI: [      71.4,       71.5])
+vtree_vectoradd 10000i64:                74μs (95% CI: [      73.7,       73.9])
+vtree_vectoradd 100000i64:              137μs (95% CI: [     137.1,      137.4])
+vtree_vectoradd 1000000i64:            1611μs (95% CI: [    1610.5,     1612.0])
+vtree_vectoradd 2000000i64:            3332μs (95% CI: [    3330.5,     3333.4])
+
+scan_variations.fut:test_normal_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                1587μs (95% CI: [    1587.1,     1587.7])
+vtree_matrixmul 1000i64:               1680μs (95% CI: [    1679.6,     1680.0])
+vtree_matrixmul 10000i64:              2698μs (95% CI: [    2697.1,     2699.8])
+vtree_matrixmul 100000i64:            16105μs (95% CI: [   16094.2,    16116.4])
+vtree_matrixmul 1000000i64:          137637μs (95% CI: [  137339.9,   138134.5])
+vtree_matrixmul 2000000i64:          264160μs (95% CI: [  263647.4,   264578.4])
+
+scan_variations.fut:test_normal_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               337μs (95% CI: [     336.7,      336.9])
+vtree_matrixmul_C 1000i64:              365μs (95% CI: [     365.0,      365.5])
+vtree_matrixmul_C 10000i64:             618μs (95% CI: [     617.7,      618.6])
+vtree_matrixmul_C 100000i64:           2648μs (95% CI: [    2640.3,     2655.7])
+vtree_matrixmul_C 1000000i64:         22378μs (95% CI: [   22347.3,    22413.3])
+vtree_matrixmul_C 2000000i64:         42818μs (95% CI: [   42749.1,    42878.8])
+
+scan_variations.fut:test_rootfix_normal_scan (no tuning file):
+complex_scan_input 100i64:             1872μs (95% CI: [    1871.5,     1872.6])
+complex_scan_input 1000i64:            1981μs (95% CI: [    1980.4,     1981.7])
+complex_scan_input 10000i64:           2930μs (95% CI: [    2928.2,     2931.9])
+complex_scan_input 100000i64:         16337μs (95% CI: [   16321.8,    16351.4])
+complex_scan_input 1000000i64:       135370μs (95% CI: [  134991.4,   135741.4])
+complex_scan_input 2000000i64:       257082μs (95% CI: [  256258.7,   257619.7])
+
+scan_variations.fut:test_rootfix_normal_scan_C (no tuning file):
+complex_scan_input_C 100i64:            503μs (95% CI: [     502.4,      502.8])
+complex_scan_input_C 1000i64:           540μs (95% CI: [     540.2,      540.7])
+complex_scan_input_C 10000i64:          825μs (95% CI: [     824.3,      825.4])
+complex_scan_input_C 100000i64:        3601μs (95% CI: [    3594.7,     3611.9])
+complex_scan_input_C 1000000i64:      28978μs (95% CI: [   28946.7,    29004.6])
+complex_scan_input_C 2000000i64:      54982μs (95% CI: [   54926.3,    55043.3])
+
+scan_variations.fut:test_work_efficient_rootfix_against_exscan (no tuning file):
+#0 ("256i64"):                         5510μs (95% CI: [    5507.9,     5512.7])
+#1 ("4016i64"):                        6323μs (95% CI: [    6320.9,     6325.5])
+#2 ("6384i64"):                        6616μs (95% CI: [    6613.8,     6618.0])
+
+scan_variations.fut:bench_blocked (no tuning file):
+[256]i32:                                40μs (95% CI: [      39.8,       39.9])
+[4096]i32:                               66μs (95% CI: [      66.3,       66.4])
+[65536]i32:                              73μs (95% CI: [      72.8,       73.0])
+[1048576]i32:                            73μs (95% CI: [      73.2,       73.4])
+[4194304]i32:                           122μs (95% CI: [     122.2,      122.4])
+
+scan_variations.fut:bench_work_efficient (no tuning file):
+[256]i32:                               127μs (95% CI: [     126.7,      127.0])
+[4096]i32:                              178μs (95% CI: [     178.2,      178.6])
+[65536]i32:                             238μs (95% CI: [     237.5,      237.7])
+[1048576]i32:                           338μs (95% CI: [     337.9,      338.3])
+[4194304]i32:                           541μs (95% CI: [     540.9,      541.2])
+
+scan_variations.fut:bench_regular_scan (no tuning file):
+[256]i32:                                18μs (95% CI: [      18.5,       18.5])
+[4096]i32:                               25μs (95% CI: [      25.1,       25.1])
+[65536]i32:                              36μs (95% CI: [      35.5,       35.5])
+[1048576]i32:                            42μs (95% CI: [      42.3,       42.4])
+[4194304]i32:                            67μs (95% CI: [      67.2,       67.6])
+Compiling blocked_scan_bench.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+blocked_scan_bench.fut:test_blocked_512_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               620μs (95% CI: [     619.5,      620.3])
+vtree_matrixmul_C 1000i64:              657μs (95% CI: [     656.5,      657.2])
+vtree_matrixmul_C 10000i64:            1005μs (95% CI: [    1004.6,     1005.0])
+vtree_matrixmul_C 100000i64:           2642μs (95% CI: [    2641.3,     2642.6])
+vtree_matrixmul_C 1000000i64:          7750μs (95% CI: [    7746.4,     7753.7])
+vtree_matrixmul_C 2000000i64:         13702μs (95% CI: [   13695.9,    13708.8])
+
+blocked_scan_bench.fut:test_blocked_256_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               502μs (95% CI: [     502.2,      502.7])
+vtree_matrixmul_C 1000i64:              534μs (95% CI: [     533.3,      533.9])
+vtree_matrixmul_C 10000i64:             838μs (95% CI: [     837.3,      838.5])
+vtree_matrixmul_C 100000i64:           1741μs (95% CI: [    1740.3,     1741.1])
+vtree_matrixmul_C 1000000i64:          6851μs (95% CI: [    6848.0,     6853.2])
+vtree_matrixmul_C 2000000i64:         13571μs (95% CI: [   13554.3,    13589.6])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               444μs (95% CI: [     443.7,      444.2])
+vtree_matrixmul_C 1000i64:              477μs (95% CI: [     477.1,      477.7])
+vtree_matrixmul_C 10000i64:             810μs (95% CI: [     808.6,      815.3])
+vtree_matrixmul_C 100000i64:           1233μs (95% CI: [    1232.4,     1233.2])
+vtree_matrixmul_C 1000000i64:          6749μs (95% CI: [    6740.2,     6758.1])
+vtree_matrixmul_C 2000000i64:         15756μs (95% CI: [   15742.2,    15768.3])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               411μs (95% CI: [     410.7,      411.2])
+vtree_matrixmul_C 1000i64:              450μs (95% CI: [     449.8,      450.3])
+vtree_matrixmul_C 10000i64:             773μs (95% CI: [     772.4,      773.0])
+vtree_matrixmul_C 100000i64:            997μs (95% CI: [     996.4,      997.2])
+vtree_matrixmul_C 1000000i64:          7451μs (95% CI: [    7446.6,     7454.3])
+vtree_matrixmul_C 2000000i64:         14475μs (95% CI: [   14468.3,    14481.3])
+
+blocked_scan_bench.fut:test_blocked_32_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               394μs (95% CI: [     393.7,      394.2])
+vtree_matrixmul_C 1000i64:              428μs (95% CI: [     428.0,      428.5])
+vtree_matrixmul_C 10000i64:             660μs (95% CI: [     659.7,      660.2])
+vtree_matrixmul_C 100000i64:            870μs (95% CI: [     870.0,      870.8])
+vtree_matrixmul_C 1000000i64:          7584μs (95% CI: [    7579.7,     7588.5])
+vtree_matrixmul_C 2000000i64:         15235μs (95% CI: [   15222.1,    15245.1])
+
+blocked_scan_bench.fut:test_blocked_512_rootfix_C (no tuning file):
+complex_scan_input_C 100i64:           1162μs (95% CI: [    1161.8,     1162.3])
+complex_scan_input_C 1000i64:          1220μs (95% CI: [    1219.2,     1220.0])
+complex_scan_input_C 10000i64:         1686μs (95% CI: [    1685.0,     1686.4])
+complex_scan_input_C 100000i64:        4547μs (95% CI: [    4545.7,     4548.9])
+complex_scan_input_C 1000000i64:      12140μs (95% CI: [   12136.7,    12144.6])
+complex_scan_input_C 2000000i64:      20754μs (95% CI: [   20742.4,    20764.1])
+
+blocked_scan_bench.fut:test_blocked_256_rootfix_C (no tuning file):
+complex_scan_input_C 100i64:            775μs (95% CI: [     774.3,      775.1])
+complex_scan_input_C 1000i64:           907μs (95% CI: [     907.0,      907.8])
+complex_scan_input_C 10000i64:         1313μs (95% CI: [    1312.1,     1313.2])
+complex_scan_input_C 100000i64:        2913μs (95% CI: [    2912.7,     2914.1])
+complex_scan_input_C 1000000i64:      10497μs (95% CI: [   10493.5,    10500.3])
+complex_scan_input_C 2000000i64:      23725μs (95% CI: [   23709.1,    23739.8])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix_C (no tuning file):
+complex_scan_input_C 100i64:            667μs (95% CI: [     666.9,      667.5])
+complex_scan_input_C 1000i64:           758μs (95% CI: [     757.9,      758.9])
+complex_scan_input_C 10000i64:         1248μs (95% CI: [    1247.2,     1248.0])
+complex_scan_input_C 100000i64:        2028μs (95% CI: [    2027.4,     2028.9])
+complex_scan_input_C 1000000i64:      11425μs (95% CI: [   11417.7,    11434.3])
+complex_scan_input_C 2000000i64:      23632μs (95% CI: [   23613.1,    23650.5])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix_C (no tuning file):
+complex_scan_input_C 100i64:            609μs (95% CI: [     608.4,      608.9])
+complex_scan_input_C 1000i64:           698μs (95% CI: [     697.3,      697.9])
+complex_scan_input_C 10000i64:         1128μs (95% CI: [    1127.9,     1128.5])
+complex_scan_input_C 100000i64:        1599μs (95% CI: [    1598.7,     1599.7])
+complex_scan_input_C 1000000i64:      11046μs (95% CI: [   11040.7,    11050.9])
+complex_scan_input_C 2000000i64:      21353μs (95% CI: [   21311.6,    21391.8])
+
+blocked_scan_bench.fut:test_blocked_32_rootfix_C (no tuning file):
+complex_scan_input_C 100i64:            580μs (95% CI: [     580.2,      580.8])
+complex_scan_input_C 1000i64:           646μs (95% CI: [     645.7,      646.4])
+complex_scan_input_C 10000i64:          944μs (95% CI: [     942.1,      950.9])
+complex_scan_input_C 100000i64:        1374μs (95% CI: [    1373.3,     1374.3])
+complex_scan_input_C 1000000i64:      11279μs (95% CI: [   11264.8,    11294.6])
+complex_scan_input_C 2000000i64:      22035μs (95% CI: [   22018.2,    22051.5])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:                 110μs (95% CI: [     110.1,      110.2])
+vtree_vectoradd 1000i64:                130μs (95% CI: [     130.2,      130.5])
+vtree_vectoradd 10000i64:               271μs (95% CI: [     270.8,      271.0])
+vtree_vectoradd 100000i64:              738μs (95% CI: [     737.7,      738.1])
+vtree_vectoradd 1000000i64:            5843μs (95% CI: [    5840.0,     5846.2])
+vtree_vectoradd 2000000i64:           12294μs (95% CI: [   12276.9,    12308.0])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:                  92μs (95% CI: [      91.8,       91.9])
+vtree_vectoradd 1000i64:                114μs (95% CI: [     113.9,      114.1])
+vtree_vectoradd 10000i64:               255μs (95% CI: [     255.1,      255.5])
+vtree_vectoradd 100000i64:              890μs (95% CI: [     889.5,      890.8])
+vtree_vectoradd 1000000i64:            8292μs (95% CI: [    8261.1,     8326.2])
+vtree_vectoradd 2000000i64:           14695μs (95% CI: [   14665.2,    14729.0])
+
+blocked_scan_bench.fut:test_blocked_512_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                5216μs (95% CI: [    5213.8,     5222.7])
+vtree_matrixmul 1000i64:               5293μs (95% CI: [    5292.8,     5293.8])
+vtree_matrixmul 10000i64:              6469μs (95% CI: [    6467.8,     6469.7])
+vtree_matrixmul 100000i64:            18872μs (95% CI: [   18861.5,    18881.6])
+vtree_matrixmul 1000000i64:           50922μs (95% CI: [   50850.1,    50971.8])
+vtree_matrixmul 2000000i64:           92569μs (95% CI: [   92459.7,    92700.5])
+
+blocked_scan_bench.fut:test_blocked_256_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                3402μs (95% CI: [    3402.1,     3402.6])
+vtree_matrixmul 1000i64:               3520μs (95% CI: [    3519.9,     3520.6])
+vtree_matrixmul 10000i64:              6912μs (95% CI: [    6889.2,     6922.3])
+vtree_matrixmul 100000i64:            11844μs (95% CI: [   11839.8,    11848.7])
+vtree_matrixmul 1000000i64:           47246μs (95% CI: [   47088.3,    47328.5])
+vtree_matrixmul 2000000i64:           88844μs (95% CI: [   88793.2,    88903.6])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                2504μs (95% CI: [    2504.1,     2504.7])
+vtree_matrixmul 1000i64:               2644μs (95% CI: [    2643.6,     2644.3])
+vtree_matrixmul 10000i64:              4717μs (95% CI: [    4708.7,     4746.3])
+vtree_matrixmul 100000i64:             8355μs (95% CI: [    8303.1,     8560.1])
+vtree_matrixmul 1000000i64:           44238μs (95% CI: [   44185.4,    44277.9])
+vtree_matrixmul 2000000i64:           86506μs (95% CI: [   86418.1,    86604.0])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                2056μs (95% CI: [    2055.8,     2056.3])
+vtree_matrixmul 1000i64:               2185μs (95% CI: [    2184.9,     2185.3])
+vtree_matrixmul 10000i64:              3240μs (95% CI: [    3235.5,     3261.3])
+vtree_matrixmul 100000i64:             6482μs (95% CI: [    6479.9,     6484.0])
+vtree_matrixmul 1000000i64:           42665μs (95% CI: [   42634.0,    42699.0])
+vtree_matrixmul 2000000i64:           81131μs (95% CI: [   81079.3,    81183.1])
+
+blocked_scan_bench.fut:test_blocked_32_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                1842μs (95% CI: [    1841.7,     1842.2])
+vtree_matrixmul 1000i64:               1952μs (95% CI: [    1951.5,     1952.1])
+vtree_matrixmul 10000i64:              2787μs (95% CI: [    2786.1,     2788.6])
+vtree_matrixmul 100000i64:             5587μs (95% CI: [    5585.2,     5587.8])
+vtree_matrixmul 1000000i64:           42992μs (95% CI: [   42937.6,    43064.3])
+vtree_matrixmul 2000000i64:           83793μs (95% CI: [   83740.5,    83846.1])
+
+blocked_scan_bench.fut:test_blocked_512_rootfix (no tuning file):
+complex_scan_input 100i64:             5806μs (95% CI: [    5802.0,     5816.1])
+complex_scan_input 1000i64:            5944μs (95% CI: [    5941.4,     5945.5])
+complex_scan_input 10000i64:           7216μs (95% CI: [    7214.7,     7217.0])
+complex_scan_input 100000i64:         20120μs (95% CI: [   20113.0,    20126.6])
+complex_scan_input 1000000i64:        41720μs (95% CI: [   41664.4,    41771.8])
+complex_scan_input 2000000i64:        72672μs (95% CI: [   72582.9,    72770.1])
+
+blocked_scan_bench.fut:test_blocked_256_rootfix (no tuning file):
+complex_scan_input 100i64:             3869μs (95% CI: [    3867.8,     3869.3])
+complex_scan_input 1000i64:            3999μs (95% CI: [    3997.0,     4001.9])
+complex_scan_input 10000i64:           7379μs (95% CI: [    7370.9,     7386.5])
+complex_scan_input 100000i64:         11993μs (95% CI: [   11989.9,    11996.1])
+complex_scan_input 1000000i64:        37080μs (95% CI: [   36996.0,    37147.1])
+complex_scan_input 2000000i64:        66915μs (95% CI: [   66831.4,    66972.4])
+
+blocked_scan_bench.fut:test_blocked_128_rootfix (no tuning file):
+complex_scan_input 100i64:             2892μs (95% CI: [    2891.7,     2893.1])
+complex_scan_input 1000i64:            3048μs (95% CI: [    3046.6,     3050.1])
+complex_scan_input 10000i64:           5455μs (95% CI: [    5445.9,     5483.4])
+complex_scan_input 100000i64:          7935μs (95% CI: [    7890.2,     8111.4])
+complex_scan_input 1000000i64:        33540μs (95% CI: [   33487.4,    33591.9])
+complex_scan_input 2000000i64:        64629μs (95% CI: [   64517.2,    64755.2])
+
+blocked_scan_bench.fut:test_blocked_64_rootfix (no tuning file):
+complex_scan_input 100i64:             2400μs (95% CI: [    2399.4,     2400.6])
+complex_scan_input 1000i64:            2537μs (95% CI: [    2535.2,     2538.3])
+complex_scan_input 10000i64:           3655μs (95% CI: [    3650.8,     3677.1])
+complex_scan_input 100000i64:          5831μs (95% CI: [    5828.9,     5832.8])
+complex_scan_input 1000000i64:        32379μs (95% CI: [   32336.9,    32412.6])
+complex_scan_input 2000000i64:        60163μs (95% CI: [   60093.3,    60237.4])
+
+blocked_scan_bench.fut:test_blocked_32_rootfix (no tuning file):
+complex_scan_input 100i64:             2150μs (95% CI: [    2149.7,     2150.7])
+complex_scan_input 1000i64:            2271μs (95% CI: [    2270.0,     2272.7])
+complex_scan_input 10000i64:           3077μs (95% CI: [    3075.2,     3078.0])
+complex_scan_input 100000i64:          4908μs (95% CI: [    4907.0,     4909.9])
+complex_scan_input 1000000i64:        32951μs (95% CI: [   32901.1,    33009.1])
+complex_scan_input 2000000i64:        63518μs (95% CI: [   63467.4,    63584.1])
+
+blocked_scan_bench.fut:test_blocked_16_rootfix (no tuning file):
+complex_scan_input 100i64:             2004μs (95% CI: [    2002.9,     2004.2])
+complex_scan_input 1000i64:            2164μs (95% CI: [    2162.6,     2165.5])
+complex_scan_input 10000i64:           2821μs (95% CI: [    2820.5,     2822.0])
+complex_scan_input 100000i64:          4640μs (95% CI: [    4638.3,     4641.7])
+complex_scan_input 1000000i64:        36576μs (95% CI: [   36537.4,    36626.2])
+complex_scan_input 2000000i64:
+blocked_scan_bench.c:11299: CUDA call
+  cuCtxSynchronize()
+failed with error code 700 (an illegal memory access was encountered)
+
+
+
+Failed to run blocked_scan_bench.fut
+Server terminated with nonzero exit code 255 and stderr:
+./blocked_scan_bench: blocked_scan_bench.c:11433: CUDA call
+  gpu_free_all(ctx)
+failed with error code 1 (invalid argument)
+
+Compiling we_scan_bench.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+we_scan_bench.fut:bench_we_rootfix_va (no tuning file):
+vtree_vectoradd 100i64:                 249μs (95% CI: [     249.0,      249.3])
+vtree_vectoradd 1000i64:                349μs (95% CI: [     349.2,      349.4])
+vtree_vectoradd 10000i64:               503μs (95% CI: [     502.5,      502.8])
+vtree_vectoradd 100000i64:              973μs (95% CI: [     972.7,      973.2])
+vtree_vectoradd 1000000i64:            8451μs (95% CI: [    8448.9,     8454.1])
+
+we_scan_bench.fut:bench_we_rootfix_mm (no tuning file):
+vtree_matrixmul 100i64:                 481μs (95% CI: [     480.7,      481.0])
+vtree_matrixmul 1000i64:                759μs (95% CI: [     758.8,      759.2])
+vtree_matrixmul 10000i64:              2157μs (95% CI: [    2156.9,     2157.7])
+vtree_matrixmul 100000i64:            12302μs (95% CI: [   12300.8,    12303.6])
+vtree_matrixmul 1000000i64:          102332μs (95% CI: [  102259.2,   102404.4])
+
+we_scan_bench.fut:bench_we_rootfix_mm_C (no tuning file):
+vtree_matrixmul_C 100i64:               501μs (95% CI: [     499.7,      507.7])
+vtree_matrixmul_C 1000i64:              704μs (95% CI: [     704.2,      704.5])
+vtree_matrixmul_C 10000i64:            1500μs (95% CI: [    1499.9,     1500.5])
+vtree_matrixmul_C 100000i64:           2993μs (95% CI: [    2992.0,     2993.4])
+vtree_matrixmul_C 1000000i64:         19208μs (95% CI: [   19190.7,    19272.7])
+vtree_matrixmul_C 2000000i64:         38441μs (95% CI: [   38384.3,    38585.0])
+vtree_matrixmul_C 4000000i64:         78258μs (95% CI: [   78177.5,    78472.7])
+vtree_matrixmul_C 8000000i64:        160559μs (95% CI: [  160451.8,   160823.4])
+
+we_scan_bench.fut:test_work_efficient_rootfix (no tuning file):
+complex_scan_input 100i64:              671μs (95% CI: [     670.4,      670.8])
+complex_scan_input 1000i64:            1047μs (95% CI: [    1046.7,     1047.1])
+complex_scan_input 10000i64:           2173μs (95% CI: [    2171.3,     2180.4])
+complex_scan_input 100000i64:          8838μs (95% CI: [    8835.5,     8840.1])
+complex_scan_input 1000000i64:        71654μs (95% CI: [   71521.3,    72025.1])
+
+we_scan_bench.fut:test_work_efficient_rootfix_C (no tuning file):
+complex_scan_input_C 100i64:            833μs (95% CI: [     832.4,      832.8])
+complex_scan_input_C 1000i64:          1179μs (95% CI: [    1179.3,     1179.7])
+complex_scan_input_C 10000i64:         2009μs (95% CI: [    2008.4,     2009.1])
+complex_scan_input_C 100000i64:        4383μs (95% CI: [    4381.8,     4384.4])
+complex_scan_input_C 1000000i64:      27491μs (95% CI: [   27437.5,    27695.2])
+complex_scan_input_C 2000000i64:      54540μs (95% CI: [   54499.2,    54599.9])
+complex_scan_input_C 4000000i64:     110135μs (95% CI: [  110074.8,   110206.6])
+complex_scan_input_C 8000000i64:     224200μs (95% CI: [  224082.7,   224291.8])
