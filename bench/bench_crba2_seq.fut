@@ -27,7 +27,7 @@ entry crba_inputC (n : i64) (bf: f64) :
     let p = sized n p
     let Is = sized n Is
     let Xtrees = sized n Xtrees
-    let (q, qd, _) =  test_f32_rand_m.test (123i32) n (-1f32, 1f32)
+    let (q, qd) =  test_f32_rand_m.test (123i32) n (-1f32, 1f32)
     let q = map f64.f32 q
     let qd = map f64.f32 qd
     in (p, Is, Xtrees, q, qd)
@@ -41,6 +41,51 @@ entry crba_input (n : i64) (bf: f64) :
     let q = map f64.f32 q
     let qd = map f64.f32 qd
     in (p, Is, Xtrees, q, qd)
+
+-- Benchmark the sequential crba.
+-- ==
+-- entry: bench_crba_optimal_ds
+-- script input { crba_inputC 10i64 1f64 }
+-- script input { crba_inputC 10i64 1.01f64 }
+-- script input { crba_inputC 10i64 1.1f64 }
+-- script input { crba_inputC 10i64 1.2f64 }
+-- script input { crba_inputC 10i64 2f64 }
+-- script input { crba_inputC 100i64 1f64 }
+-- script input { crba_inputC 100i64 1.01f64 }
+-- script input { crba_inputC 100i64 1.1f64 }
+-- script input { crba_inputC 100i64 1.2f64 }
+-- script input { crba_inputC 100i64 2f64 }
+-- script input { crba_inputC 1000i64 1f64 }
+-- script input { crba_inputC 1000i64 1.01f64 }
+-- script input { crba_inputC 1000i64 1.1f64 }
+-- script input { crba_inputC 1000i64 1.2f64 }
+-- script input { crba_inputC 1000i64 2f64 }
+-- script input { crba_inputC 5000i64 1f64 }
+-- script input { crba_inputC 5000i64 1.01f64 }
+-- script input { crba_inputC 5000i64 1.1f64 }
+-- script input { crba_inputC 5000i64 1.2f64 }
+-- script input { crba_inputC 5000i64 2f64 }
+-- script input { crba_inputC 10000i64 1f64 }
+-- script input { crba_inputC 10000i64 1.01f64 }
+-- script input { crba_inputC 10000i64 1.1f64 }
+-- script input { crba_inputC 10000i64 1.2f64 }
+-- script input { crba_inputC 10000i64 2f64 }
+-- script input { crba_inputC 20000i64 1f64 }
+-- script input { crba_inputC 20000i64 1.01f64 }
+-- script input { crba_inputC 20000i64 1.1f64 }
+-- script input { crba_inputC 20000i64 1.2f64 }
+-- script input { crba_inputC 20000i64 2f64 }
+-- script input { crba_inputC 40000i64 1f64 }
+-- script input { crba_inputC 40000i64 1.01f64 }
+-- script input { crba_inputC 40000i64 1.1f64 }
+-- script input { crba_inputC 40000i64 1.2f64 }
+-- script input { crba_inputC 40000i64 2f64 }
+-- script input { crba_inputC 60000i64 1.1f64 }
+-- script input { crba_inputC 60000i64 1.2f64 }
+-- script input { crba_inputC 60000i64 2f64 }
+entry bench_crba_optimal_ds [n]  (p: [n]i64) (Is : [n]I_Compact) (Xtrees: [n]X_Compact) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
+  let gravity = {w = [0,0,0f64], v_O = [0,0, -9.81f64]}
+  in crba_seq_optimized_ds p (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd 
 
 -- Benchmark the sequential crba.
 -- ==
@@ -83,52 +128,6 @@ entry crba_input (n : i64) (bf: f64) :
 -- script input { crba_input 60000i64 1.1f64 }
 -- script input { crba_input 60000i64 1.2f64 }
 -- script input { crba_input 60000i64 2f64 }
-entry bench_crba [n]  (p: [n]i64) (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
-  let gravity = [0f64, 0, 0, 0, 0, -9.81]
-  in crba_seq p (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd 
-
-
--- Benchmark the sequential crba.
--- ==
--- entry: bench_crba
--- script input { crba_inputC 10i64 1f64 }
--- script input { crba_inputC 10i64 1.01f64 }
--- script input { crba_inputC 10i64 1.1f64 }
--- script input { crba_inputC 10i64 1.2f64 }
--- script input { crba_inputC 10i64 2f64 }
--- script input { crba_inputC 100i64 1f64 }
--- script input { crba_inputC 100i64 1.01f64 }
--- script input { crba_inputC 100i64 1.1f64 }
--- script input { crba_inputC 100i64 1.2f64 }
--- script input { crba_inputC 100i64 2f64 }
--- script input { crba_inputC 1000i64 1f64 }
--- script input { crba_inputC 1000i64 1.01f64 }
--- script input { crba_inputC 1000i64 1.1f64 }
--- script input { crba_inputC 1000i64 1.2f64 }
--- script input { crba_inputC 1000i64 2f64 }
--- script input { crba_inputC 5000i64 1f64 }
--- script input { crba_inputC 5000i64 1.01f64 }
--- script input { crba_inputC 5000i64 1.1f64 }
--- script input { crba_inputC 5000i64 1.2f64 }
--- script input { crba_inputC 5000i64 2f64 }
--- script input { crba_inputC 10000i64 1f64 }
--- script input { crba_inputC 10000i64 1.01f64 }
--- script input { crba_inputC 10000i64 1.1f64 }
--- script input { crba_inputC 10000i64 1.2f64 }
--- script input { crba_inputC 10000i64 2f64 }
--- script input { crba_inputC 20000i64 1f64 }
--- script input { crba_inputC 20000i64 1.01f64 }
--- script input { crba_inputC 20000i64 1.1f64 }
--- script input { crba_inputC 20000i64 1.2f64 }
--- script input { crba_inputC 20000i64 2f64 }
--- script input { crba_inputC 40000i64 1f64 }
--- script input { crba_inputC 40000i64 1.01f64 }
--- script input { crba_inputC 40000i64 1.1f64 }
--- script input { crba_inputC 40000i64 1.2f64 }
--- script input { crba_inputC 40000i64 2f64 }
--- script input { crba_inputC 60000i64 1.1f64 }
--- script input { crba_inputC 60000i64 1.2f64 }
--- script input { crba_inputC 60000i64 2f64 }
 entry bench_crba [n]  (p: [n]i64) (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
   let gravity = [0f64, 0, 0, 0, 0, -9.81]
   in crba_seq p (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd 

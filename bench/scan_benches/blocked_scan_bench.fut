@@ -206,6 +206,7 @@ entry test_blocked_32_rootfix_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (r
 -- script input { vtree_vectoradd 10000i64 }  
 -- script input { vtree_vectoradd 100000i64 }  
 -- script input { vtree_vectoradd 1000000i64 }  
+-- script input { vtree_vectoradd 2000000i64 }  
 entry test_blocked_128_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (vecadd_f64) (scal_mul_vec_f64 (-1)) (replicate 6 0f64) t 128
@@ -217,6 +218,7 @@ entry test_blocked_128_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]
 -- script input { vtree_vectoradd 10000i64 }  
 -- script input { vtree_vectoradd 100000i64 }  
 -- script input { vtree_vectoradd 1000000i64 }  
+-- script input { vtree_vectoradd 2000000i64 }  
 entry test_blocked_64_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (vecadd_f64) (scal_mul_vec_f64 (-1)) (replicate 6 0f64) t 64
@@ -228,6 +230,7 @@ entry test_blocked_64_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i
 -- script input { vtree_matrixmul 10000i64 }  
 -- script input { vtree_matrixmul 100000i64 }  
 -- script input { vtree_matrixmul 1000000i64 }  
+-- script input { vtree_matrixmul 2000000i64 }  
 entry test_blocked_512_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 512
@@ -238,6 +241,7 @@ entry test_blocked_512_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : 
 -- script input { vtree_matrixmul 10000i64 }  
 -- script input { vtree_matrixmul 100000i64 }  
 -- script input { vtree_matrixmul 1000000i64 }  
+-- script input { vtree_matrixmul 2000000i64 }  
 entry test_blocked_256_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 256
@@ -249,6 +253,7 @@ entry test_blocked_256_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : 
 -- script input { vtree_matrixmul 10000i64 }  
 -- script input { vtree_matrixmul 100000i64 }  
 -- script input { vtree_matrixmul 1000000i64 }  
+-- script input { vtree_matrixmul 2000000i64 }  
 entry test_blocked_128_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 128
@@ -261,6 +266,7 @@ entry test_blocked_128_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : 
 -- script input { vtree_matrixmul 10000i64 }  
 -- script input { vtree_matrixmul 100000i64 }  
 -- script input { vtree_matrixmul 1000000i64 }  
+-- script input { vtree_matrixmul 2000000i64 }  
 entry test_blocked_64_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 64
@@ -272,6 +278,7 @@ entry test_blocked_64_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [
 -- script input { vtree_matrixmul 10000i64 }  
 -- script input { vtree_matrixmul 100000i64 }  
 -- script input { vtree_matrixmul 1000000i64 }  
+-- script input { vtree_matrixmul 2000000i64 }  
 entry test_blocked_32_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t 32
@@ -284,6 +291,7 @@ entry test_blocked_32_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_512_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator inv_op (identity 6, replicate 6 0f64) t 512i64
@@ -295,6 +303,7 @@ entry test_blocked_512_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_256_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator inv_op (identity 6, replicate 6 0f64) t 256i64
@@ -306,6 +315,7 @@ entry test_blocked_256_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_128_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator inv_op (identity 6, replicate 6 0f64) t 128i64
@@ -317,6 +327,7 @@ entry test_blocked_128_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_64_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator inv_op (identity 6, replicate 6 0f64) t 64i64
@@ -328,6 +339,7 @@ entry test_blocked_64_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) 
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_32_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator inv_op (identity 6, replicate 6 0f64) t 32i64
@@ -339,6 +351,7 @@ entry test_blocked_32_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) 
 -- script input { complex_scan_input 10000i64 }  
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
+-- script input { complex_scan_input 2000000i64 }  
 entry test_blocked_16_rootfix [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix_blocked operator inv_op (identity 6, replicate 6 0f64) t 16i64

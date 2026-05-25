@@ -1,0 +1,145 @@
+cat CRBA_final_futhark2_dynamics_bench_a100_cpu_and_new_ds.out
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+CPU(s):              48
+On-line CPU(s) list: 0-47
+Thread(s) per core:  2
+Core(s) per socket:  12
+Socket(s):           2
+NUMA node(s):        2
+Vendor ID:           GenuineIntel
+CPU family:          6
+Model:               85
+Model name:          Intel(R) Xeon(R) Silver 4214R CPU @ 2.40GHz
+Stepping:            7
+CPU MHz:             2400.000
+CPU max MHz:         3500.0000
+CPU min MHz:         1000.0000
+BogoMIPS:            4800.00
+Virtualization:      VT-x
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            1024K
+L3 cache:            16896K
+NUMA node0 CPU(s):   0-11,24-35
+NUMA node1 CPU(s):   12-23,36-47
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 invpcid_single intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_pkg_req pku ospke avx512_vnni md_clear flush_l1d arch_capabilities
+Mon May 25 15:02:36 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.86.15              Driver Version: 570.86.15      CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-PCIE-40GB          Off |   00000000:86:00.0 Off |                    0 |
+| N/A   55C    P0             38W /  250W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2023 NVIDIA Corporation
+Built on Tue_Jul_11_02:20:44_PDT_2023
+Cuda compilation tools, release 12.2, V12.2.128
+Build cuda_12.2.r12.2/compiler.33053471_0
+hendrixgpu08fl.unicph.domain
+0
+\nRNEA vtree GPU - Optimal Data Structure\n
+\nRNEA vtree GPU\n
+\nRNEA CPU\n
+\nRNEA vtree GPU - Optimal Data Structure\n
+Compiling bench_crba_optimal_ds.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_crba_optimal_ds.fut:bench_crba_optimal_ds (no tuning file):
+crba_input 10i64 1.0f64:           1095μs (95% CI: [    1087.0,     1105.3])
+crba_input 10i64 1.01f64:          1086μs (95% CI: [    1081.3,     1090.8])
+crba_input 10i64 1.1f64:           1089μs (95% CI: [    1083.9,     1094.2])
+crba_input 10i64 1.2f64:           1091μs (95% CI: [    1085.2,     1097.1])
+crba_input 10i64 2.0f64:           1092μs (95% CI: [    1086.0,     1099.0])
+crba_input 100i64 1.0f64:          1159μs (95% CI: [    1154.5,     1164.4])
+crba_input 100i64 1.01f64:         1160μs (95% CI: [    1155.5,     1164.3])
+crba_input 100i64 1.1f64:          1161μs (95% CI: [    1156.7,     1166.5])
+crba_input 100i64 1.2f64:          1154μs (95% CI: [    1150.3,     1158.7])
+crba_input 100i64 2.0f64:          1155μs (95% CI: [    1151.5,     1160.0])
+crba_input 1000i64 1.0f64:         1250μs (95% CI: [    1246.1,     1254.5])
+crba_input 1000i64 1.01f64:        1225μs (95% CI: [    1221.4,     1228.8])
+crba_input 1000i64 1.1f64:         1218μs (95% CI: [    1214.6,     1223.2])
+crba_input 1000i64 1.2f64:         1278μs (95% CI: [    1274.4,     1281.7])
+crba_input 1000i64 2.0f64:         1258μs (95% CI: [    1254.5,     1261.8])
+crba_input 5000i64 1.0f64:         3949μs (95% CI: [    3938.5,     3960.0])
+crba_input 5000i64 1.01f64:        2456μs (95% CI: [    2454.3,     2458.4])
+crba_input 5000i64 1.1f64:         2223μs (95% CI: [    2221.0,     2225.7])
+crba_input 5000i64 1.2f64:         2196μs (95% CI: [    2193.9,     2198.7])
+crba_input 5000i64 2.0f64:         2175μs (95% CI: [    2172.8,     2178.2])
+crba_input 10000i64 1.0f64:       13213μs (95% CI: [   13181.8,    13242.0])
+crba_input 10000i64 1.01f64:       4182μs (95% CI: [    4178.1,     4187.6])
+crba_input 10000i64 1.1f64:        3564μs (95% CI: [    3562.1,     3567.4])
+crba_input 10000i64 1.2f64:        3506μs (95% CI: [    3503.8,     3509.5])
+crba_input 10000i64 2.0f64:        3447μs (95% CI: [    3441.3,     3466.3])
+crba_input 20000i64 1.0f64:       50620μs (95% CI: [   50551.1,    50720.0])
+crba_input 20000i64 1.01f64:       7595μs (95% CI: [    7585.8,     7605.8])
+crba_input 20000i64 1.1f64:        5831μs (95% CI: [    5828.6,     5834.6])
+crba_input 20000i64 1.2f64:        5708μs (95% CI: [    5705.6,     5711.0])
+crba_input 20000i64 2.0f64:        5598μs (95% CI: [    5587.8,     5638.2])
+crba_input 40000i64 1.0f64:      198446μs (95% CI: [  198099.6,   199282.9])
+crba_input 40000i64 1.01f64:      15398μs (95% CI: [   15373.1,    15423.2])
+crba_input 40000i64 1.1f64:       10481μs (95% CI: [   10474.4,    10488.0])
+crba_input 40000i64 1.2f64:       10188μs (95% CI: [   10181.3,    10197.2])
+crba_input 40000i64 2.0f64:        9903μs (95% CI: [    9899.3,     9907.5])
+crba_input 60000i64 1.1f64:       21452μs (95% CI: [   21442.8,    21462.8])
+crba_input 60000i64 1.2f64:       20975μs (95% CI: [   20968.8,    20988.2])
+crba_input 60000i64 2.0f64:       20503μs (95% CI: [   20498.3,    20508.8])
+\nCRBA vtree GPU\n
+Compiling bench_crba2.fut...
+Reporting arithmetic mean runtime of at least 10 runs for each dataset (min 0.5s).
+More runs automatically performed for up to 300s to ensure accurate measurement.
+
+bench_crba2.fut:bench_crba (no tuning file):
+crba_input 10i64 1.0f64:           3593μs (95% CI: [    3587.6,     3602.7])
+crba_input 10i64 1.01f64:          3596μs (95% CI: [    3591.8,     3601.2])
+crba_input 10i64 1.1f64:           3597μs (95% CI: [    3593.2,     3602.8])
+crba_input 10i64 1.2f64:           3632μs (95% CI: [    3626.0,     3638.5])
+crba_input 10i64 2.0f64:           3650μs (95% CI: [    3644.7,     3656.2])
+crba_input 100i64 1.0f64:          3760μs (95% CI: [    3755.6,     3765.0])
+crba_input 100i64 1.01f64:         3758μs (95% CI: [    3754.6,     3763.2])
+crba_input 100i64 1.1f64:          3744μs (95% CI: [    3740.0,     3750.2])
+crba_input 100i64 1.2f64:          3742μs (95% CI: [    3738.4,     3747.4])
+crba_input 100i64 2.0f64:          3744μs (95% CI: [    3740.8,     3748.1])
+crba_input 1000i64 1.0f64:         4158μs (95% CI: [    4155.5,     4161.2])
+crba_input 1000i64 1.01f64:        4105μs (95% CI: [    4102.6,     4108.2])
+crba_input 1000i64 1.1f64:         4057μs (95% CI: [    4054.7,     4059.9])
+crba_input 1000i64 1.2f64:         4133μs (95% CI: [    4131.1,     4135.9])
+crba_input 1000i64 2.0f64:         4064μs (95% CI: [    4061.4,     4067.0])
+crba_input 5000i64 1.0f64:         8568μs (95% CI: [    8547.5,     8584.3])
+crba_input 5000i64 1.01f64:        6077μs (95% CI: [    6073.9,     6081.4])
+crba_input 5000i64 1.1f64:         5703μs (95% CI: [    5699.2,     5706.5])
+crba_input 5000i64 1.2f64:         5676μs (95% CI: [    5672.9,     5679.6])
+crba_input 5000i64 2.0f64:         5653μs (95% CI: [    5649.8,     5658.1])
+crba_input 10000i64 1.0f64:       21598μs (95% CI: [   21536.0,    21625.0])
+crba_input 10000i64 1.01f64:       8377μs (95% CI: [    8370.3,     8383.3])
+crba_input 10000i64 1.1f64:        7289μs (95% CI: [    7285.9,     7293.2])
+crba_input 10000i64 1.2f64:        7336μs (95% CI: [    7332.9,     7339.7])
+crba_input 10000i64 2.0f64:        7296μs (95% CI: [    7291.8,     7301.7])
+crba_input 20000i64 1.0f64:       73350μs (95% CI: [   73261.3,    73513.4])
+crba_input 20000i64 1.01f64:      13336μs (95% CI: [   13319.3,    13350.9])
+crba_input 20000i64 1.1f64:       10897μs (95% CI: [   10892.0,    10903.3])
+crba_input 20000i64 1.2f64:       10722μs (95% CI: [   10718.6,    10727.2])
+crba_input 20000i64 2.0f64:       10614μs (95% CI: [   10609.8,    10619.8])
+crba_input 40000i64 1.0f64:      288754μs (95% CI: [  287742.1,   290343.2])
+crba_input 40000i64 1.01f64:      25618μs (95% CI: [   25570.0,    25669.8])
+crba_input 40000i64 1.1f64:       19354μs (95% CI: [   19348.3,    19360.9])
+crba_input 40000i64 1.2f64:       18991μs (95% CI: [   18985.5,    18998.6])
+crba_input 40000i64 2.0f64:       18604μs (95% CI: [   18598.7,    18611.6])
+crba_input 60000i64 1.1f64:       32110μs (95% CI: [   32101.6,    32121.6])
+crba_input 60000i64 1.2f64:       31463μs (95% CI: [   31457.2,    31468.4])
+crba_input 60000i64 2.0f64:       30744μs (95% CI: [   30737.8,    30753.7])
