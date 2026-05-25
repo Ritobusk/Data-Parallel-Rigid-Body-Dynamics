@@ -5,10 +5,6 @@ import "vtree_with_work_efficient_scan"
 
 module T = vtree
 
-def exscan f ne xs =
-    map2 (\i x -> if i == 0 then ne else x)
-     (indices xs)
-     (rotate (-1) (scan f ne xs))
 def mkt 'a [n] (ps:[n]i64) (ds:[n]a) : [n]{parent:i64,data:a} =
     map2 (\p d -> {parent=p,data=d}) ps ds
 def mkt2 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =
@@ -403,38 +399,6 @@ def rnea_vtree_optimized3 [n] (joint_types : [n]jointT)
   in map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
 
 
-def rootfix_vector_add [n] (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    let I = replicate (2 * n) (replicate 6 0f64)
-    let L = scatter I lp data
-    let R = scatter L rp (map ((scal_mul_vec_f64 (-1))) data)
-    let S0 = exscan (+) 0 ( map (\i -> R[i][0]) (iota (2*n)) )
-    let S1 = exscan (+) 0 ( map (\i -> R[i][1]) (iota (2*n)) )
-    let S2 = exscan (+) 0 ( map (\i -> R[i][2]) (iota (2*n)) )
-    let S3 = exscan (+) 0 ( map (\i -> R[i][3]) (iota (2*n)) )
-    let S4 = exscan (+) 0 ( map (\i -> R[i][4]) (iota (2*n)) )
-    let S5 = exscan (+) 0 ( map (\i -> R[i][5]) (iota (2*n)) )
-    in map (\i -> [S0[i], S1[i], S2[i], S3[i], S4[i], S5[i] ]) lp
-
-def irootfix_vector_add [n]  (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    map2 vecadd_f64 (rootfix_vector_add lp rp data) data
-
-def ileaffix_vector_add [n]  (op : [6]f64 -> [6]f64 -> [6]f64)  (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    let I = replicate (2 * n) (replicate 6 0f64)
-    let L = scatter I lp data
-
-    let S0 = exscan (+) 0 ( map (\i -> L[i][0]) (iota (2*n)) )
-    let S1 = exscan (+) 0 ( map (\i -> L[i][1]) (iota (2*n)) )
-    let S2 = exscan (+) 0 ( map (\i -> L[i][2]) (iota (2*n)) )
-    let S3 = exscan (+) 0 ( map (\i -> L[i][3]) (iota (2*n)) )
-    let S4 = exscan (+) 0 ( map (\i -> L[i][4]) (iota (2*n)) )
-    let S5 = exscan (+) 0 ( map (\i -> L[i][5]) (iota (2*n)) )
-
-    let Rv = map (\i -> [ S0[i],  S1[i],  S2[i],  S3[i],  S4[i],  S5[i]]) rp
-    let Lv = map (\i -> [-S0[i], -S1[i], -S2[i], -S3[i], -S4[i], -S5[i]]) lp
-    in map2 op Rv Lv
-
-def leaffix_vector_add [n]  (op : [6]f64 -> [6]f64 -> [6]f64) (inv : [6]f64 -> [6]f64) (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    map2 op (ileaffix_vector_add op lp rp data) (map inv data)
 
 -- Same as above rnea'' but using different scans for vtrees
 def rnea_vtree_optimized4 [n] (joint_types : [n]jointT)
@@ -477,7 +441,7 @@ def rnea_vtree_optimized4 [n] (joint_types : [n]jointT)
 
   let fBs_root = tabulate n 
           (\i -> to_root_F[i] `mat_mul_vec_f64` (Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])))
-  let fJs_root = ileaffix_vector_add  vecadd_f64  lp rp fBs_root
+  let fJs_root = ileaffix_vector_add  lp rp fBs_root
   in map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
 
 -- Same as above rnea'' but using different scans for vtrees
@@ -515,7 +479,7 @@ def rnea_vtree_optimized5 [n] (joint_types : [n]jointT)
   let fBs_root = tabulate n 
           (\i -> to_root_F[i] `mat_mul_vec_f64` (Is[i] `mat_mul_vec_f64` as[i] `vecadd_f64` ((crf vs[i]) `matmul_f64 ` Is[i] `mat_mul_vec_f64` vs[i])))
 
-  let fJs_root = ileaffix_vector_add  vecadd_f64  lp rp fBs_root
+  let fJs_root = ileaffix_vector_add  lp rp fBs_root
 
   in map3 (\frt fji si -> si `vecmul` (frt `mat_mul_vec_f64` fji))  from_root_F fJs_root S
 

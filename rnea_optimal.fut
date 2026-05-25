@@ -5,33 +5,6 @@ import "vtree_with_work_efficient_scan"
 
 module T = vtree
 
-def exscan f ne xs =
-    map2 (\i x -> if i == 0 then ne else x)
-     (indices xs)
-     (rotate (-1) (scan f ne xs))
-
-def rootfix_vector_add [n]   (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    let I = replicate (2 * n) (replicate 6 0f64)
-    let L = scatter I lp data
-    let R = scatter L rp (map ((scal_mul_vec_f64 (-1))) data)
-    let S = transpose R
-            |> map (exscan (+) 0f64)
-            |> transpose
-    in map (\i -> S[i]) lp
-
-def ileaffix_vector_add 'a [n] (lp : [n]i64) (rp : [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    let I = replicate (2 * n) (replicate 6 0f64)
-    let L = scatter I lp data
-    let S = transpose L
-            |> map (exscan (+) 0f64)
-            |> transpose
-    let Rv = map (\i -> S[i]) rp
-    let Lv = map (\i -> scal_mul_vec_f64 (-1) S[i]) lp
-    in map2 vecadd_f64 Rv Lv
-
-def irootfix_vector_add 'a [n] (lp: [n]i64) (rp: [n]i64) (data : [n][6]f64) : [n][6]f64 =
-    map2 vecadd_f64 (rootfix_vector_add lp rp data) data
-
 def mkt 'a [n] (lp: [n]i64) (rp: [n]i64) (ds:[n]a) : {lp: [n]i64, rp: [n]i64, data: [n]a} =
     {lp=lp,rp=rp,data=ds}
 

@@ -210,8 +210,6 @@ entry complex_scan_input_C  (n : i64) :
 -- script input { vtree_vectoraddC 100000i64 }  
 -- script input { vtree_vectoraddC 1000000i64 }  
 -- script input { vtree_vectoraddC 2000000i64 }  
--- script input { vtree_vectoraddC 4000000i64 }  
--- script input { vtree_vectoraddC 8000000i64 }  
 entry test_unfolded_rootfix_va_with_conversion [n] (vJ : [n]mv) (Xup : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]mv=
     let vtree_transform = T.lprp <| mkt2 lp rp Xup
     let transformation_tree = T.irootfix_blocked transform_XX_rev X_inv (copy transform_identity) vtree_transform 64i64
@@ -229,8 +227,6 @@ entry test_unfolded_rootfix_va_with_conversion [n] (vJ : [n]mv) (Xup : [n]X_Comp
 -- script input { vtree_vectoradd 100000i64 }  
 -- script input { vtree_vectoradd 1000000i64 }  
 -- script input { vtree_vectoradd 2000000i64 }  
--- script input { vtree_vectoradd 4000000i64 }  
--- script input { vtree_vectoradd 8000000i64 }  
 entry test_normal_leaffix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.ileaffix (vecadd_f64) (scal_mul_vec_f64 (-1)) (replicate 6 0f64) t
@@ -243,8 +239,6 @@ entry test_normal_leaffix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) 
 -- script input { vtree_vectoradd 100000i64 }  
 -- script input { vtree_vectoradd 1000000i64 }  
 -- script input { vtree_vectoradd 2000000i64 }  
--- script input { vtree_vectoradd 4000000i64 }  
--- script input { vtree_vectoradd 8000000i64 }  
 entry test_unfolded_rootfix_va2 [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
      rootfix_vector_add2  lp rp data
 
@@ -256,8 +250,6 @@ entry test_unfolded_rootfix_va2 [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i6
 -- script input { vtree_vectoradd 100000i64 }  
 -- script input { vtree_vectoradd 1000000i64 }  
 -- script input { vtree_vectoradd 2000000i64 }  
--- script input { vtree_vectoradd 4000000i64 }  
--- script input { vtree_vectoradd 8000000i64 }  
 entry test_unfolded_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6]f64 =
      rootfix_vector_add  lp rp data
 
@@ -269,8 +261,6 @@ entry test_unfolded_rootfix_va [n] (data : [n][6]f64) (lp : [n]i64) (rp : [n]i64
 -- script input { vtree_matrixmul 100000i64 }  
 -- script input { vtree_matrixmul 1000000i64 }  
 -- script input { vtree_matrixmul 2000000i64 }  
--- script input { vtree_matrixmul 4000000i64 }  
--- script input { vtree_matrixmul 8000000i64 }  
 entry test_normal_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) : [n][6][6]f64 =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix (matmul_f64) (XBtoA_from_XAtoB_M ) (identity 6) t
@@ -283,8 +273,6 @@ entry test_normal_rootfix_mm [n] (data : [n][6][6]f64) (lp : [n]i64) (rp : [n]i6
 -- script input { vtree_matrixmul_C 100000i64 }  
 -- script input { vtree_matrixmul_C 1000000i64 }  
 -- script input { vtree_matrixmul_C 2000000i64 }  
--- script input { vtree_matrixmul_C 4000000i64 }  
--- script input { vtree_matrixmul_C 8000000i64 }  
 entry test_normal_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]i64) : [n]X_Compact =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix (transform_XX) (transform_inv) (copy transform_identity) t
@@ -297,8 +285,6 @@ entry test_normal_rootfix_mm_C [n] (data : [n]X_Compact) (lp : [n]i64) (rp : [n]
 -- script input { complex_scan_input 100000i64 }  
 -- script input { complex_scan_input 1000000i64 }  
 -- script input { complex_scan_input 2000000i64 }  
--- script input { complex_scan_input 4000000i64 }  
--- script input { complex_scan_input 8000000i64 }  
 entry test_rootfix_normal_scan [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64) (rp : [n]i64) : [n]([6][6]f64, [6]f64) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix operator inv_op (identity 6, replicate 6 0f64) t
@@ -311,8 +297,6 @@ entry test_rootfix_normal_scan [n] (data : [n]([6][6]f64, [6]f64)) (lp : [n]i64)
 -- script input { complex_scan_input_C 100000i64 }  
 -- script input { complex_scan_input_C 1000000i64 }  
 -- script input { complex_scan_input_C 2000000i64 }  
--- script input { complex_scan_input_C 4000000i64 }  
--- script input { complex_scan_input_C 8000000i64 }  
 entry test_rootfix_normal_scan_C [n] (data : [n](X_Compact, mv)) (lp : [n]i64) (rp : [n]i64) : [n](X_Compact, mv) =
     let t = T.lprp <| mkt2 lp rp data
     in T.irootfix operator_C inv_op_C (copy transform_identity, {w = [0,0,0], v_O = [0,0,0]}) t
