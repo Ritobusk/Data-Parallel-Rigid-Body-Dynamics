@@ -143,11 +143,11 @@ def crba_vtree_optimized_ds [n] [nd] [ndd] (joint_types : [n]jointT)
   let H =  scatter_2d H (zip paths p_ii1) Hij
   in (C, H)
 
-def main = 
-  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
-  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
-  let (_, p, js, Is, Xtrees,lp,rp, paths, p_ii1) = autoVTree 5 1 0 1
-  let (_, _, _, IsC, XtreesC,_,_,_,_) = autoVTreeC 5 1 0 1
-  let gravity = {w = [0,0,0f64], v_O = [0,0, -9.81f64]}
-  let (_,_) = crba_seq_optimized_ds p js IsC XtreesC gravity q qd 
-  in  crba_seq p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd 
+--def main = 
+--  let q = [0.8f64, 0.53f64, 0.75f64, 0.5f64, 0.91f64]
+--  let qd = [0.12f64, 0.85f64, 0.18f64, 0.76f64, 0.46f64]
+--  let (_, p, js, Is, Xtrees,lp,rp, paths, p_ii1) = autoVTree 5 1 0 1
+--  let (_, _, _, IsC, XtreesC,_,_,_,_) = autoVTreeC 5 1 0 1
+--  let gravity = {w = [0,0,0f64], v_O = [0,0, -9.81f64]}
+--  let (_,_) = crba_seq_optimized_ds p js IsC XtreesC gravity q qd 
+--  in  crba_seq p js Is Xtrees [0f64, 0, 0, 0, 0, -9.81] q qd 

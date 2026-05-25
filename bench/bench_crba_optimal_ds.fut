@@ -1,4 +1,4 @@
-import "../CRBA"
+import "../CRBA_optimal"
 import "../treeModel"
 import "../spatial_ops"
 import "../lib/github.com/diku-dk/vtree/vtree"
@@ -75,7 +75,7 @@ entry crba_input (n : i64) (bf: f64) :
 -- script input { crba_input 60000i64 1.1f64 }
 -- script input { crba_input 60000i64 1.2f64 }
 -- script input { crba_input 60000i64 2f64 }
-entry bench_crba_optimal_ds [n] [nd]  (Is : [n][6][6]f64) (Xtrees: [n][6][6]f64) (lp : [n]i64) (rp : [n]i64) (paths : [nd]i64) (p_ii1 : [nd]i64) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
+entry bench_crba_optimal_ds [n] [nd]  (Is : [n]I_Compact) (Xtrees: [n]X_Compact) (lp : [n]i64) (rp : [n]i64) (paths : [nd]i64) (p_ii1 : [nd]i64) (q : [n]f64)  (qd : [n]f64)  : ([n]f64, [n][n]f64) =
   let gravity = {w = [0,0,0f64], v_O = [0,0, -9.81f64]}
   in crba_vtree_optimized_ds (replicate n #Rz : [n]jointT) Is Xtrees gravity q qd lp rp paths p_ii1
 
