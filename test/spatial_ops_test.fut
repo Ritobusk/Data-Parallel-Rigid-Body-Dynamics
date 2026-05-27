@@ -203,9 +203,7 @@ def I_Compact_tests (n : i64) : [4]bool =
 
   let transform_Is = map3 (\xf' x_i is -> xf' `matmul_f64` ( is `matmul_f64` x_i) ) xf xm_inv Is
 
-  let Is = trace Is
   let transform_Is_inv = map3 (\xf' x_i is -> xf' `matmul_f64` ( is `matmul_f64` x_i) ) xf_inv Xtrees Is
-    |> trace
 
   let (jsC, IsC, XtreesC,_,_,_, _, _) = test_autoTreeC n
   let Is_addC = map2 (\x y -> IC_add x y) IsC (rotate 3 IsC)
@@ -221,7 +219,6 @@ def I_Compact_tests (n : i64) : [4]bool =
   let transform_IsC_inv = map2 (transform_IC_inv) XtreesC IsC
     |> trace
   let transform_IsC_inv = map from_IC_to_6x6d transform_IsC_inv
-    |> trace
 
   let res3 = compare_matrices transform_Is_inv  transform_IsC_inv  
   let res4 = true

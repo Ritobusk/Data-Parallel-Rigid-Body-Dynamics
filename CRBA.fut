@@ -285,8 +285,8 @@ def crba_seq [n] (p : [n]i64)  (joint_types : [n]jointT)
     let parent = p[idx]
     in 
         if idx > 0 then
-          let tmp = (copy IC[parent]) `matadd_f64` ((transpose Xup[idx]) `matmul_f64` ((copy IC[idx]) `matmul_f64` Xup[idx]) )
-          let ic = IC with [parent] = tmp
+          let tmp = IC[parent] `matadd_f64` ((transpose Xup[idx]) `matmul_f64` (IC[idx] `matmul_f64` Xup[idx]) )
+          let ic = IC with [parent] = copy tmp
           in ic
         else IC
   let p' = map (\i -> if i == 0 then -1 else p[i]) (iota n)

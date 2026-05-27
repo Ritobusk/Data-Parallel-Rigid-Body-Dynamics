@@ -130,7 +130,8 @@ def rnea_optimized_ds_seq [n] (p : [n]i64) (joint_types : [n]jointT)
     let tau' = tau' with [idx] = scalar_prod S[idx]   fs'[idx] 
     in 
       if idx > 0 then
-        let fs'' = fs' with [parent] = (fv_add) (copy fs'[parent]) (Xup[idx] `Xf_inv` (copy fs'[idx]))
+        let tmp =  fv_add (fs'[parent]) (Xup[idx] `Xf_inv` (fs'[idx]))
+        let fs'' = fs' with [parent] = copy tmp
         in (tau', fs'')
       else (tau', fs')
   in tau

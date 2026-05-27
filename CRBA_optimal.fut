@@ -20,7 +20,6 @@ def crba_seq_optimized_ds [n] (p : [n]i64) (joint_types : [n]jointT)
              (gravity : mv)
              (q : [n]f64) (qd : [n]f64)
             : ([n]f64, [n][n]f64) =
-
   let (XJ, S) = unzip <| map2 (jcalcC) joint_types q 
   let vJ      = map2 (scal_mul_mv) qd  S 
   let Xup     = map2 (transform_XX) XJ Xtree
@@ -33,11 +32,11 @@ def crba_seq_optimized_ds [n] (p : [n]i64) (joint_types : [n]jointT)
         in (vs', as')
     else 
         let parent = p[i]
-        let vs' = vs' with [i] = mv_add (Xup[i] `Xm`  (copy vs'[parent]))  vJ[i]
+        let vs'' = vs' with [i] = mv_add (Xup[i] `Xm`  (copy vs'[parent]))  vJ[i]
 
-        let as' = as' with [i] = mv_add ( Xup[i] `Xm` (copy as'[parent]))   
-                                 (vs'[i] `mv_cross_mv` vJ[i])
-        in (vs', as')
+        let as'' = as' with [i] = mv_add ( Xup[i] `Xm` (copy as'[parent]))   
+                                 (vs''[i] `mv_cross_mv` vJ[i])
+        in (vs'', as'')
 
   let fBs = tabulate n 
           (\i -> Is[i] `IC_mul_mv` as[i] `fv_add` ( vs[i] `mv_cross_fv` (Is[i] `IC_mul_mv` vs[i])))
@@ -48,7 +47,8 @@ def crba_seq_optimized_ds [n] (p : [n]i64) (joint_types : [n]jointT)
     let tau' = tau' with [idx] = scalar_prod S[idx]   fs'[idx] 
     in 
       if idx > 0 then
-        let fs'' = fs' with [parent] = (fv_add) (copy fs'[parent]) (Xup[idx] `Xf_inv` (copy fs'[idx]))
+        let tmp =  fv_add (fs'[parent]) (Xup[idx] `Xf_inv` (fs'[idx]))
+        let fs'' = fs' with [parent] = copy tmp
         in (tau', fs'')
       else (tau', fs')
 
@@ -58,7 +58,7 @@ def crba_seq_optimized_ds [n] (p : [n]i64) (joint_types : [n]jointT)
     let parent = p[idx]
     in 
         if idx > 0 then
-          let tmp = (copy IC[parent]) `IC_add` (transform_IC_inv Xup[idx] IC[idx]) 
+          let tmp = (IC[parent]) `IC_add` (transform_IC_inv Xup[idx] IC[idx]) 
           let ic = IC with [parent] = copy tmp
           in ic
         else IC
@@ -67,9 +67,9 @@ def crba_seq_optimized_ds [n] (p : [n]i64) (joint_types : [n]jointT)
 
   let H'' = loop H = (replicate n <| replicate n 0f64) for i < n do
     let fh = Ics[i] `IC_mul_mv` S[i]
-    let H_tmp  = H with [i,i] = scalar_prod S[i] fh
-    let (H'',_,_) =  loop (h, j, f) = (H_tmp, (copy i), (copy fh)) while p'[j] >= 0 do
-        let fh' = (Xup[j]) `Xf_inv` f
+    let H = H with [i,i] = scalar_prod S[i] fh
+    let (H'',_,_) =  loop (h, j, f) = (H, i, (copy fh)) while p'[j] >= 0 do
+        let fh' = Xup[j] `Xf_inv` f
         let j = p'[j]
         let tmp = scalar_prod S[j] fh'
         let h' = h with [i,j] = tmp

@@ -11,6 +11,24 @@ def skew (v : [3]f64) : [3][3]f64 =
    [v[2],  0,     -v[0]],
    [-v[1], v[0],  0]]
 
+-- For rxhx and such in tranformation of compact inertia
+--  returns lower_third_3d matrix since that is what is needed
+-- 8 multiplications + 3 additions
+def skew_cross_skew_cross (ax : [3]f64) (bx : [3]f64) : [6]f64 =
+  let za = -ax[2] * bx[2]
+  --let mx = -ax[0]
+  let yb = ax[1] * -bx[1]
+  let xc = (ax[0]) * (-bx[0])
+  let xa = ax[0] * (bx[2])
+  --let res1 = za + yb
+  --let res2 = -ax[0] * (-bx[1])
+  --let res3 = za + xc
+  --let res4 = xa
+  --let res5 = -xa
+  --let res6 = yb + xc
+  --in [za + yb, mx * mb, za + xc, xa, -xa, yb+xc]
+  in [za + yb, ax[0] * bx[1], za + xc, xa, -xa, yb+xc]
+
 -- Spacial translation from A to B
 -- where r is the vector from A to B
 def xlt (r : [3]f64) : [6][6]f64 =
@@ -243,31 +261,70 @@ def IC_add (IC1 : I_Compact) (IC2 : I_Compact) : I_Compact =
   let I = IC1.I `vecadd_f64` IC2.I
   in {m = m, h = h, I = I}
 
+-- Efficient X.rot `matmul_f64` (Z `matmul_f64` Et)          -- 54m 36a
+-- computes it in only 28m 29a
+-- Mine is 30m and 30a
+-- returns lower_third_triangle_3d
+def rotation_of_symetric_matrix (E : [3][3]f64) (A : [3][3]f64) : [6]f64 =
+  let L = [[A[0,0] - A[2,2], A[0,1]],
+           [A[1,0]         , A[1,1] - A[2,2]],
+           [A[2,0] + A[0,2], A[2,1] + A[1,2]]]
+
+  let v' =[-A[1,2], A[0,2]]
+  let Ev = [E[0][:2] `vecmul` v' , E[1][:2] `vecmul` v', 0]
+  let Y  = matmul_f64 E[1:] L
+  let Z  = matmul_f64 Y (transpose E[:,:2])
+  in [L[0,0] + L[1,1] - Z[0,1] - Z[0,2] + A[2,2], 
+      Z[0,0] + Ev[2], Z[0,1] + A[2,2],
+      Z[1,0] - Ev[1], Z[1,1] + Ev[0] ,  Z[1,2] + A[2,2]]
+
+def transform_IC2 (X : X_Compact) (IC : I_Compact) : I_Compact =
+  let y = IC.h `vecsub_f64` (IC.m `scal_mul_vec_f64` X.r)  -- 3m 3a
+  let Ey = X.rot `mat_mul_vec_f64` y                       -- 9m 6a
+  let rxhx = skew_cross_skew_cross X.r IC.h                     --8m 3a
+  let yxrx = skew_cross_skew_cross y X.r                        --8m 3a
+  let Z' =IC.I `vecadd_f64` (rxhx `vecadd_f64` yxrx)       -- 12a
+  let Z = lt_unfold Z'
+  let I' = rotation_of_symetric_matrix X.rot Z             -- 30m 30a
+  in {m = IC.m, h = Ey, I = I'}                            -- 58m 57a 
+
 def transform_IC (X : X_Compact) (IC : I_Compact) : I_Compact =
   let Et = (transpose X.rot)  
-  let h_min_mr = IC.h `vecsub_f64` (IC.m `scal_mul_vec_f64` X.r)
+  let y = IC.h `vecsub_f64` (IC.m `scal_mul_vec_f64` X.r)
   let rx = skew X.r
-  let h = X.rot `mat_mul_vec_f64` h_min_mr
+  let h = X.rot `mat_mul_vec_f64` y
   let I = lt_unfold IC.I
   let I' = (X.rot `matmul_f64` 
               ((I `matadd_f64` (rx `matmul_f64` (skew IC.h))) `matadd_f64` 
-              ( ((skew h_min_mr) `matmul_f64` rx ) ) 
+              ( ((skew y) `matmul_f64` rx ) ) 
             ) 
             ) `matmul_f64` Et
   in {m = IC.m, h = h, I = lower_triangle_3d I'}
 
+def transform_IC_inv2 (X : X_Compact) (IC : I_Compact) : I_Compact =
+  let Et = (transpose X.rot)  
+  let Eth = Et `mat_mul_vec_f64` IC.h                            --9m 6a
+  let rxEthx = skew_cross_skew_cross X.r Eth                     --8m 3a
+  let mr = IC.m `scal_mul_vec_f64` X.r
+  let h = Eth `vecadd_f64` mr                                    --3m 3a
+  let hxrx = (skew_cross_skew_cross h X.r)                                --8m 3a
+  let I' = rotation_of_symetric_matrix X.rot (lt_unfold IC.I)             -- 30m 30a
+  let I' = (I' `vecsub_f64` rxEthx) `vecsub_f64` hxrx            --12a
+  in {m = IC.m, h = h, I = I'}
+
 def transform_IC_inv (X : X_Compact) (IC : I_Compact) : I_Compact =
   let Et = (transpose X.rot)  
-  let Eth = Et `mat_mul_vec_f64` IC.h
-  let rx = skew X.r
+  let Eth = (Et `mat_mul_vec_f64` IC.h) 
+  let Ethx = (skew Eth) 
+  let rx = (skew X.r) 
   let mr = IC.m `scal_mul_vec_f64` X.r
   let h = Eth `vecadd_f64` mr
   let I = lt_unfold IC.I
-  let I1 = Et `matmul_f64` (I `matmul_f64` X.rot) 
-  let I2 = (rx) `matmul_f64` (skew Eth) 
-  let I3 = (skew h) `matmul_f64` (rx) 
+  let I1 = (Et `matmul_f64` (I `matmul_f64` X.rot))
+  let I2 = ((rx) `matmul_f64` Ethx )
+  let I3 = ((skew h) `matmul_f64` (rx)) 
   let I' = (I1 `matsub_f64` I2) `matsub_f64` I3
-  in {m = IC.m, h = h, I = lower_triangle_3d I'}
+  in {m = IC.m, h = h, I = lower_triangle_3d I'}  
 
 def fv_to_6d (f' : fv) : [6]f64 =
   sized 6 <| f'.n_O ++ f'.f
